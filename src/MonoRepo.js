@@ -1,5 +1,6 @@
 const chalk = require('chalk')
 const logger = require('fancy-log')
+const { getDependencies } = require('./getDependencies')
 const { clean } = require('./clean')
 const { compilePackages } = require('./compilePackages')
 const { writePackages } = require('./writePackages')
@@ -38,6 +39,10 @@ class MonoRepo {
     return findPackages({
       cwd: join(this.rootDir, this.packagesDir)
     })
+  }
+
+  async getDependencies () {
+    return getDependencies(join(this.rootDir, 'package.json'))
   }
 
   async getRootPackage () {
