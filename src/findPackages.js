@@ -37,8 +37,7 @@ function deps (pkg, pkgs, set = new Set()) {
   }).forEach((name) => {
     if (pkgs.has(name)) {
       deps(pkgs.get(name).pkg, pkgs, set)
-
-      set.add(name)
     }
   })
+  set.add(pkg.name)
 }
