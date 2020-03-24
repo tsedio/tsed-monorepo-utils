@@ -10,7 +10,7 @@ const { join } = require('path')
 const { readPackage } = require('./readPackage')
 const { findPackages } = require('./findPackages')
 
-export class MonoRepo {
+class MonoRepo {
   constructor (options) {
     const {
       rootDir = process.cwd(),

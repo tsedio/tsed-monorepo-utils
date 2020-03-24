@@ -1,6 +1,6 @@
 const { findPackages } = require('./findPackages')
 
-exports.copyPackages = ({ rootDir, packagesDir = 'packages', silent = false, ignore = [] }) => {
+exports.copyPackages = async ({ rootDir, packagesDir = 'packages', silent = false, ignore = [] }) => {
   const packages = (await findPackages({}))
 
   packages.map(p).join(',')
