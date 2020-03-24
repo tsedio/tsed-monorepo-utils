@@ -1,7 +1,12 @@
+const chalk = require('chalk')
+const logger = require('fancy-log')
+const { clean } = require('./clean')
+const { compilePackages } = require('./compilePackages')
+const { writePackages } = require('./writePackages')
+const { copyPackages } = require('./copyPackage')
 const { syncDependencies } = require('./syncDependencies')
 const { publishPackages } = require('./publishPackages')
 const { join } = require('path')
-const { build } = require('./build')
 const { readPackage } = require('./readPackage')
 const { findPackages } = require('./findPackages')
 
@@ -14,7 +19,8 @@ export class MonoRepo {
       silent = false,
       npmAccess,
       ignoreSyncDependencies = [],
-      registry = 'https://registry.npmjs.org/'
+      registry = 'https://registry.npmjs.org/',
+      pkgMapper = f => f
     } = options
 
     this.rootDir = rootDir
@@ -25,6 +31,7 @@ export class MonoRepo {
     this.npmAccess = npmAccess
     this.registry = registry
     this.ignoreSyncDependencies = ignoreSyncDependencies
+    this.pkgMapper = pkgMapper
   }
 
   async getPackages () {
@@ -37,21 +44,71 @@ export class MonoRepo {
     return readPackage(join(this.rootDir, 'package.json'))
   }
 
-  build (options) {
-    return build({
+  async copyPackages () {
+    return copyPackages({
       ...this,
       ...options
     })
   }
 
-  syncDependencies (options) {
+  async clean () {
+    return clean([
+      this.outputDir
+    ])
+  }
+
+  async build (options) {
+    const { silent } = this
+
+    !silent && logger(`Starting '${chalk.cyan('monorepo:clean')}'...`)
+
+    await this.clean(options)
+
+    !silent && logger(`Finished '${chalk.cyan('monorepo:clean')}'`)
+    !silent && logger(`Starting '${chalk.cyan('monorepo:compilePackages')}'...`)
+
+    await this.compilePackages(options)
+
+    !silent && logger(`Finished '${chalk.cyan('monorepo:compilePackages')}'`)
+    !silent && logger(`Starting '${chalk.cyan('monorepo:syncDependencies')}'...`)
+
+    await this.syncDependencies(options)
+
+    !silent && logger(`Finished '${chalk.cyan('monorepo:syncDependencies')}'...`)
+    !silent && logger(`Starting '${chalk.cyan('monorepo:copyPackages')}'...`)
+
+    await this.copyPackages()
+
+    !silent && logger(`Finished '${chalk.cyan('monorepo:copyPackages')}'`)
+    !silent && logger(`Starting '${chalk.cyan('monorepo:writePackages')}'...`)
+
+    await this.writePackages(options)
+
+    !silent && logger(`Finished '${chalk.cyan('monorepo:writePackages')}'`)
+  }
+
+  async syncDependencies (options) {
     return syncDependencies({
       ...this,
       ...options
     })
   }
 
-  publish (options = {}) {
+  async writePackages (options) {
+    return writePackages({
+      ...this,
+      ...options
+    })
+  }
+
+  async compilePackages (options) {
+    return compilePackages({
+      ...this,
+      ...options
+    })
+  }
+
+  async publish (options = {}) {
     return publishPackages({
       ...this,
       ...options,
