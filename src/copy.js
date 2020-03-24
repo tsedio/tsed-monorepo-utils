@@ -4,7 +4,7 @@ const { globAsync } = require('./glob')
 exports.copy = async (patterns, { baseDir, outputDir }) => {
   const files = await globAsync(patterns)
 
-  files.map((file) => fs.copy(file, file.replace(baseDir, outputDir)))
+  const promises = files.map((file) => fs.copy(file, file.replace(baseDir, outputDir)))
 
   return Promise.all(promises)
 }

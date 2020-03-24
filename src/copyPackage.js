@@ -1,13 +1,17 @@
+const { join } = require('path')
+const { copy } = require('./copy')
 const { findPackages } = require('./findPackages')
 
-exports.copyPackages = async ({ rootDir, packagesDir = 'packages', silent = false, ignore = [] }) => {
-  const packages = (await findPackages({}))
+exports.copyPackages = async ({ rootDir, outputDir, packagesDir = 'packages', silent = false, ignore = [] }) => {
+  const packages = (await findPackages({
+    cwd: join(rootDir, packagesDir)
+  }))
 
-  packages.map(p).join(',')
+  const names = packages.map(({ name }) => name).join(',')
 
   await copy([
-    `${packagesDir}/{${packages}}/**`,
-    `${packagesDir}/{${packages}}/**/.*`,
+    `${packagesDir}/{${names}}/**`,
+    `${packagesDir}/{${names}}/**/.*`,
     `!${packagesDir}/*/tsconfig.compile.json`,
     `!${packagesDir}/*/src/**`,
     `!${packagesDir}/*/test/**`,
@@ -16,6 +20,6 @@ exports.copyPackages = async ({ rootDir, packagesDir = 'packages', silent = fals
     `!${packagesDir}/*/node_modules/**`
   ], {
     baseDir: packagesDir,
-    outputDir: `./${path.join(outputDir)}`
+    outputDir
   })
 }

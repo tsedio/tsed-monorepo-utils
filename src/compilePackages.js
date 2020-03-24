@@ -1,25 +1,24 @@
-const { execa } = require('execa')
-const { dirname } = require('path')
+const { sync } = require('execa')
+const { dirname, join } = require('path')
 const { findPackages } = require('./findPackages')
 
 exports.compilePackages = async (options) => {
   const {
     rootDir,
+    packagesDir,
     buildCmd = 'build'
   } = options
 
   const pkgs = await findPackages({
-    cwd: rootDir
+    cwd: join(rootDir, packagesDir)
   })
 
-  const promises = pkgs.map(({ path, name, pkg }) => {
+  for (const { path, name, pkg } of pkgs) {
     const cwd = dirname(path)
 
-    return execa('npm', [buildCmd], {
+    sync('npm', ['run', buildCmd], {
       cwd,
       stdio: 'inherit'
     })
-  })
-
-  return await Promise.all(promises)
+  }
 }

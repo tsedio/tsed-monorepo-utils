@@ -35,7 +35,7 @@ exports.publishPackages = async (options) => {
       const cwd = dirname(path)
 
       try {
-        const npmrc = writeNpmrc(path, cwd, registry)
+        const npmrc = writeNpmrc(cwd, registry)
 
         if (dryRun) {
           sync('npm', ['pack'], {
@@ -62,6 +62,4 @@ exports.publishPackages = async (options) => {
 
       return undefined
     })
-
-  return Promise.resolve()
 }

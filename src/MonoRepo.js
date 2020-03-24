@@ -44,7 +44,7 @@ class MonoRepo {
     return readPackage(join(this.rootDir, 'package.json'))
   }
 
-  async copyPackages () {
+  async copyPackages (options = {}) {
     return copyPackages({
       ...this,
       ...options
@@ -53,11 +53,12 @@ class MonoRepo {
 
   async clean () {
     return clean([
-      this.outputDir
+      join(this.rootDir, this.outputDir),
+      join(this.rootDir, this.packagesDir, '*', 'lib')
     ])
   }
 
-  async build (options) {
+  async build (options = {}) {
     const { silent } = this
 
     !silent && logger(`Starting '${chalk.cyan('monorepo:clean')}'...`)
@@ -87,21 +88,21 @@ class MonoRepo {
     !silent && logger(`Finished '${chalk.cyan('monorepo:writePackages')}'`)
   }
 
-  async syncDependencies (options) {
+  async syncDependencies (options = {}) {
     return syncDependencies({
       ...this,
       ...options
     })
   }
 
-  async writePackages (options) {
+  async writePackages (options = {}) {
     return writePackages({
       ...this,
       ...options
     })
   }
 
-  async compilePackages (options) {
+  async compilePackages (options = {}) {
     return compilePackages({
       ...this,
       ...options

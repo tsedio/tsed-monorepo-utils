@@ -14,7 +14,7 @@ exports.writePackages = async ({ rootDir, packagesDir, outputDir, silent = false
     cwd: join(rootDir, packagesDir)
   })
 
-  pkgs.map(async ({ name, pkg }) => {
+  const promises = pkgs.map(async ({ name, pkg }) => {
     !silent && logger('Write package.json', chalk.cyan(pkg.name))
 
     pkg = pkgMapper(pkg, { name, rootPkg })
