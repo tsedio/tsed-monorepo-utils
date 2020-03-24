@@ -6,14 +6,14 @@ const { writePackage } = require('./writePackage')
 const { getDependencies } = require('./getDependencies')
 const { findPackages } = require('./findPackages')
 
-exports.syncDependencies = async ({ rootDir, packagesDir = 'packages', silent = false, ignore = [] }) => {
+exports.syncDependencies = async ({ rootDir, packagesDir = 'packages', silent = false, ignoreSyncDependencies = [] }) => {
   const packages = await findPackages({
     cwd: join(rootDir, packagesDir)
   })
 
   const dependencies = await getDependencies(join(rootDir, 'package.json'))
 
-  ignore.map((pkg) => {
+  ignoreSyncDependencies.map((pkg) => {
     dependencies.delete(pkg)
   })
 

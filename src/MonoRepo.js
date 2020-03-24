@@ -1,3 +1,4 @@
+const { syncDependencies } = require('./syncDependencies')
 const { publishPackages } = require('./publishPackages')
 const { join } = require('path')
 const { build } = require('./build')
@@ -5,12 +6,25 @@ const { readPackage } = require('./readPackage')
 const { findPackages } = require('./findPackages')
 
 export class MonoRepo {
-  constructor ({ rootDir = process.cwd(), packagesDir = 'packages', outputDir = 'dist', silent = false }) {
+  constructor (options) {
+    const {
+      rootDir = process.cwd(),
+      packagesDir = 'packages',
+      outputDir = 'dist',
+      silent = false,
+      npmAccess,
+      ignoreSyncDependencies = [],
+      registry = 'https://registry.npmjs.org/'
+    } = options
+
     this.rootDir = rootDir
     this.packagesDir = packagesDir
     this.outputDir = outputDir
     this.silent = silent
     this.cmdBuild = 'build'
+    this.npmAccess = npmAccess
+    this.registry = registry
+    this.ignoreSyncDependencies = ignoreSyncDependencies
   }
 
   async getPackages () {
@@ -25,6 +39,13 @@ export class MonoRepo {
 
   build (options) {
     return build({
+      ...this,
+      ...options
+    })
+  }
+
+  syncDependencies (options) {
+    return syncDependencies({
       ...this,
       ...options
     })
