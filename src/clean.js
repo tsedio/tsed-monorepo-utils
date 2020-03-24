@@ -2,7 +2,9 @@ const fs = require('fs-extra')
 const { globAsync } = require('./glob')
 
 exports.clean = async (patterns) => {
-  const files = await globAsync(patterns.filter(file => file.includes('*')))
+  const files = await globAsync(patterns.filter(file => file.includes('*')), {
+    onlyFiles: false
+  })
 
   const promises = files
     .concat(
