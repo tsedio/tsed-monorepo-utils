@@ -2,7 +2,7 @@ const logger = require('fancy-log')
 const chalk = require('chalk')
 const semver = require('semver')
 
-exports.updateVersions = (field = {}, dependencies, { char = '', silent }) => {
+exports.updateVersions = (field = {}, dependencies, { char = '', silent } = {}) => {
   Object
     .entries(field)
     .forEach(([mod, version]) => {
