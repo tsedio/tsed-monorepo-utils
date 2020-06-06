@@ -48,7 +48,7 @@ export function getCI () {
       }
     }
     return {
-      NAME: 'Unsupported CI',
+      CI_NAME: 'Unsupported CI',
       BUILD_NUMBER: '',
       CI_ORIGIN: 'origin-git',
       IS_PULL_REQUEST: false,
@@ -57,7 +57,7 @@ export function getCI () {
   }
   // / local
   return {
-    NAME: 'LOCAL',
+    CI_NAME: 'LOCAL',
     BUILD_NUMBER: '1',
     CI_ORIGIN: 'origin-git',
     BRANCH_NAME: git.getBranchName()

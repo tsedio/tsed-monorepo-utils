@@ -18,7 +18,6 @@ export async function publishPackages (context) {
   const {
     logger,
     rootDir,
-    silent = false,
     npmAccess,
     dryRun = false,
     registry = 'https://registry.npmjs.org/'
@@ -31,17 +30,23 @@ export async function publishPackages (context) {
   pkgs
     .filter(({ pkg }) => !pkg.private)
     .map(({ path, pkg }) => {
-      !silent && logger.info('Publish package', chalk.cyan(pkg.name))
-
-      const cwd = dirname(path)
+      logger.info('Publish package', chalk.cyan(pkg.name))
 
       try {
-        const npmrc = writeNpmrc(cwd, registry)
+        const cwd = dirname(path)
 
         if (dryRun) {
-          npm.pack().sync()
+          npm.pack().sync({
+            cwd,
+            env: {
+              NPM_TOKEN: 'test'
+            }
+          })
         } else {
-          npm.publish('--userconfig', npmrc, '--access', npmAccess, '--registry', registry).sync()
+          const npmrc = writeNpmrc(cwd, registry)
+          npm.publish('--userconfig', npmrc, '--access', npmAccess, '--registry', registry).sync({
+            cwd
+          })
         }
 
       } catch (er) {

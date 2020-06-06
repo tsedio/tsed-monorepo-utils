@@ -5,11 +5,13 @@ let monoRepo
 module.exports = {
   async verifyConditions (pluginConfig, context) {
     monoRepo = new MonoRepo({
-      ...pluginConfig,
       rootDir: context.cwd
     })
 
-    await monoRepo.configureWorkspace({ branchName: context.branch.name })
+    await monoRepo.configureWorkspace({
+      branchName: context.branch.name,
+      dryRun: pluginConfig.dryRun
+    })
   },
 
   async prepare (pluginConfig, context) {

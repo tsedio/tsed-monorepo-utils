@@ -11,10 +11,12 @@ export function getEnv (pkg) {
     REPOSITORY_URL,
     ORIGIN,
     CI_SKIP,
-    REGISTRY_URL
+    REGISTRY_URL,
+    CI
   } = process.env
 
   return {
+    CI,
     PROJECT_NAME: PROJECT_NAME || projectName,
     DEPLOY_ON_DOCKER: DOCKER_HUB_ID && DOCKER_HUB_PWD && +DEPLOY_DOCKER_HUB === 1,
     CI_SKIP: CI_SKIP || '[ci skip]',
