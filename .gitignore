@@ -33,6 +33,7 @@ node_modules
 .npmrc
 .vscode
 /.nyc_output/
+dist
 
 # Typings
 typings/
