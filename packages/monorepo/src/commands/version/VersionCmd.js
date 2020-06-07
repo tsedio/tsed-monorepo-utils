@@ -24,7 +24,7 @@ export class VersionCmd {
   getTasks (context) {
     return [
       {
-        title: `Bump version to ${version}`,
+        title: `Bump version to ${context.version}`,
         task: () => newVersion(context)
       },
       {
