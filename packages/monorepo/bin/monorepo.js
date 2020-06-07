@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const commander = require('commander')
-const cliPkg = require('../../../package.json')
+const cliPkg = require('../package.json')
 
 commander
   .version(cliPkg.version)
