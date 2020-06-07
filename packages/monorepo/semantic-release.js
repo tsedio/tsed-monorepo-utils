@@ -9,7 +9,6 @@ module.exports = {
     })
 
     await monoRepo.configureWorkspace({
-      branchName: context.branch.name,
       dryRun: pluginConfig.dryRun
     })
   },
