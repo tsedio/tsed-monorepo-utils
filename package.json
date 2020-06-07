@@ -1,6 +1,6 @@
 {
   "name": "@tsed/root",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "Mono repo utils",
   "private": true,
   "scripts": {
