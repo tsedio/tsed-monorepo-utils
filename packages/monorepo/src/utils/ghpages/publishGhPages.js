@@ -7,16 +7,16 @@ export async function publishGhPages (context) {
     docCname,
     docBranch,
     productionBranch,
-    version
+    version,
+    env: { GH_TOKEN }
   } = context
-  const { GH_TOKEN } = process.env
 
   if (docDir) {
     fs.writeFileSync(`${docDir}/CNAME`, docCname, {})
 
     git.init().cwd(docDir).sync()
     git.add('-A').cwd(docDir).sync()
-    git.commit('-m', `Deploy documentation v${version}`).cwd(docDir).sync()
+    git.commit('-m', `'Deploy documentation v${version}'`).cwd(docDir).sync()
 
     await git.push('--set-upstream', '-f', `https://${GH_TOKEN}@${docUrl}`, `${productionBranch}:${docBranch}`).cwd(docDir)
   }

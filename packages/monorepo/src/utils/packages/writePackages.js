@@ -17,7 +17,7 @@ export async function writePackages ({ rootDir, packagesDir, outputDir, silent =
   const promises = pkgs.map(async ({ name, pkg }) => {
     !silent && logger('Write package.json', chalk.cyan(pkg.name))
 
-    pkg = pkgMapper(pkg, { name, rootPkg })
+    pkg = pkgMapper(pkg, { packagesDir, name, rootPkg })
 
     if (pkg.main.includes('/src/index.ts')) {
       pkg.main = './lib/index.js'

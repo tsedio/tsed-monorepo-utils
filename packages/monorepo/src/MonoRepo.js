@@ -1,7 +1,8 @@
 import get from 'lodash/get'
-import { npm, yarn } from './utils/cli'
+import hasYarn from 'has-yarn'
 import logger from 'fancy-log'
 import { join } from 'path'
+import { npm, yarn } from './utils/cli'
 import { getDependencies } from './utils/depencencies/getDependencies'
 import { clean } from './utils/common/clean'
 import { compilePackages } from './utils/packages/compilePackages'
@@ -18,14 +19,16 @@ import { build } from './tasks/build'
 import { syncRepository } from './utils/workspaces/syncRepository'
 import { createTasksRunner } from './utils/common/createTasksRunner'
 import { newVersion } from './utils/packages/newVersion'
-import hasYarn from 'has-yarn'
 import { publishGhPages } from './utils/ghpages/publishGhPages'
+import { syncExamplesDependencies } from './utils/examples/syncExamplesDependencies'
+import { publishExamples } from './utils/examples/publishExamples'
+import { defaultPackageMapper } from './utils/packages/defaultPackageMapper'
 
 export class MonoRepo {
   constructor (options) {
     const {
       rootDir = process.cwd(),
-      pkgMapper = f => f,
+      pkgMapper = defaultPackageMapper,
       verbose
     } = options
 
@@ -42,7 +45,6 @@ export class MonoRepo {
     this.registry = this.env.REGISTRY_URL || options.registry || get(this.rootPkg, 'publishConfig.registry', 'https://registry.npmjs.org/')
     this.repositoryUrl = this.env.REPOSITORY_URL || options.repositoryUrl || get(this.rootPkg, 'repository.url', get(this.rootPkg, 'repository'))
     this.ignoreSyncDependencies = options.ignoreSyncDependencies || get(this.rootPkg, 'monorepo.ignoreSyncDependencies', [])
-    this.pkgMapper = options.pkgMapper || (f => f)
     this.pkgMapper = pkgMapper
     this.logger = options.logger || logger
     this.verbose = verbose
@@ -57,6 +59,10 @@ export class MonoRepo {
     this.docUrl = options.docDir || get(this.rootPkg, 'monorepo.doc.url', this.repositoryUrl)
     this.docBranch = options.docBranch || get(this.rootPkg, 'monorepo.doc.branch', 'gh-pages')
     this.docCname = options.docCname || get(this.rootPkg, 'monorepo.doc.cname', '')
+
+    // EXAMPLES
+    this.examplesDir = options.examplesDir || get(this.rootPkg, 'monorepo.examples.dir', './examples')
+    this.examplesRepositories = options.examplesRepositories || get(this.rootPkg, 'monorepo.examples.repositories', {})
 
     this.manager = this.hasYarn ? yarn : npm
   }
@@ -166,6 +172,20 @@ export class MonoRepo {
 
   async publishGhPages (options = {}) {
     return publishGhPages({
+      ...this,
+      ...options
+    })
+  }
+
+  async syncExamplesDependencies(options= {}){
+    return syncExamplesDependencies({
+      ...this,
+      ...options
+    })
+  }
+
+  async publishExamples(options= {}){
+    return publishExamples({
       ...this,
       ...options
     })

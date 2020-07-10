@@ -5,12 +5,12 @@ export class CleanCmd {
     return [
       {
         title: 'Clean workspace',
-        enable: context.type === 'workspace',
+        enabled: context.type === 'workspace',
         task: () => clean(['dist'])
       },
       {
         title: 'Clean dist',
-        enable: context.type === 'workspace',
+        enabled: context.type === 'workspace',
         task: () => clean([
           'test/**/*.{js,js.map,d.ts}',
           'test/**/*.{js,js.map,d.ts}',

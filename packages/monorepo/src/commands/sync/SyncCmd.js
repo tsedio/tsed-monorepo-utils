@@ -3,13 +3,18 @@ export class SyncCmd {
     return [
       {
         title: 'Sync dependencies from root package.json',
-        enable: () => context.type === 'packages',
+        enabled: () => ['packages', 'all'].includes(context.type),
         task: () => context.syncDependencies()
       },
       {
         title: `Sync repository`,
-        enable: () => context.type === 'repository',
+        enabled: () => ['repository', 'all'].includes(context.type),
         task: () => context.syncRepository()
+      },
+      {
+        title: 'Sync examples dependencies from root package.json',
+        enabled: () => ['examples', 'all'].includes(context.type),
+        task: () => context.syncExamplesDependencies()
       }
     ]
   }
