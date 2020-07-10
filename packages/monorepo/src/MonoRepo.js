@@ -19,6 +19,7 @@ import { syncRepository } from './utils/workspaces/syncRepository'
 import { createTasksRunner } from './utils/common/createTasksRunner'
 import { newVersion } from './utils/packages/newVersion'
 import hasYarn from 'has-yarn'
+import { publishGhPages } from './utils/ghpages/publishGhPages'
 
 export class MonoRepo {
   constructor (options) {
@@ -50,6 +51,12 @@ export class MonoRepo {
     this.hasBuild = this.rootPkg.scripts.build
     this.hasE2E = this.rootPkg.scripts['test:e2e']
     this.branchName = this.env.BRANCH_NAME
+
+    // DOC
+    this.docDir = options.docDir || get(this.rootPkg, 'monorepo.doc.dir', './docs/.vuepress/dist')
+    this.docUrl = options.docDir || get(this.rootPkg, 'monorepo.doc.url', this.repositoryUrl)
+    this.docBranch = options.docBranch || get(this.rootPkg, 'monorepo.doc.branch', 'gh-pages')
+    this.docCname = options.docCname || get(this.rootPkg, 'monorepo.doc.cname', '')
 
     this.manager = this.hasYarn ? yarn : npm
   }
@@ -152,6 +159,13 @@ export class MonoRepo {
 
   async syncRepository (options = {}) {
     return syncRepository({
+      ...this,
+      ...options
+    })
+  }
+
+  async publishGhPages (options = {}) {
+    return publishGhPages({
       ...this,
       ...options
     })

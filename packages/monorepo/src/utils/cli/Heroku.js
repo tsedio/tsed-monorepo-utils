@@ -1,4 +1,4 @@
-import { Cli } from './cli'
+import { Cli } from './Cli'
 
 export class HerokuCli extends Cli {
   constructor () {

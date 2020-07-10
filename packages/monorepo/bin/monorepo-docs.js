@@ -3,15 +3,15 @@ const commander = require('commander')
 const { commands, runCommand } = require('../src')
 
 commander
-  .usage('monorepo clean <type> [options]')
-  .arguments('<type>')
+  .usage('monorepo docs <action>')
+  .arguments('<action>')
   .option('-v, --verbose', 'Enable verbose log', (v, t) => t + 1, 0)
-  .action((type) => {
-    runCommand(commands.ClienCmd, {
-      type,
+  .action((action) => {
+    runCommand(commands.DocsCmd, {
+      action,
       verbose: !!commander.verbose
     })
   })
   .parse(process.argv)
 
-runCommand(commands.BuildCmd, commander)
+
