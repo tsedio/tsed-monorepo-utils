@@ -22,7 +22,7 @@ export class Cli {
     return Cli.run(this.cmd, args).get()
   }
 
-  static run (cmd, args, options = {}) {
+  static run (cmd, args = [], options = {}) {
     const run = (opt = {}) => {
       return execa(cmd, args, {
         cwd: process.cwd(),
@@ -37,30 +37,39 @@ export class Cli {
       setTimeout(async () => {
         if (isPromise) {
           try {
-            resolve(await run({
+            const result = await run({
               stdio: 'inherit'
-            }))
+            })
+
+            resolve(result)
           } catch (err) {
+            // eslint-disable-next-line no-console
             reject(err)
           }
         } else {
           resolve()
         }
-      })
+      }, 10)
     })
 
-    promise.toObservable = () => {
+    promise.toObservable = (opt) => {
       isPromise = false
-      const cp = run()
+      const cp = run(opt)
       const stdout = streamToObservable(cp.stdout.pipe(split()), { await: cp })
       const stderr = streamToObservable(cp.stderr.pipe(split()), { await: cp })
 
       return stdout.pipe(merge(stderr)).pipe(filter(Boolean))
     }
 
-    promise.toStream = (options) => {
+    promise.toStream = (opt) => {
       isPromise = false
-      return run(options)
+
+      return run(opt)
+    }
+
+    promise.cwd = (cwd) => {
+      options.cwd = cwd
+      return promise
     }
 
     promise.sync = (opt) => {
@@ -74,13 +83,13 @@ export class Cli {
       })
     }
 
-    promise.getRaw = () => {
+    promise.getRaw = (opt) => {
       isPromise = false
-
-      return spawnSync(cmd, args)
-        .output.filter(o => !!o)
-        .map(o => o.toString())
-        .join('\n')
+      return Cli.getRaw(cmd, args, {
+        cwd: process.cwd(),
+        ...options,
+        ...opt
+      })
     }
 
     promise.get = () => {
@@ -92,5 +101,13 @@ export class Cli {
     }
 
     return promise
+  }
+
+  static getRaw (cmd, args, options) {
+    return spawnSync(cmd, args, options)
+      .output.filter(o => !!o)
+      .map(o => o.toString())
+      .join('\n')
+      .trim()
   }
 }

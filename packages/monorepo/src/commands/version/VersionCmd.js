@@ -1,6 +1,6 @@
 import semver from 'semver'
-import { syncDependencies } from '../../utils/syncDependencies'
-import { newVersion } from '../../utils/newVersion'
+import { syncDependencies } from '../../utils/depencencies/syncDependencies'
+import { newVersion } from '../../utils/packages/newVersion'
 
 
 export class VersionCmd {

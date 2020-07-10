@@ -1,4 +1,4 @@
-import { git } from './cli'
+import { git } from '../cli'
 
 export async function syncRepository (context) {
   const { logger, productionBranch, developBranch, origin } = context

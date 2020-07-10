@@ -2,7 +2,7 @@ import chalk from 'chalk'
 import figures from 'figures'
 import inquirer from 'inquirer'
 import { MonoRepo } from './MonoRepo'
-import { createTasksRunner } from './utils/createTasksRunner'
+import { createTasksRunner } from './utils/common/createTasksRunner'
 
 export async function runCommand (klass, commander) {
   try {

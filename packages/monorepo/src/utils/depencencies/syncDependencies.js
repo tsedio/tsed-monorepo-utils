@@ -1,9 +1,9 @@
 import chalk from 'chalk'
 import { join } from 'path'
-import { updateVersions } from './updateVersions'
-import { writePackage } from './writePackage'
+import { updateVersions } from '../packages/updateVersions'
+import { writePackage } from '../packages/writePackage'
 import { getDependencies } from './getDependencies'
-import { findPackages } from './findPackages'
+import { findPackages } from '../packages/findPackages'
 
 export async function syncDependencies (context) {
   const { logger, rootDir, packagesDir = 'packages', silent = false, ignoreSyncDependencies = [] } = context

@@ -1,4 +1,4 @@
-import { git } from './cli'
+import { git } from '../cli'
 
 export function commitChanges (context) {
   const {

@@ -1,4 +1,4 @@
-import { lerna } from './cli'
+import { lerna } from '../cli'
 
 export async function newVersion (context) {
   if (context.hasLerna) {

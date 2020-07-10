@@ -1,4 +1,4 @@
-import { lerna } from './cli'
+import { lerna } from '../cli'
 import chalk from 'chalk'
 import { dirname, join } from 'path'
 import { findPackages } from './findPackages'

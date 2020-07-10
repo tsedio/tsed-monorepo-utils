@@ -1,5 +1,5 @@
 import { join } from 'path'
-import { readPackage } from './readPackage'
+import { readPackage } from '../packages/readPackage'
 
 
 export function getDependencies (path = join(process.cwd(), 'package.json')) {

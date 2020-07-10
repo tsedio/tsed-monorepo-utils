@@ -1,4 +1,4 @@
-import { globAsync } from './glob'
+import { globAsync } from '../common/glob'
 import { basename, dirname, join } from 'path'
 import { readPackage } from './readPackage'
 

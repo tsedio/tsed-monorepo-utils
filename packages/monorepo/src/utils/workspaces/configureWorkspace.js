@@ -1,4 +1,4 @@
-import { git } from './cli/Git'
+import { git } from '../cli/Git'
 
 export function configureWorkspace (context) {
   const { origin, repositoryUrl, logger, env: { GH_TOKEN, CI, EMAIL, USER, CI_NAME, REPOSITORY_URL }, branchName } = context

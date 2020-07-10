@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from 'fs'
 import { findPackages } from './findPackages'
-import { copy } from './copy'
+import { copy } from '../common/copy'
 import { join } from 'path'
 
 export async function copyPackages ({ rootDir, outputDir, packagesDir = 'packages', silent = false, ignore = [] }) {

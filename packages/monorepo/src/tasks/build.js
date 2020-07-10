@@ -1,8 +1,8 @@
-import { compilePackages } from '../utils/compilePackages'
-import { copyPackages } from '../utils/copyPackages'
-import { writePackages } from '../utils/writePackages'
-import { syncDependencies } from '../utils/syncDependencies'
-import { clean } from '../utils/clean'
+import { compilePackages } from '../utils/packages/compilePackages'
+import { copyPackages } from '../utils/packages/copyPackages'
+import { writePackages } from '../utils/packages/writePackages'
+import { syncDependencies } from '../utils/depencencies/syncDependencies'
+import { clean } from '../utils/common/clean'
 
 export function build (context) {
   return [

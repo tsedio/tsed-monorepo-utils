@@ -1,7 +1,7 @@
 import chalk from 'chalk'
 import fs from 'fs-extra'
 import { dirname, join } from 'path'
-import { npm } from './cli'
+import { npm } from '../cli'
 import { findPackages } from './findPackages'
 
 
