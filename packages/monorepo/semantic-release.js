@@ -19,17 +19,17 @@ module.exports = {
     } = context
 
     await monoRepo.newVersion({ version })
-    await monoRepo.buildWorkspace()
+    await monoRepo.build('workspace')
     await monoRepo.commitChanges({ version })
   },
 
   async publish (pluginConfig) {
-    return monoRepo.publish({ dryRun: pluginConfig.dryRun })
+    return monoRepo.publish('packages', { dryRun: pluginConfig.dryRun })
   },
 
   async success (pluginConfig) {
     if (!pluginConfig.dryRun) {
-      return monoRepo.syncRepository()
+      return monoRepo.sync('repository')
     }
   }
 }

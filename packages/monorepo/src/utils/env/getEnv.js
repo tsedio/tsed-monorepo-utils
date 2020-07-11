@@ -12,6 +12,8 @@ export function getEnv (pkg) {
     ORIGIN,
     CI_SKIP,
     REGISTRY_URL,
+    HEROKU_APP,
+    HEROKU_API_KEY,
     CI
   } = process.env
 
@@ -35,10 +37,13 @@ export function getEnv (pkg) {
       return DOCKER_REPOSITORY || `${OWNER || owner}/${PROJECT_NAME || projectName}`
     },
     DOCKER_HUB_ID,
+    DOCKER_HUB_PWD,
     REF_COMMIT,
     GH_TOKEN,
     REPOSITORY_URL,
     REGISTRY_URL,
+    HEROKU_APP,
+    HEROKU_API_KEY,
     ...getCI()
   }
 }

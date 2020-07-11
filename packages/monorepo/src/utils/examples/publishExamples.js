@@ -4,14 +4,14 @@ import { syncExampleDependencies } from './syncExamplesDependencies'
 import { findExamples } from './findExamples'
 
 async function publishExample (project, context) {
-  const { version, examplesDir, examplesRepositories = {}, env: { GH_TOKEN } } = context
-  const currentExample = examplesRepositories[project]
+  const { version, examples: { dir, repositories = {} }, ghToken} = context
+  const currentExample = repositories[project]
 
   if (currentExample) {
     const { url } = currentExample
     const repository = url.replace('https://', '')
 
-    const cwd = join(examplesDir, project)
+    const cwd = join(dir, project)
 
     await syncExampleDependencies(project)
 
@@ -19,8 +19,8 @@ async function publishExample (project, context) {
     git.add('-A').cwd(cwd).sync()
     git.commit('-m', `'Deploy project with Ts.ED v${version}'`).cwd(cwd).sync()
 
-    await git.push('--set-upstream', '-f', `https://${GH_TOKEN}@${repository}`, `master:v${version}`).cwd(cwd)
-    await git.push('--set-upstream', '-f', `https://${GH_TOKEN}@${repository}`, `master:master`).cwd(cwd)
+    await git.push('--set-upstream', '-f', `https://${ghToken}@${repository}`, `master:v${version}`).cwd(cwd)
+    await git.push('--set-upstream', '-f', `https://${ghToken}@${repository}`, `master:master`).cwd(cwd)
   }
 }
 

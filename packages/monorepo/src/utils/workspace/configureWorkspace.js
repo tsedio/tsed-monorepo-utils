@@ -1,7 +1,7 @@
 import { git } from '../cli/Git'
 
 export function configureWorkspace (context) {
-  const { origin, repositoryUrl, logger, env: { GH_TOKEN, CI, EMAIL, USER, CI_NAME }, branchName } = context
+  const { origin, repositoryUrl, logger, ghToken, env: { CI, EMAIL, USER, CI_NAME }, branchName } = context
 
   if (CI) {
     if (EMAIL && USER) {
@@ -14,7 +14,7 @@ export function configureWorkspace (context) {
 
     logger.info(`${CI_NAME} CI Installed`)
 
-    if (!GH_TOKEN) {
+    if (!ghToken) {
       logger.error('GH_TOKEN is required')
       process.exit(-1)
     }
@@ -22,7 +22,7 @@ export function configureWorkspace (context) {
     const repository = repositoryUrl.replace('https://', '')
     logger.info(`Configure remote repository ${repository}`)
     git.remote('remove', origin).sync()
-    git.remote('add', origin, `https://${GH_TOKEN}@${repository}`).sync()
+    git.remote('add', origin, `https://${ghToken}@${repository}`).sync()
   } else {
     logger.warn('Not in CI environment')
   }

@@ -13,16 +13,19 @@ import { publishPackages } from './utils/packages/publishPackages'
 import { readPackage } from './utils/packages/readPackage'
 import { findPackages } from './utils/packages/findPackages'
 import { getEnv } from './utils/env/getEnv'
-import { configureWorkspace } from './utils/workspaces/configureWorkspace'
-import { commitChanges } from './utils/workspaces/commitChanges'
+import { configureWorkspace } from './utils/workspace/configureWorkspace'
+import { commitChanges } from './utils/workspace/commitChanges'
 import { build } from './tasks/build'
-import { syncRepository } from './utils/workspaces/syncRepository'
+import { syncRepository } from './utils/workspace/syncRepository'
 import { createTasksRunner } from './utils/common/createTasksRunner'
 import { newVersion } from './utils/packages/newVersion'
 import { publishGhPages } from './utils/ghpages/publishGhPages'
 import { syncExamplesDependencies } from './utils/examples/syncExamplesDependencies'
 import { publishExamples } from './utils/examples/publishExamples'
 import { defaultPackageMapper } from './utils/packages/defaultPackageMapper'
+import { publishDocker } from './utils/docker/publishDocker'
+import { publishHeroku } from './utils/heroku/publishHeroku'
+import { cleanTagsDocker } from './utils/docker/cleanTagsDocker'
 
 export class MonoRepo {
   constructor (options) {
@@ -35,7 +38,7 @@ export class MonoRepo {
     this.rootDir = rootDir
     this.rootPkg = this.getRootPackage()
     this.env = getEnv(this.rootPkg)
-
+    this.ghToken = options.ghToken || this.env.GH_TOKEN
     this.packagesDir = options.packagesDir || get(this.rootPkg, 'monorepo.packageDir', './packages')
     this.outputDir = options.outputDir || get(this.rootPkg, 'monorepo.outputDir', './dist')
     this.npmAccess = options.npmAccess || get(this.rootPkg, 'monorepo.npmAccess', 'public')
@@ -55,14 +58,31 @@ export class MonoRepo {
     this.branchName = this.env.BRANCH_NAME
 
     // DOC
-    this.docDir = options.docDir || get(this.rootPkg, 'monorepo.doc.dir', './docs/.vuepress/dist')
-    this.docUrl = options.docDir || get(this.rootPkg, 'monorepo.doc.url', this.repositoryUrl)
-    this.docBranch = options.docBranch || get(this.rootPkg, 'monorepo.doc.branch', 'gh-pages')
-    this.docCname = options.docCname || get(this.rootPkg, 'monorepo.doc.cname', '')
+    this.ghpages = {
+      dir: options.ghpagesDir || get(this.rootPkg, 'monorepo.ghpages.dir', ''),
+      url: options.ghpagesUrl || get(this.rootPkg, 'monorepo.ghpages.url', this.repositoryUrl),
+      branch: options.ghpagesBranch || get(this.rootPkg, 'monorepo.ghpages.branch', 'gh-pages'),
+      cname: options.ghpagesCname || get(this.rootPkg, 'monorepo.ghpages.cname', '')
+    }
 
     // EXAMPLES
-    this.examplesDir = options.examplesDir || get(this.rootPkg, 'monorepo.examples.dir', './examples')
-    this.examplesRepositories = options.examplesRepositories || get(this.rootPkg, 'monorepo.examples.repositories', {})
+    this.examples = {
+      dir: options.examplesDir || get(this.rootPkg, 'monorepo.examples.dir', './examples'),
+      repositories: options.examplesRepositories || get(this.rootPkg, 'monorepo.examples.repositories', {})
+    }
+
+    // HEROKU
+    this.heroku = {
+      app: options.herokuApp || this.env.HEROKU_APP || get(this.rootPkg, 'monorepo.heroku.app', ''),
+      apiKey: options.herokuApiKey || this.env.HEROKU_API_KEY || get(this.rootPkg, 'monorepo.heroku.apiKey', '')
+    }
+
+    // DOCKER
+    this.dockerhub = {
+      repository: options.dockerhubRepository || this.env.DOCKER_REPOSITORY || get(this.rootPkg, 'monorepo.dockerhub.repository', ''),
+      id: options.dockerhubId || this.env.DOCKER_HUB_ID || get(this.rootPkg, 'monorepo.dockerhub.id', ''),
+      pwd: options.dockerhubPwd || this.env.DOCKER_HUB_PWD || get(this.rootPkg, 'monorepo.dockerhub.pwd', '')
+    }
 
     this.manager = this.hasYarn ? yarn : npm
   }
@@ -88,19 +108,40 @@ export class MonoRepo {
     })
   }
 
-  async clean () {
-    return clean([
-      join(this.rootDir, this.outputDir),
-      join(this.rootDir, this.packagesDir, '*', 'lib')
-    ])
+  async clean (type, options = {}) {
+    switch (type) {
+      case 'workspace':
+        return clean([
+          join(this.rootDir, this.outputDir),
+          join(this.rootDir, this.packagesDir, '*', 'lib'),
+          join(this.rootDir, this.packagesDir, '*', 'dist'),
+          'test/**/*.{js,js.map,d.ts}',
+          'test/**/*.{js,js.map,d.ts}',
+          join(this.rootDir, this.packagesDir, '**', '*.{js,js.map,d.ts,d.ts.map}'),
+          join(this.rootDir, this.packagesDir, '**', '*.{js,js.map,d.ts,d.ts.map}')
+        ])
+      case 'docker':
+        return cleanTagsDocker({
+          ...this,
+          ...options
+        })
+    }
+    throw new Error(`Unsupported clean type: ${type}. Supported types: workspace, docker`)
   }
 
-  async build (options = {}) {
+  async build (type, options = {}) {
     const context = {
       ...this,
       ...options
     }
-    return createTasksRunner(build(context), context)
+
+    switch (type) {
+      case 'workspace':
+        return this.buildWorkspace()
+      case 'packages':
+      default:
+        return createTasksRunner(build(context), context)
+    }
   }
 
   async buildWorkspace () {
@@ -111,13 +152,6 @@ export class MonoRepo {
     if (this.hasE2E) {
       await this.manager.run('test:e2e')
     }
-  }
-
-  async syncDependencies (options = {}) {
-    return syncDependencies({
-      ...this,
-      ...options
-    })
   }
 
   async writePackages (options = {}) {
@@ -155,11 +189,22 @@ export class MonoRepo {
     })
   }
 
-  async publish (options = {}) {
-    return publishPackages({
+  async sync (type, options = {}) {
+    switch (type) {
+      case 'repository':
+        return this.syncRepository(options)
+      case 'examples':
+        return this.syncExamplesDependencies(options)
+      case 'packages':
+        return this.syncDependencies(options)
+    }
+    throw new Error(`Unsupported clean type: ${type}. Supported types: repository, examples, packages`)
+  }
+
+  async syncDependencies (options = {}) {
+    return syncDependencies({
       ...this,
-      ...options,
-      rootDir: join(this.rootDir, this.outputDir)
+      ...options
     })
   }
 
@@ -170,6 +215,38 @@ export class MonoRepo {
     })
   }
 
+  async syncExamplesDependencies (options = {}) {
+    return syncExamplesDependencies({
+      ...this,
+      ...options
+    })
+  }
+
+  publish (type, options = {}) {
+    switch (type) {
+      case 'packages':
+        return this.publishPackages(options)
+      case 'ghpages':
+        return this.publishGhPages(options)
+      case 'heroku':
+        return this.publishHeroku(options)
+      case 'docker':
+        return this.publishDocker(options)
+      case 'examples':
+        return this.publishExamples(options)
+    }
+
+    throw new Error(`Unsupported publish type: ${type}. Supported types: packages, ghpages, heroku, docker, examples`)
+  }
+
+  async publishPackages (options = {}) {
+    return publishPackages({
+      ...this,
+      ...options,
+      rootDir: join(this.rootDir, this.outputDir)
+    })
+  }
+
   async publishGhPages (options = {}) {
     return publishGhPages({
       ...this,
@@ -177,15 +254,22 @@ export class MonoRepo {
     })
   }
 
-  async syncExamplesDependencies(options= {}){
-    return syncExamplesDependencies({
+  async publishExamples (options = {}) {
+    return publishExamples({
       ...this,
       ...options
     })
   }
 
-  async publishExamples(options= {}){
-    return publishExamples({
+  async publishDocker (options = {}) {
+    return publishDocker({
+      ...this,
+      ...options
+    })
+  }
+
+  async publishHeroku (options = {}) {
+    return publishHeroku({
       ...this,
       ...options
     })

@@ -21,10 +21,20 @@ Add these tasks to your package.json:
     "version:patch": "monorepo version patch", // update version
     "version:minor": "monorepo version minor",
     "version:major": "monorepo version major",
-    "build": "monorepo build", // build packages
+    "build": "monorepo build packages", // build packages
     "test:e2e: "",
-    "publish": "monorepo publish" // publish on NPM
-  }
+    "publish": "monorepo publish packages" // publish on NPM
+    "docs:build": "vuepress build",
+    "docs:publish": "yarn docs:build && monorepo publish ghpages"
+  },
+  "monorepo": {
+     "ghpages": {
+       "dir": "./docs/.vuepress/dist",
+       "url": "https://github.com/TypedProject/tsed.git",
+       "branch": "gh-pages",
+       "cname": "tsed.io"
+     }
+   }
 }
 ```
 

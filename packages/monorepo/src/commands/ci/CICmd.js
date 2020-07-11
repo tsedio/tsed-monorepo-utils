@@ -1,9 +1,15 @@
 export class CICmd {
+  mapContext (commander) {
+    return {
+      type: commander.type
+    }
+  }
+
   getTasks (context) {
     return [
       {
-        title: 'Install CI workspace',
-        enabled: context.type === 'install',
+        title: 'Configure CI workspace',
+        enabled: ['configure'].includes(context.type),
         task: () => context.configureWorkspace()
       }
     ]

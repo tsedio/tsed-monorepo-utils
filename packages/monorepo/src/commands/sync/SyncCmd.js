@@ -1,20 +1,27 @@
 export class SyncCmd {
+  mapContext (commander) {
+    return {
+      type: commander.type,
+      dryRun: commander.dryRun
+    }
+  }
+
   getTasks (context) {
     return [
       {
         title: 'Sync dependencies from root package.json',
-        enabled: () => ['packages', 'all'].includes(context.type),
-        task: () => context.syncDependencies()
+        enabled: () => ['packages'].includes(context.type),
+        task: () => context.sync(context.type)
       },
       {
         title: `Sync repository`,
-        enabled: () => ['repository', 'all'].includes(context.type),
-        task: () => context.syncRepository()
+        enabled: () => ['repository'].includes(context.type),
+        task: () => context.sync(context.type)
       },
       {
         title: 'Sync examples dependencies from root package.json',
-        enabled: () => ['examples', 'all'].includes(context.type),
-        task: () => context.syncExamplesDependencies()
+        enabled: () => ['examples'].includes(context.type),
+        task: () => context.sync(context.type)
       }
     ]
   }
