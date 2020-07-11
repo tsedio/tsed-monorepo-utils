@@ -5,8 +5,12 @@ class GitCli extends Cli {
     super('git')
   }
 
+  init (...args) {
+    return this.run('init', ...args)
+  }
+
   add (...args) {
-    return this.sync('add', ...args)
+    return this.run('add', ...args)
   }
 
   status (...args) {

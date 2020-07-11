@@ -28,7 +28,7 @@ export function commitChanges (context) {
   logger.info(`BUILD:           ${BUILD_NUMBER}`)
 
   logger.info('Adding files to commit')
-  git.add('-A')
+  git.add('-A').sync()
 
   logger.info('Reset .npmrc')
   git.reset('--', '.npmrc')

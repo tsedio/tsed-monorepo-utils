@@ -15,9 +15,9 @@ async function publishExample (project, context) {
 
     await syncExampleDependencies(project)
 
-    git.init().cwd(cwd).sync()
-    git.add('-A').cwd(cwd).sync()
-    git.commit('-m', `'Deploy project with Ts.ED v${version}'`).cwd(cwd).sync()
+    await git.init().cwd(cwd)
+    await git.add('-A').cwd(cwd)
+    await git.commit('-m', `'Deploy project with Ts.ED v${version}'`).cwd(cwd)
 
     await git.push('--set-upstream', '-f', `https://${ghToken}@${repository}`, `master:v${version}`).cwd(cwd)
     await git.push('--set-upstream', '-f', `https://${ghToken}@${repository}`, `master:master`).cwd(cwd)

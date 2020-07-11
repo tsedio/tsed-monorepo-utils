@@ -11,9 +11,9 @@ export async function publishGhPages (context) {
   if (ghpages.dir) {
     writeFileSync(`${ghpages.dir}/CNAME`, ghpages.cname, {})
 
-    git.init().cwd(ghpages.dir).sync()
-    git.add('-A').cwd(ghpages.dir).sync()
-    git.commit('-m', `'Deploy documentation v${version}'`).cwd(ghpages.dir).sync()
+    await git.init().cwd(ghpages.dir)
+    await git.add('-A').cwd(ghpages.dir)
+    await git.commit('-m', `'Deploy documentation v${version}'`).cwd(ghpages.dir)
 
     await git.push('--set-upstream', '-f', `https://${ghToken}@${ghpages.url}`, `master:${ghpages.branch}`).cwd(ghpages.dir)
   }
