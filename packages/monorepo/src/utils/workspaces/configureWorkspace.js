@@ -1,7 +1,7 @@
 import { git } from '../cli/Git'
 
 export function configureWorkspace (context) {
-  const { origin, repositoryUrl, logger, env: { GH_TOKEN, CI, EMAIL, USER, CI_NAME, REPOSITORY_URL }, branchName } = context
+  const { origin, repositoryUrl, logger, env: { GH_TOKEN, CI, EMAIL, USER, CI_NAME }, branchName } = context
 
   if (CI) {
     if (EMAIL && USER) {
