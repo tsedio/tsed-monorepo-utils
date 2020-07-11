@@ -1,7 +1,7 @@
 {
   "name": "@tsed/root",
   "version": "1.8.1",
-  "description": "Mono repo utils",
+  "description": "Monorepo CLI and utils to deploy packages on NPM",
   "private": true,
   "scripts": {
     "test": "exit 0",
