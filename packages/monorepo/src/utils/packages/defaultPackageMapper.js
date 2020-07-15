@@ -8,8 +8,8 @@ export function defaultPackageMapper (pkg, { packagesDir, name, rootPkg }) {
 
   return {
     ...pkg,
-    main: pkg.main.endsWith('.ts') ? 'lib/index.js' : pkg.main,
-    typings: pkg.main.endsWith('.ts') ? 'lib/index.d.ts' : pkg.typings,
+    main: (pkg.main || '').replace(/\.ts$/, '.js'),
+    typings: pkg.typings && !pkg.typings.endsWith('.d.ts') ? pkg.typings.replace(/\.ts/, '.d.ts') : pkg.typings,
     repository,
     bugs,
     homepage: `${rootPkg.repository.url}/${packagesDir.replace('./', '')}/${name}`,
