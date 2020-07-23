@@ -12,12 +12,12 @@ export class CleanCmd {
     return [
       {
         title: 'Clean workspace',
-        enabled: ["workspace"].includes(context.type),
+        enabled: () => ["workspace"].includes(context.type),
         task: () => context.clean(context.type)
       },
       {
         title: "Clean docker images on DockerHub",
-        enabled: ['docker'].includes(context.type),
+        enabled: () => ['docker'].includes(context.type),
         task: () => context.clean(context.type)
       }
     ]
