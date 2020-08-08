@@ -13,7 +13,7 @@ async function publishExample (project, context) {
 
     const cwd = join(dir, project)
 
-    await syncExampleDependencies(project)
+    await syncExampleDependencies(project, context)
 
     await git.init().cwd(cwd)
     await git.add('-A').cwd(cwd)

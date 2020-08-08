@@ -15,14 +15,14 @@ async function updatePackage (pkgPath, context) {
 
   !silent && logger('Update package', chalk.cyan(pkgPath))
 
-  currentPkg.dependencies = updateVersions(currentPkg.dependencies, dependencies, {})
-  currentPkg.devDependencies = updateVersions(currentPkg.devDependencies, dependencies, {})
+  currentPkg.dependencies = updateVersions(currentPkg.dependencies, dependencies, context)
+  currentPkg.devDependencies = updateVersions(currentPkg.devDependencies, dependencies, context)
 
   await writePackage(pkgPath, currentPkg)
 }
 
 export async function syncExampleDependencies (project, context) {
-  const cwd = join(context.examplesDir, project)
+  const cwd = join(context.examples.dir, project)
   const pkgPath = join(cwd, '/package.json')
 
   await updatePackage(pkgPath, context)
@@ -30,7 +30,7 @@ export async function syncExampleDependencies (project, context) {
   const lernaProjectPath = join(cwd, 'packages')
 
   if (existsSync(lernaProjectPath)) {
-    await updatePackage(join(lernaProjectPath, 'server', 'package.json'))
+    await updatePackage(join(lernaProjectPath, 'server', 'package.json'), context)
   }
 }
 
