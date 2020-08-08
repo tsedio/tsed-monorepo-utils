@@ -9,7 +9,7 @@ export class CICmd {
     return [
       {
         title: 'Configure CI workspace',
-        enabled: ['configure'].includes(context.type),
+        enabled: () =>['configure'].includes(context.type),
         task: () => context.configureWorkspace()
       }
     ]
