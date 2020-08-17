@@ -7,7 +7,7 @@ import { readPackage } from './readPackage'
 
 const noop = p => p
 
-export async function writePackages ({ rootDir, packagesDir, outputDir, silent = false, ignore = [], pkgMapper = noop }) {
+export async function writePackages ({ rootDir, npmDistTag, packagesDir, outputDir, silent = false, ignore = [], pkgMapper = noop }) {
   const rootPkg = readPackage(join(rootDir, 'package.json'))
 
   const pkgs = await findPackages({
@@ -18,6 +18,13 @@ export async function writePackages ({ rootDir, packagesDir, outputDir, silent =
     !silent && logger('Write package.json', chalk.cyan(pkg.name))
 
     pkg = pkgMapper(pkg, { packagesDir, name, rootPkg })
+
+    if (npmDistTag) {
+      pkg.publishConfig = {
+        ...(pkg.publishConfig || {}),
+        tag: npmDistTag
+      }
+    }
 
     if (pkg.main.includes('/src/index.ts')) {
       pkg.main = './lib/index.js'

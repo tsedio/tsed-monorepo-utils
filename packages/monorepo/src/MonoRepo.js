@@ -42,6 +42,7 @@ export class MonoRepo {
     this.packagesDir = options.packagesDir || get(this.rootPkg, 'monorepo.packageDir', './packages')
     this.outputDir = options.outputDir || get(this.rootPkg, 'monorepo.outputDir', './dist')
     this.npmAccess = options.npmAccess || get(this.rootPkg, 'monorepo.npmAccess', 'public')
+    this.npmDistTag = options.npmDistTag || get(this.rootPkg, 'monorepo.npmDistTag', get(this.rootPkg, 'publishConfig.tag'))
     this.productionBranch = this.env.PRODUCTION_BRANCH || options.productionBranch || get(this.rootPkg, 'monorepo.productionBranch', 'master')
     this.developBranch = this.env.DEVELOP_BRANCH || options.developBranch || get(this.rootPkg, 'monorepo.developBranch', 'master')
     this.origin = this.env.ORIGIN || options.origin || get(this.rootPkg, 'monorepo.origin', 'origin')
