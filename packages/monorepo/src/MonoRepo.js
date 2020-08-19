@@ -40,6 +40,7 @@ export class MonoRepo {
     this.env = getEnv(this.rootPkg)
     this.ghToken = options.ghToken || this.env.GH_TOKEN
     this.packagesDir = options.packagesDir || get(this.rootPkg, 'monorepo.packageDir', './packages')
+    this.version = options.version || this.rootPkg.version
     this.outputDir = options.outputDir || get(this.rootPkg, 'monorepo.outputDir', './dist')
     this.npmAccess = options.npmAccess || get(this.rootPkg, 'monorepo.npmAccess', 'public')
     this.npmDistTag = options.npmDistTag || get(this.rootPkg, 'monorepo.npmDistTag', get(this.rootPkg, 'publishConfig.tag'))
