@@ -1,6 +1,6 @@
 {
   "name": "@tsed/monorepo-utils",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "description": "Mono repo utils",
   "private": false,
   "main": "./src/index.js",
