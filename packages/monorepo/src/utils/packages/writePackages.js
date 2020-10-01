@@ -7,7 +7,7 @@ import { readPackage } from './readPackage'
 
 const noop = p => p
 
-export async function writePackages ({ rootDir, npmDistTag, packagesDir, outputDir, silent = false, ignore = [], pkgMapper = noop }) {
+export async function writePackages ({ rootDir, npmDistTag, productionBranch, packagesDir, outputDir, silent = false, ignore = [], pkgMapper = noop }) {
   const rootPkg = readPackage(join(rootDir, 'package.json'))
 
   const pkgs = await findPackages({
@@ -17,7 +17,7 @@ export async function writePackages ({ rootDir, npmDistTag, packagesDir, outputD
   const promises = pkgs.map(async ({ name, pkg }) => {
     !silent && logger('Write package.json', chalk.cyan(pkg.name))
 
-    pkg = pkgMapper(pkg, { packagesDir, name, rootPkg })
+    pkg = pkgMapper(pkg, { packagesDir, name, productionBranch, rootPkg })
 
     if (npmDistTag) {
       pkg.publishConfig = {
