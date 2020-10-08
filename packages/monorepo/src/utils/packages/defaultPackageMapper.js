@@ -6,8 +6,6 @@ export function defaultPackageMapper (pkg, { packagesDir, productionBranch, name
     .replace(/\.git/gi, '')
     .replace(/git:\/\//gi, 'https://')
 
-  tsed/tree/production/packages/common
-
   return {
     ...pkg,
     main: (pkg.main || '').replace(/\.ts$/, '.js'),
