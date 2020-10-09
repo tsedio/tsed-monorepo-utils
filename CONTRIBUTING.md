@@ -47,16 +47,13 @@ If you have any questions, create an [issue](https://github.com/TypedProject/tse
 Clone your fork of the repository
 
 ```bash
-$ git clone https://github.com/YOUR_USERNAME/tsed.git
+$ git clone https://github.com/YOUR_USERNAME/tsed-monorepo-utils.git
 ```
 
 Install npm dependencies with yarn (not with NPM!):
 ```bash
 yarn
 ```
-> After installing dependencies, yarn/npm run the `postinstall` hook and mounted all packages with `npm link` (e.g. `yarn run repo:bootstrap`).
-
-Compile TypeScript:
 
 ```bash
 yarn build
@@ -76,7 +73,7 @@ npm run test
 
 [Gflow](https://www.npmjs.com/package/gflow) is a command line tool to help developers with the Git process used in Ts.ED.
 
-Gflow helps you create a branch from production, rebase and run the tests before pushing your branch on your remote repository.
+Gflow helps you create a branch from master, rebase and run the tests before pushing your branch on your remote repository.
 
 ```bash
 npm install -g gflow
@@ -86,7 +83,7 @@ npm install -g gflow
 
 ```bash
 git fetch
-git branch --no-track -b feat-branch-name origin/production  # !IMPORTANT
+git branch --no-track -b feat-branch-name origin/master  # !IMPORTANT
 yarn
 
 ## OR
@@ -95,7 +92,7 @@ gflow new feat name_of_feat
 
 ### Commit & Push a feature
 
-This command rebases your branch feature from the production branch, runs the test, and pushes your branch.
+This command rebases your branch feature from the master branch, runs the test, and pushes your branch.
 
 ```bash
 git commit -m "feat(domain): Your message"
@@ -116,7 +113,7 @@ When your feature is ready to review, you can open a PR on Ts.ED github.
 
 ### Submitting your PR
 
-Create the PR on the production branch. A valid PR must follows these points:
+Create the PR on the master branch. A valid PR must follows these points:
 
 - Unit test is correctly implemented and cover the new scenario.
 - If the code introduce new feature, please add documentation in the `/docs` or describe the feature in the PR description.
