@@ -36,5 +36,6 @@ export async function runCommand (klass, commander) {
   } catch (er) {
     // eslint-disable-next-line no-console
     console.error(chalk.red(figures.cross), String(er), er.stack)
+    process.exit(-1)
   }
 }
