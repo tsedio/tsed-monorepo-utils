@@ -10,6 +10,7 @@ export class PublishCmd {
     return [
       {
         title: 'Configure workspace',
+        enabled: () => context.env.CI,
         task: () => context.configureWorkspace()
       },
 
