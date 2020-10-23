@@ -47,7 +47,23 @@ export function getCI () {
         BRANCH_NAME: CIRCLE_BRANCH
       }
     }
+
+    if (env.GITHUB_ACTION) {
+      const { GITHUB_ACTION, GITHUB_SHA, GITHUB_REF, GITHUB_ACTOR } = env
+      return {
+        CI_NAME: 'Github CI',
+        USER: GIT_USER_NAME || GITHUB_ACTOR || 'Github CI',
+        EMAIL: GIT_USER_EMAIL || 'action@github.com',
+        BUILD_NUMBER: GITHUB_ACTION,
+        CI_ORIGIN: 'origin-git',
+        REF_COMMIT: GITHUB_SHA,
+        IS_PULL_REQUEST: false,
+        BRANCH_NAME: GITHUB_REF.replace('refs/heads/', '')
+      }
+    }
+
     return {
+      CI: false,
       CI_NAME: 'Unsupported CI',
       BUILD_NUMBER: '',
       CI_ORIGIN: 'origin-git',
