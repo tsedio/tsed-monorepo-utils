@@ -1,8 +1,14 @@
-import Listr from 'listr'
+import Listr from "listr";
 
-export function createTasksRunner (tasks, context) {
-  return new Listr(tasks, {
-    concurrent: false,
-    renderer: !context.verbose && !context.env.CI ? 'default' : 'verbose'
-  }).run(context)
+export function createTasksRunner(tasks, context) {
+  const list = new Listr(tasks, {
+    concurrent: !!context.concurrent,
+    renderer: !context.verbose && !context.env.CI ? "default" : "verbose"
+  });
+
+  if (context.run === false) {
+    return list;
+  }
+
+  return list.run(context);
 }

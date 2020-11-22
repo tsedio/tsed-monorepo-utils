@@ -1,23 +1,39 @@
-import { git } from '../cli'
+import { git } from "../cli";
+import { createTasksRunner } from "../common/createTasksRunner";
 
-export async function commitAndMergeExample (projectOptions, context) {
-  const { version } = context
-  const { tmpDir, mainBranch, branch, project } = projectOptions
+export function commitAndMergeExample(projectOptions, context) {
+  const { version } = context;
+  const { tmpDir, mainBranch, branch } = projectOptions;
 
-  await git.commit('-m', `Update project with v${version}`).cwd(tmpDir)
-
-  try {
-    await git.checkout('-b', mainBranch, `origin/${mainBranch}`).cwd(tmpDir)
-  } catch (er) {
-    await git.checkout('-qf', mainBranch)
-    await git.reset('--hard', `refs/heads/${mainBranch}`).cwd(tmpDir)
-  }
-
-  try {
-    await git.merge('--no-ff', '-m', `${branch}`, branch).cwd(tmpDir)
-    await git.tag('-a', branch)
-    return true
-  } catch (er) {
-    return false
-  }
+  return createTasksRunner([
+    {
+      title: `Git add change`,
+      task: () => git.add(".").cwd(tmpDir).toObservable()
+    },
+    {
+      title: "Git commit: Update project",
+      task: () => git.commit("-m", `Update project with v${version}`).cwd(tmpDir).toObservable()
+    },
+    {
+      title: "Git checkout",
+      task: () => {
+        try {
+          git.checkout("-b", mainBranch, `origin/${mainBranch}`).cwd(tmpDir).sync();
+          projectOptions.pushOnMain = true;
+        } catch (er) {
+          projectOptions.pushOnMain = false;
+          git.checkout("-qf", mainBranch).sync({ cwd: tmpDir }).sync();
+          git.reset("--hard", `refs/heads/${mainBranch}`).cwd(tmpDir);
+        }
+      }
+    },
+    {
+      title: `Git merge ${branch}`,
+      task: () => git.merge("--no-ff", "-m", `"Merge ${branch}"`, branch).cwd(tmpDir).toObservable()
+    },
+    {
+      title: `Git tag ${branch}`,
+      task: () => git.tag("-a", `v${version}`, "-m", `"v${version}"`).cwd(tmpDir).toObservable()
+    }
+  ], { ...context, run: false, concurrent: false });
 }

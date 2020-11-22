@@ -1,9 +1,5 @@
 import { npm, yarn } from '../cli'
 
-export async function installExampleDependencies (projectOptions) {
-  if (projectOptions.hasYarn) {
-    await yarn.install()
-  } else {
-    await npm.install()
-  }
+export function installExampleDependencies (projectOptions) {
+  return projectOptions.hasYarn ? yarn.install().cwd(projectOptions.tmpDir) : npm.install().cwd(projectOptions.tmpDir)
 }

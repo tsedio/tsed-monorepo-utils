@@ -1,14 +1,13 @@
-import chalk from 'chalk'
 import { git } from '../cli'
 
-export async function pushBranchExample (projectOptions, context) {
-  const { tmpDir, mainBranch, branch, project } = projectOptions
-  await git.push('--set-upstream', '-f', `${branch}:${branch}`).cwd(tmpDir)
-  context.logger.warn(chalk.cyan(`${branch} cannot be merged into ${mainBranch} for the '${project}'.`))
+export function pushBranchExample (projectOptions, context) {
+  const { tmpDir, branch, remoteUrl } = projectOptions
   context.projectsInConflict.push(projectOptions)
+
+  return git.push('--set-upstream', '-f', remoteUrl, `${branch}:${branch}`).cwd(tmpDir)
 }
 
-export async function pushMainBranchExample (projectOptions) {
-  const { tmpDir, mainBranch } = projectOptions
-  await git.push('--set-upstream', '-f', `${mainBranch}:${mainBranch}`).cwd(tmpDir)
+export function pushMainBranchExample (projectOptions) {
+  const { tmpDir, mainBranch, remoteUrl } = projectOptions
+  return git.push('--set-upstream', '-f', remoteUrl, `${mainBranch}:${mainBranch}`).cwd(tmpDir)
 }

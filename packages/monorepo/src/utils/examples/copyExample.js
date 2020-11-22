@@ -1,17 +1,18 @@
 import { copy } from '../common/copy'
 
 export async function copyExampleFromSource (projectOptions) {
+  const { srcDir, tmpDir } = projectOptions
   await copy([
-      '**',
-      '.*',
-      '**/.*',
-      '!.git',
-      '!node_modules',
-      '!**/node_modules'
+      srcDir + '/**',
+      srcDir + '/.*',
+      srcDir + '/**/.*',
+      `!${srcDir}/.git`,
+      `!${srcDir}/node_modules`,
+      `!${srcDir}/**/node_modules`
     ],
     {
-      baseDir: projectOptions.srcDir,
-      outputDir: projectOptions.tmpDir
+      baseDir: srcDir,
+      outputDir: tmpDir
     }
   )
 
@@ -19,17 +20,19 @@ export async function copyExampleFromSource (projectOptions) {
 }
 
 export async function copyExampleFromWorkspace (projectOptions) {
+  const { srcDir, tmpDir } = projectOptions
+
   await copy([
-      '**',
-      '.*',
-      '**/.*',
-      '!.git',
-      '!node_modules',
-      '!**/node_modules'
+      tmpDir + '/**',
+      tmpDir + '/.*',
+      tmpDir + '/**/.*',
+      `!${tmpDir}/.git`,
+      `!${tmpDir}/node_modules`,
+      `!${tmpDir}/**/node_modules`
     ],
     {
-      baseDir: projectOptions.tmpDir,
-      outputDir: projectOptions.srcDir
+      baseDir: tmpDir,
+      outputDir: srcDir
     }
   )
 

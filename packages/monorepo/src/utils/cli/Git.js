@@ -42,11 +42,11 @@ class GitCli extends Cli {
   }
 
   merge (...args) {
-    return this.sync('merge', ...args)
+    return this.run('merge', ...args)
   }
 
   tag (...args) {
-    return this.sync('tag', ...args)
+    return this.run('tag', ...args)
   }
 
   reset (...args) {
@@ -90,9 +90,9 @@ class GitCli extends Cli {
     return this.getRaw('cherry', branch, `${origin}/${branch}`).trim()
   }
 
-  branches (...args) {
-    return this.branch(...args)
-      .getRaw()
+  branches (options) {
+    return this.branch()
+      .getRaw(options)
       .split('\n')
       .map(branch => branch.trim().replace('* ', ''))
       .filter(branch => !!branch)
@@ -106,9 +106,9 @@ class GitCli extends Cli {
       .trim()
   }
 
-  branchesInfos (...args) {
+  branchesInfos (options) {
     return this
-      .branches(...args)
+      .branches(options)
       .map(branch => {
         try {
           const [date, creation, author] = this.show(branch).split('|')
@@ -126,8 +126,8 @@ class GitCli extends Cli {
       .sort((info1, info2) => info1.date < info2.date)
   }
 
-  getMainBranch () {
-    const branches = git.branchesInfos()
+  getMainBranch (options) {
+    const branches = git.branchesInfos(options)
     return (branches.find(({ branch }) => branch === 'main')
       || branches.find(({ branch }) => branch === 'production')
       || branches.find(({ branch }) => branch === 'master')

@@ -1,25 +1,44 @@
 import { ensureDirSync } from 'fs-extra'
-import { join } from 'path'
 import { git } from '../cli'
+import { clean } from '../common/clean'
+import { createTasksRunner } from '../common/createTasksRunner'
 
-export async function checkoutExample (projectOptions, context) {
-  const { version, rootDir } = context
-  const { project, remoteUrl } = projectOptions
+export function checkoutExample (projectOptions, context) {
+  const { version } = context
+  const { tmpDir, remoteUrl } = projectOptions
 
-  const tmpDir = join(rootDir, '.tmp', project)
-  ensureDirSync(tmpDir)
-
-  await git.init().cwd(tmpDir)
-  await git.remote('add', 'origin', remoteUrl).cwd(tmpDir)
-
-  const mainBranch = git.getMainBranch()
-
-  projectOptions.mainBranch = mainBranch
-  projectOptions.branch = `chore-v${version}`
-  projectOptions.tmpDir = tmpDir
-
-  await git.checkout('-b', projectOptions.branch, `origin/${mainBranch}`).cwd(tmpDir)
-
-  return projectOptions
+  return createTasksRunner([
+    {
+      title: 'Clean',
+      task: async () => {
+        await clean([tmpDir])
+        ensureDirSync(tmpDir)
+      }
+    },
+    {
+      title: 'Git init',
+      task: () => git.init().cwd(tmpDir).toObservable()
+    },
+    {
+      title: 'Git remote add',
+      task: () => git.remote('add', 'origin', remoteUrl).cwd(tmpDir).toObservable()
+    },
+    {
+      title: 'Get main branch',
+      task: () => {
+        projectOptions.mainBranch = git.getMainBranch({ cwd: tmpDir })
+        projectOptions.branch = `chore-v${version}`
+        projectOptions.tmpDir = tmpDir
+      }
+    },
+    {
+      title: 'Git fetch',
+      task: () => git.fetch().cwd(tmpDir).toObservable()
+    },
+    {
+      title: 'Git checkout',
+      task: () => git.checkout('-b', projectOptions.branch, `origin/${projectOptions.mainBranch}`).cwd(tmpDir)
+    }
+  ], { ...context, run: false, concurrent: false })
 }
 
