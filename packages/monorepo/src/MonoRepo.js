@@ -5,6 +5,7 @@ import { join } from 'path'
 import { npm, yarn } from './utils/cli'
 import { getDependencies } from './utils/depencencies/getDependencies'
 import { clean } from './utils/common/clean'
+import { syncExamples } from './utils/examples/syncExample'
 import { compilePackages } from './utils/packages/compilePackages'
 import { writePackages } from './utils/packages/writePackages'
 import { copyPackages } from './utils/packages/copyPackages'
@@ -20,7 +21,6 @@ import { syncRepository } from './utils/workspace/syncRepository'
 import { createTasksRunner } from './utils/common/createTasksRunner'
 import { newVersion } from './utils/packages/newVersion'
 import { publishGhPages } from './utils/ghpages/publishGhPages'
-import { syncExamplesDependencies } from './utils/examples/syncExamplesDependencies'
 import { publishExamples } from './utils/examples/publishExamples'
 import { defaultPackageMapper } from './utils/packages/defaultPackageMapper'
 import { publishDocker } from './utils/docker/publishDocker'
@@ -196,7 +196,7 @@ export class MonoRepo {
       case 'repository':
         return this.syncRepository(options)
       case 'examples':
-        return this.syncExamplesDependencies(options)
+        return this.syncExamples(options)
       case 'packages':
         return this.syncDependencies(options)
     }
@@ -217,8 +217,8 @@ export class MonoRepo {
     })
   }
 
-  async syncExamplesDependencies (options = {}) {
-    return syncExamplesDependencies({
+  async syncExamples (options = {}) {
+    return syncExamples({
       ...this,
       ...options
     })

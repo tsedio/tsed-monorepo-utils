@@ -45,6 +45,10 @@ class GitCli extends Cli {
     return this.sync('merge', ...args)
   }
 
+  tag (...args) {
+    return this.sync('tag', ...args)
+  }
+
   reset (...args) {
     return this.sync('reset', ...args)
   }
@@ -120,6 +124,14 @@ class GitCli extends Cli {
       })
       .filter((b) => !!b)
       .sort((info1, info2) => info1.date < info2.date)
+  }
+
+  getMainBranch () {
+    const branches = git.branchesInfos()
+    return (branches.find(({ branch }) => branch === 'main')
+      || branches.find(({ branch }) => branch === 'production')
+      || branches.find(({ branch }) => branch === 'master')
+      || { branch: 'master' }).branch
   }
 }
 

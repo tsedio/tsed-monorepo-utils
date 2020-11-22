@@ -29,7 +29,7 @@ async function resolveDependencies (context) {
 }
 
 async function updatePackage (pkgPath, context) {
-  const { logger, rootDir, silent = false } = context
+  const { logger, silent = false } = context
 
   const currentPkg = await readPackage(pkgPath)
   const dependencies = await resolveDependencies(context)
@@ -42,8 +42,8 @@ async function updatePackage (pkgPath, context) {
   await writePackage(pkgPath, currentPkg)
 }
 
-export async function syncExampleDependencies (project, context) {
-  const cwd = join(context.examples.dir, project)
+export async function syncExampleDependencies (projectOptions, context) {
+  const cwd = projectOptions.tmpDir
   const pkgPath = join(cwd, '/package.json')
 
   await updatePackage(pkgPath, context)
@@ -53,8 +53,4 @@ export async function syncExampleDependencies (project, context) {
   if (existsSync(lernaProjectPath)) {
     await updatePackage(join(lernaProjectPath, 'server', 'package.json'), context)
   }
-}
-
-export async function syncExamplesDependencies (context) {
-  return Promise.all(findExamples(context).map((project) => syncExampleDependencies(project, context)))
 }

@@ -18,7 +18,7 @@ class YarnCli extends Cli {
   }
 
   install (...args) {
-    return super.run('add', ...args)
+    return super.run(args.length ? 'add' : 'install', ...args)
   }
 
   /**

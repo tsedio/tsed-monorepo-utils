@@ -1,26 +1,28 @@
-import { join } from 'path'
-import { git } from '../cli/Git'
-import { syncExampleDependencies } from './syncExamplesDependencies'
+import { clean } from '../common/clean'
+import { commitAndMergeExample } from './commitAndMergeExample'
+import { copyExampleFromWorkspace } from './copyExample'
+import { createExampleOptions } from './createExampleOptions'
 import { findExamples } from './findExamples'
+import { pushBranchExample, pushMainBranchExample } from './pushExample'
+import { syncExample } from './syncExample'
+
 
 async function publishExample (project, context) {
-  const { version, examples: { dir, repositories = {} }, ghToken} = context
+  const { examples: { repositories = {} } } = context
   const currentExample = repositories[project]
 
   if (currentExample) {
-    const { url } = currentExample
-    const repository = url.replace('https://', '')
+    const projectOptions = createExampleOptions(project, context)
+    await syncExample(projectOptions, context)
 
-    const cwd = join(dir, project)
+    if (await commitAndMergeExample(projectOptions, context)) {
+      await pushMainBranchExample(projectOptions, context)
+    } else {
+      await pushBranchExample(projectOptions, context)
+    }
 
-    await syncExampleDependencies(project, context)
-
-    await git.init().cwd(cwd)
-    await git.add('-A').cwd(cwd)
-    await git.commit('-m', `Deploy project v${version}`).cwd(cwd)
-
-    await git.push('--set-upstream', '-f', `https://${ghToken}@${repository}`, `master:v${version}`).cwd(cwd)
-    await git.push('--set-upstream', '-f', `https://${ghToken}@${repository}`, `master:master`).cwd(cwd)
+    await copyExampleFromWorkspace(projectOptions, context)
+    await clean([projectOptions.tmpDir])
   }
 }
 
