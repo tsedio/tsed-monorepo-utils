@@ -24,6 +24,6 @@ export function publishExamples (context) {
   return createTasksRunner(tasks, {
     ...context,
     run: false,
-    concurrent: true
+    concurrent: 4
   })
 }

@@ -53,7 +53,7 @@ export function syncExample(projectOptions, context) {
       enabled: () => projectOptions.sync,
       task: () => clean([projectOptions.tmpDir])
     }
-  ], { ...context, run: false, concurrency: false });
+  ], { ...context, run: false, concurrent: false });
 }
 
 export function syncExamples(context) {
@@ -75,6 +75,6 @@ export function syncExamples(context) {
   return createTasksRunner(tasks, {
     ...context,
     run: false,
-    concurrent: false
+    concurrent: 4
   });
 }
