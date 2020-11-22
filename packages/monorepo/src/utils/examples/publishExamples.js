@@ -20,6 +20,7 @@ export function publishExamples (context) {
       }
     }
   })
+    .filter(Boolean);
 
   return createTasksRunner(tasks, {
     ...context,

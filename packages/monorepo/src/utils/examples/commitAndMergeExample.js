@@ -12,7 +12,7 @@ export function commitAndMergeExample(projectOptions, context) {
     },
     {
       title: "Git commit: Update project",
-      task: () => git.commit("-m", `Update project with v${version}`).cwd(tmpDir).toObservable()
+      task: () => git.commit("-m", `Update project with v${version}`).cwd(tmpDir).catch(() => Promise.resolve())
     },
     {
       title: "Git checkout",

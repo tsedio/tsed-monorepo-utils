@@ -22,7 +22,7 @@ export class SyncCmd {
       {
         title: 'Sync examples dependencies from root package.json',
         enabled: () => ['examples'].includes(context.type),
-        task: context.sync(context.type)
+        task: () => context.sync(context.type)
       }
     ]
   }
