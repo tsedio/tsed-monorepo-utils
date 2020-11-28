@@ -6,7 +6,6 @@ import { findPackages } from '../packages/findPackages'
 import { readPackage } from '../packages/readPackage'
 import { updateVersions } from '../packages/updateVersions'
 import { writePackage } from '../packages/writePackage'
-import { findExamples } from './findExamples'
 
 async function resolveDependencies (context) {
   const { rootDir, packagesDir = 'packages' } = context

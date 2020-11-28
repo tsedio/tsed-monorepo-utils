@@ -3,9 +3,7 @@ import { clean } from '../common/clean'
 import { createTasksRunner } from '../common/createTasksRunner'
 import { checkoutExample } from './checkoutExample'
 import { commitAndMergeExample } from './commitAndMergeExample'
-import { copyExampleFromSource, copyExampleFromWorkspace } from './copyExample'
 import { createExampleOptions } from './createExampleOptions'
-import { findExamples } from './findExamples'
 import { installExampleDependencies } from './installExampleDependencies'
 import { pushBranchExample, pushMainBranchExample, pushTagsExample } from './pushExample'
 import { syncExampleDependencies } from './syncExamplesDependencies'
@@ -17,21 +15,12 @@ export function syncExample (projectOptions, context) {
       task: () => checkoutExample(projectOptions, context)
     },
     {
-      title: 'Copy sources',
-      task: () => copyExampleFromSource(projectOptions, context)
-    },
-    {
       title: 'Sync dependencies',
       task: () => syncExampleDependencies(projectOptions, context)
     },
     {
       title: 'Install dependencies',
       task: () => installExampleDependencies(projectOptions).toObservable()
-    },
-    {
-      title: 'Copy workspace',
-      enabled: () => projectOptions.sync,
-      task: () => copyExampleFromWorkspace(projectOptions, context)
     },
     {
       title: 'Commit merge',
@@ -59,7 +48,7 @@ export function syncExample (projectOptions, context) {
       }
     },
     {
-      title: 'Copy updated to file to source',
+      title: 'Clean',
       enabled: () => projectOptions.sync,
       task: () => clean([projectOptions.tmpDir])
     }
@@ -67,20 +56,16 @@ export function syncExample (projectOptions, context) {
 }
 
 export function syncExamples (context) {
-  const tasks = findExamples(context).map((project) => {
-    const { examples: { repositories = {} } } = context
-    const currentExample = repositories[project]
+  const { examples: { repositories = {} } } = context
 
-    if (currentExample) {
-      const projectOptions = createExampleOptions(project, context)
-      projectOptions.sync = true
-      return {
-        title: 'Sync example \'' + chalk.cyan(project) + '\'',
-        task: () => syncExample(projectOptions, context)
-      }
+  const tasks = Object.keys(repositories).map((project) => {
+    const projectOptions = createExampleOptions(project, context)
+    projectOptions.sync = true
+    return {
+      title: 'Sync example \'' + chalk.cyan(project) + '\'',
+      task: () => syncExample(projectOptions, context)
     }
   })
-    .filter(Boolean)
 
   return createTasksRunner(tasks, {
     ...context,
