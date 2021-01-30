@@ -33,6 +33,10 @@
     ]
   },
   "monorepo": {
-    "npmAccess": "public"
+    "npmAccess": "public",
+    "registries": [
+      "https://registry.npmjs.org/",
+      "https://npm.pkg.github.com/"
+    ]
   }
 }

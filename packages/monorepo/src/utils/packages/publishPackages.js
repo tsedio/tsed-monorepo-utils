@@ -5,11 +5,26 @@ import { npm } from '../cli'
 import { findPackages } from './findPackages'
 
 
-function writeNpmrc (path, registry) {
+function writeNpmrc (path, registries) {
   const npmrc = join(path, '.npmrc')
-  registry = registry.replace('https:', '').replace('http:', '')
 
-  fs.writeFileSync(npmrc, registry + ':_authToken=${NPM_TOKEN}', { encoding: 'utf8' })
+  const content = registries.map((registry) => {
+    registry = registry.replace('https:', '').replace('http:', '')
+
+    let token = 'NODE_AUTH_TOKEN'
+
+    if (registry.includes('npmjs')) {
+      token = 'NPM_TOKEN'
+    }
+
+    if (registry.includes('github')) {
+      token = 'GH_TOKEN'
+    }
+
+    return registry + ':_authToken=${' + token + '}'
+  })
+
+  fs.writeFileSync(npmrc, content.join('\n'), { encoding: 'utf8' })
 
   return npmrc
 }
@@ -20,16 +35,17 @@ export async function publishPackages (context) {
     rootDir,
     npmAccess,
     dryRun = false,
-    registry = 'https://registry.npmjs.org/'
+    registry = 'https://registry.npmjs.org/',
+    registries = []
   } = context
 
   const pkgs = await findPackages({
     cwd: rootDir
   })
 
-  pkgs
+  const promises =pkgs
     .filter(({ pkg }) => !pkg.private)
-    .map(({ path, pkg }) => {
+    .map(async ({ path, pkg }) => {
       logger.info('Publish package', chalk.cyan(pkg.name))
 
       try {
@@ -43,10 +59,14 @@ export async function publishPackages (context) {
             }
           })
         } else {
-          const npmrc = writeNpmrc(cwd, registry)
-          npm.publish('--userconfig', npmrc, '--access', npmAccess, '--registry', registry).sync({
-            cwd
-          })
+          const urls = [...new Set(registries.concat(registry).filter(Boolean))]
+          const npmrc = writeNpmrc(cwd, urls)
+
+          const promises = urls.map((registry) =>
+            npm.publish('--userconfig', npmrc, '--access', npmAccess, '--registry', registry).cwd(cwd)
+          )
+
+          await Promise.all(promises)
         }
 
       } catch (er) {
@@ -56,4 +76,6 @@ export async function publishPackages (context) {
 
       return undefined
     })
+
+  await Promise.all(promises)
 }

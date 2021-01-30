@@ -48,6 +48,7 @@ export class MonoRepo {
     this.developBranch = this.env.DEVELOP_BRANCH || options.developBranch || get(this.rootPkg, 'monorepo.developBranch', 'master')
     this.origin = this.env.ORIGIN || options.origin || get(this.rootPkg, 'monorepo.origin', 'origin')
     this.registry = this.env.REGISTRY_URL || options.registry || get(this.rootPkg, 'publishConfig.registry', 'https://registry.npmjs.org/')
+    this.registries = options.registries || get(this.rootPkg, 'monorepo.registries', [])
     this.repositoryUrl = this.env.REPOSITORY_URL || options.repositoryUrl || get(this.rootPkg, 'repository.url', get(this.rootPkg, 'repository'))
     this.ignoreSyncDependencies = options.ignoreSyncDependencies || get(this.rootPkg, 'monorepo.ignoreSyncDependencies', [])
     this.pkgMapper = pkgMapper
