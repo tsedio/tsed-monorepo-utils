@@ -1,0 +1,28 @@
+{
+  "name": "@tsed/yarn-workspaces",
+  "version": "1.13.0",
+  "description": "Yarn workspaces utils for CRACO",
+  "private": false,
+  "main": "./src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TypedProject/tsed-monorepo-utils.git"
+  },
+  "keywords": [],
+  "author": "Romain Lenzotti",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TypedProject/tsed-monorepo-utils/issues"
+  },
+  "homepage": "http://tsed.io/",
+  "dependencies": {
+    "fs-extra": "9.1.0",
+    "find-up": "5.0.0",
+    "glob": "7.1.6"
+  },
+  "directories": {
+    "src": "./src"
+  },
+  "devDependencies": {},
+  "peerDependencies": {}
+}
