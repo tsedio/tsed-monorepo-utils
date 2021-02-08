@@ -312,5 +312,15 @@ module.exports = {
 
     // process.exit()
     return webpackConfig
+  },
+  ensureReact(webpackConfig){
+    webpackConfig.resolve.alias = {
+      ...webpackConfig.resolve.alias,
+      'react/jsx-dev-runtime': require.resolve('react/jsx-dev-runtime'),
+      'react/jsx-runtime': require.resolve('react/jsx-runtime'),
+      react: require.resolve('react')
+    }
+
+    return webpackConfig
   }
 }
