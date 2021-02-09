@@ -198,7 +198,7 @@ const init = paths => {
   const config = {
     root: null,
     paths: [],
-    packageEntry: 'main:src',
+    packageEntry: 'main',
     development: true,
     production: true
   }
@@ -274,14 +274,6 @@ module.exports = {
 
     const dev = env === 'development'
     const prod = env === 'production'
-    const workspacesMainFields = [workspacesConfig.packageEntry, 'main']
-    const mainFields =
-      dev && workspacesConfig.development
-        ? workspacesMainFields
-        : prod && workspacesConfig.production
-        ? workspacesMainFields
-        : undefined
-
     const node_modules = [workspacesConfig.root]
       .concat(workspacesConfig.paths)
       .map(p => `${p}/node_modules`)
@@ -290,7 +282,6 @@ module.exports = {
     webpackConfig.resolve.modules = Array.from(webpackConfig.resolve.modules).concat(
       node_modules
     )
-    webpackConfig.resolve.mainFields = mainFields
 
     webpackConfig.resolve.plugins = [webpackConfig.resolve.plugins[0]]
 

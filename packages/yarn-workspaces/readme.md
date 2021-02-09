@@ -36,19 +36,16 @@ module.exports = {
 ```
 > `ensureReact` function ensure that webpack only one version of react.
 
-Now you can create a `shared` package in your `packages` directory. for example create a `shared` directory and add a
+Now you can create a `shared` package in your `packages` directory. For example create a `shared` directory and add a
 new package.json:
 
 ```json
 {
   "name": "@project/shared",
   "version": "1.0.0",
-  "main": "src/index.js",
-  "main:src": "src/index.js"
+  "main": "src/index.js"
 }
 ```
-
-> Note: The `main:src` must be provided to tell yarnWorkspaces that the package exports some codes.
 
 Then, in the application `package.json` add the `@project/shared` as dependencies:
 
