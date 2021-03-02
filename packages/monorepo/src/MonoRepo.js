@@ -1,3 +1,4 @@
+import chalk from 'chalk'
 import get from 'lodash/get'
 import hasYarn from 'has-yarn'
 import logger from 'fancy-log'
@@ -44,6 +45,7 @@ export class MonoRepo {
     this.outputDir = options.outputDir || get(this.rootPkg, 'monorepo.outputDir', './dist')
     this.npmAccess = options.npmAccess || get(this.rootPkg, 'monorepo.npmAccess', 'public')
     this.npmDistTag = options.npmDistTag || get(this.rootPkg, 'monorepo.npmDistTag', get(this.rootPkg, 'publishConfig.tag'))
+    this.skipNpmPublish = options.skipNpmPublish || get(this.rootPkg, 'monorepo.skipNpmPublish', false)
     this.productionBranch = this.env.PRODUCTION_BRANCH || options.productionBranch || get(this.rootPkg, 'monorepo.productionBranch', 'master')
     this.developBranch = this.env.DEVELOP_BRANCH || options.developBranch || get(this.rootPkg, 'monorepo.developBranch', 'master')
     this.origin = this.env.ORIGIN || options.origin || get(this.rootPkg, 'monorepo.origin', 'origin')
@@ -243,6 +245,10 @@ export class MonoRepo {
   }
 
   async publishPackages (options = {}) {
+    if (this.skipNpmPublish) {
+      this.logger.info('Publish packages skipped... (See skipNpmPublish option)')
+      return
+    }
     return publishPackages({
       ...this,
       ...options,
