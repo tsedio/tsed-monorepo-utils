@@ -4,8 +4,7 @@ import { dirname, join } from 'path'
 import { npm } from '../cli'
 import { findPackages } from './findPackages'
 
-
-function writeNpmrc (path, registries) {
+function writeNpmrc (path, registries, scope) {
   const npmrc = join(path, '.npmrc')
 
   const content = registries.map((registry) => {
@@ -13,13 +12,15 @@ function writeNpmrc (path, registries) {
 
     let token = 'NODE_AUTH_TOKEN'
 
+    if (registry.includes('github')) {
+      return scope + ":registry=https:" + registry + "\n" +
+        registry + "/:_authToken=${GH_TOKEN}\n"
+    }
+
     if (registry.includes('npmjs')) {
       token = 'NPM_TOKEN'
     }
 
-    if (registry.includes('github')) {
-      token = 'GH_TOKEN'
-    }
 
     return registry + ':_authToken=${' + token + '}'
   })
@@ -60,7 +61,7 @@ export async function publishPackages (context) {
           })
         } else {
           const urls = [...new Set(registries.concat(registry).filter(Boolean))]
-          const npmrc = writeNpmrc(cwd, urls)
+          const npmrc = writeNpmrc(cwd, urls, pkg.name.split('/')[0])
 
           const promises = urls.map((registry) =>
             npm.publish('--userconfig', npmrc, '--access', npmAccess, '--registry', registry).cwd(cwd)
