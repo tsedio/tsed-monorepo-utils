@@ -12,13 +12,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/TypedProject/tsed-monorepo-utils.git"
+    "url": "https://github.com/tsedio/tsed-monorepo-utils.git"
   },
   "keywords": [],
   "author": "Romain Lenzotti",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/TypedProject/tsed-monorepo-utils/issues"
+    "url": "https://github.com/tsedio/tsed-monorepo-utils/issues"
   },
   "homepage": "http://tsed.io/",
   "dependencies": {
