@@ -62,7 +62,7 @@ export async function publishPackages(context) {
             }
           })
         } else {
-          for (const url in urls) {
+          for (const url of urls) {
             const npmrc = writeNpmrc(cwd, [url], pkg.name.split('/')[0])
             try {
               logger.info("Publish package",  chalk.cyan(pkg.name),  "on", url)
