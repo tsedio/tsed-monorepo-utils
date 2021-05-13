@@ -1,10 +1,10 @@
 import chalk from 'chalk'
 import fs from 'fs-extra'
-import { dirname, join } from 'path'
-import { npm } from '../cli'
-import { findPackages } from './findPackages'
+import {dirname, join} from 'path'
+import {npm} from '../cli'
+import {findPackages} from './findPackages'
 
-function writeNpmrc (path, registries, scope) {
+function writeNpmrc(path, registries, scope) {
   const npmrc = join(path, '.npmrc')
 
   const content = registries.map((registry) => {
@@ -13,8 +13,8 @@ function writeNpmrc (path, registries, scope) {
     let token = 'NODE_AUTH_TOKEN'
 
     if (registry.includes('github')) {
-      return scope + ":registry=https:" + registry + "\n" +
-        registry + "/:_authToken=${GH_TOKEN}\n"
+      return scope + ':registry=https:' + registry + '\n' +
+        registry + '/:_authToken=${GH_TOKEN}\n'
     }
 
     if (registry.includes('npmjs')) {
@@ -25,12 +25,12 @@ function writeNpmrc (path, registries, scope) {
     return registry + ':_authToken=${' + token + '}'
   })
 
-  fs.writeFileSync(npmrc, content.join('\n'), { encoding: 'utf8' })
+  fs.writeFileSync(npmrc, content.join('\n'), {encoding: 'utf8'})
 
   return npmrc
 }
 
-export async function publishPackages (context) {
+export async function publishPackages(context) {
   const {
     logger,
     rootDir,
@@ -44,9 +44,10 @@ export async function publishPackages (context) {
     cwd: rootDir
   })
 
-  const promises =pkgs
-    .filter(({ pkg }) => !pkg.private)
-    .map(async ({ path, pkg }) => {
+  const errors = []
+  const promises = pkgs
+    .filter(({pkg}) => !pkg.private)
+    .map(async ({path, pkg}) => {
       logger.info('Publish package', chalk.cyan(pkg.name))
 
       try {
@@ -63,8 +64,14 @@ export async function publishPackages (context) {
           const urls = [...new Set(registries.concat(registry).filter(Boolean))]
           const npmrc = writeNpmrc(cwd, urls, pkg.name.split('/')[0])
 
-          const promises = urls.map((registry) =>
-            npm.publish('--userconfig', npmrc, '--access', npmAccess, '--registry', registry).cwd(cwd)
+          const promises = urls.map(async (registry) => {
+              try {
+                await npm.publish('--userconfig', npmrc, '--access', npmAccess, '--registry', registry).cwd(cwd)
+              } catch (er) {
+                errors.push({pkg, error: er, registry})
+                logger.error(chalk.red(er.message), chalk.red(er.stack))
+              }
+            }
           )
 
           await Promise.all(promises)
@@ -72,11 +79,17 @@ export async function publishPackages (context) {
 
       } catch (er) {
         logger.error(chalk.red(er.message), chalk.red(er.stack))
-        process.exit(-1)
+        errors.push({pkg, error: er})
       }
 
       return undefined
     })
+
+  if (errors.length) {
+    logger.error(chalk.red('Some packages have not been published: \n' + errors.map(({pkg, error, registry}) => {
+      return [pkg.name, registry, error.message].filter(Boolean).join(' - ')
+    }).join('\n')))
+  }
 
   await Promise.all(promises)
 }
