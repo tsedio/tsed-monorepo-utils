@@ -44,6 +44,7 @@ export async function publishPackages(context) {
     cwd: rootDir
   })
 
+  const urls = [...new Set(registries.concat(registry).filter(Boolean))]
   const errors = []
   const promises = pkgs
     .filter(({pkg}) => !pkg.private)
@@ -61,22 +62,17 @@ export async function publishPackages(context) {
             }
           })
         } else {
-          const urls = [...new Set(registries.concat(registry).filter(Boolean))]
-          const npmrc = writeNpmrc(cwd, urls, pkg.name.split('/')[0])
-
-          const promises = urls.map(async (registry) => {
-              try {
-                await npm.publish('--userconfig', npmrc, '--access', npmAccess, '--registry', registry).cwd(cwd)
-              } catch (er) {
-                errors.push({pkg, error: er, registry})
-                logger.error(chalk.red(er.message), chalk.red(er.stack))
-              }
+          for (const url in urls) {
+            const npmrc = writeNpmrc(cwd, [url], pkg.name.split('/')[0])
+            try {
+              logger.info("Publish package",  chalk.cyan(pkg.name),  "on", url)
+              await npm.publish('--userconfig', npmrc, '--access', npmAccess, '--registry', registry).cwd(cwd)
+            } catch (er) {
+              errors.push({pkg, error: er, registry})
+              logger.error(chalk.red(er.message), chalk.red(er.stack))
             }
-          )
-
-          await Promise.all(promises)
+          }
         }
-
       } catch (er) {
         logger.error(chalk.red(er.message), chalk.red(er.stack))
         errors.push({pkg, error: er})
