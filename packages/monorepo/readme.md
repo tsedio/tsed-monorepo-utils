@@ -30,7 +30,7 @@ Add these tasks to your package.json:
   "monorepo": {
      "ghpages": {
        "dir": "./docs/.vuepress/dist",
-       "url": "https://github.com/TypedProject/tsed.git",
+       "url": "https://github.com/tsedio/tsed.git",
        "branch": "gh-pages",
        "cname": "tsed.io"
      }
