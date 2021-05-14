@@ -1,7 +1,7 @@
 <div style="text-align: center;" align="center">
  <a href="https://tsed.io" target="_blank"><img src="https://tsed.io/tsed-og.png" width="200" alt="Ts.ED logo"/></a><br />
 </div>
-<h2 class="text-align: center;" align="center">MonoRepo Utils</h2>
+<h1 class="text-align: center;" align="center">MonoRepo Utils</h1>
 
 > A tool to build and publish packages (TypeScript or JavaSript) on NPM registry (or any other compliant registry) for all projects based on 
 mono repository [lerna](https://lerna.js.org/).
