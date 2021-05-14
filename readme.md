@@ -8,6 +8,7 @@ mono repository [lerna](https://lerna.js.org/).
 - Publishing packages on NPM, Github packages or any NPM private registries.
 - Publishing Docker Image on Docker HUB.
 - Deploy Docker Image on heroku.
+- Apply Tags and create release note on Github (with semantic-release)
 - Publish documentation on Github Pages.
 - Update projects example from external repository.
 
@@ -152,7 +153,7 @@ jobs:
 deploy-packages:
     runs-on: ubuntu-latest
     needs: [build] # add depend job here
-    if: ${{ github.event_name != 'pull_request' && contains(github.ref, 'production') }}
+    if: ${{ github.event_name != 'pull_request' && contains(github.ref, 'main') }}
 
     strategy:
       matrix:
