@@ -1,13 +1,56 @@
 # @tsed/monorepo-utils
 
-A tool to build and publish packages (Typescript or Javascript) on npm for projects based on 
+A tool to build and publish packages (TypeScript or JavaSript) on NPM registry (or any other compliant registry) for all projects based on 
 mono repository [lerna](https://lerna.js.org/).
+
+## Features
+
+- Publishing packages on NPM, Github packages or any NPM private registries.
+- Publishing Docker Image on Docker HUB.
+- Deploy Docker Image on heroku.
+- Publish documentation on Github Pages.
+- Update projects example from external repository.
+
+## Workspaces
+
+MonoRepoUtils use Lerna to manage scripts between package. By default, MonoRepoUtils use Yarn also as workspaces manager.
+You can try with NPM 7. But isn't officially supported right know.
+
+## Supported CI
+
+- GithubActions,
+- Travis CI, 
+- Circle CI,
+- GitLab
 
 ## Installation
 
 Run:
 ```bash
 npm install --save-dev @tsed/monorepo-utils
+```
+
+## Configuration
+
+MonoRepoUtils support [semantic-release] versioning tools and publishing Release note on Github. By the way, it's not mandatory. You can manage manage versioning 
+by you own way.
+
+### Prerequisite configuration
+
+Add the following configuration to your ``package.json:
+
+```json
+{
+  "scripts": {
+     "configure": "monorepo ci configure",
+     "build": "monorepo build"
+  }, 
+  "monorepo": {
+    "productionBranch": "main",
+    "developBranch": "main",
+    "npmAccess": "public"
+  }
+}
 ```
 
 ### Configuration without Semantic-release
@@ -26,24 +69,14 @@ Add these tasks to your package.json:
     "publish": "monorepo publish packages" // publish on NPM
     "docs:build": "vuepress build",
     "docs:publish": "yarn docs:build && monorepo publish ghpages",
-    "heoru:publish": ""
-  },
-  "monorepo": {
-     "ghpages": {
-       "dir": "./docs/.vuepress/dist",
-       "url": "https://github.com/tsedio/tsed.git",
-       "branch": "gh-pages",
-       "cname": "tsed.io"
-     }
-   }
+    "heroku:publish": ""
+  }
 }
 ```
 
 ### Configuration with Semantic-release
 
-MonoRepoUtils is also compatible with semantic-release.
-
-Install semantic-release and add repo.config.js file and add these lines:
+Install [semantic-release](https://github.com/semantic-release/semantic-release) and add `repo.config.js` file and add these lines:
 
 ```javascript
 module.exports = {
@@ -62,19 +95,20 @@ module.exports = {
 
 Add these tasks to your package.json:
 
-```
+```json
 {
   "scripts": {
-    "build": "monorepo build", // Will be called automatically semantic-release
     "release": "semantic-release"
   }
 }
 ```
 
-### Configure CI
+### CI Configuration
 
-Monorepo can be used with Travis CI, Circle CI and GitLab. You have to create these environments variables
-to allow git release note deployment, commit push and docker image deployment. 
+To deploy with your favority CI, you have to create these environments variables
+to allow publishing on your NPM registries,  
+
+commit push and docker image deployment. 
 
 Variable | Description
 ---|---
@@ -85,3 +119,60 @@ GH_TOKEN | A GitHub [personal access token](https://help.github.com/articles/cre
 DOCKER_HUB_ID | The docker hub id
 DOCKER_HUB_PWD | The docker password account
 HEROKU_APP | Enable deployment on heroku. Note: You have to configure HEROKU_API_KEY token on your CI
+
+### Github actions example
+
+```yaml
+name: Build & Release
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+jobs:     
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [ 14.x ]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --network-timeout 500000
+      - name: Run build
+        run: yarn build
+        
+# DEPLOY PACKAGES on NPM
+deploy-packages:
+    runs-on: ubuntu-latest
+    needs: [build] # add depend job here
+    if: ${{ github.event_name != 'pull_request' && contains(github.ref, 'production') }}
+
+    strategy:
+      matrix:
+        node-version: [ 14.x ]
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+        with:
+          name: benchmarks
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --network-timeout 500000
+      - name: Release packages
+        env:
+          CI: true
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: yarn release
+```
