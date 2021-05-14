@@ -14,7 +14,7 @@ mono repository [lerna](https://lerna.js.org/).
 
 ## Workspaces
 
-MonoRepoUtils use Lerna to manage scripts between package. By default, MonoRepoUtils use Yarn also as workspaces manager.
+MonoRepoUtils use Lerna to manage scripts between package. By default, MonoRepoUtils use Yarn as workspaces manager.
 You can try with NPM 7. But isn't officially supported right know.
 
 ## Supported CI
