@@ -1,7 +1,7 @@
 # @tsed/monorepo-utils
 
 A tool to build and publish packages (Typescript or Javascript) on npm for projects based on 
-mono repository (lerna).
+mono repository [lerna](https://lerna.js.org/).
 
 ## Installation
 
