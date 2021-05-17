@@ -8,6 +8,7 @@ export async function runCommand (klass, commander) {
   try {
     const monoRepo = new MonoRepo({
       rootDir: process.cwd(),
+      verbose: !!commander.opts().verbose,
       ...require(`${process.cwd()}/release.config`)
     })
 
