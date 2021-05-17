@@ -7,9 +7,10 @@ commander
   .arguments('<type>')
   .option('-v, --verbose', 'Enable verbose log', (v, t) => t + 1, 0)
   .action((type) => {
+    const options = commander.opts()
     runCommand(commands.SyncCmd, {
       type,
-      verbose: !!commander.verbose
+      verbose: !!options.verbose
     })
   })
   .parse(process.argv)

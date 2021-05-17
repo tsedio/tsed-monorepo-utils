@@ -7,9 +7,10 @@ commander
   .arguments('<version>')
   .option('-v, --verbose', 'Enable verbose log', (v, t) => t + 1, 0)
   .action((version) => {
+
     runCommand(commands.VersionCmd, {
       version,
-      verbose: !!commander.verbose
+      verbose: !!commander.opts().verbose
     })
   })
   .parse(process.argv)

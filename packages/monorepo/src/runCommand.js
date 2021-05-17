@@ -4,11 +4,11 @@ import inquirer from 'inquirer'
 import { MonoRepo } from './MonoRepo'
 import { createTasksRunner } from './utils/common/createTasksRunner'
 
-export async function runCommand (klass, commander) {
+export async function runCommand (klass, options) {
   try {
     const monoRepo = new MonoRepo({
       rootDir: process.cwd(),
-      verbose: !!commander.opts().verbose,
+      verbose: !!options.verbose,
       ...require(`${process.cwd()}/release.config`)
     })
 
@@ -17,7 +17,7 @@ export async function runCommand (klass, commander) {
 
     // Map context from commander and current context
     if (command.mapContext) {
-      Object.assign(monoRepo, command.mapContext(commander, monoRepo))
+      Object.assign(monoRepo, command.mapContext(options, monoRepo))
     }
 
     // show prompts

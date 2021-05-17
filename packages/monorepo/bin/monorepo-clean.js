@@ -9,7 +9,7 @@ commander
   .action((type) => {
     runCommand(commands.CleanCmd, {
       type,
-      verbose: !!commander.verbose
+      verbose: !!commander.opts().verbose
     })
   })
   .parse(process.argv)

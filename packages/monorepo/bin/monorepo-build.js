@@ -7,4 +7,4 @@ commander
   .option('-v, --verbose', 'Enable verbose log', (v, t) => t + 1, 0)
   .parse(process.argv)
 
-runCommand(commands.BuildCmd, commander)
+runCommand(commands.BuildCmd, commander.opts())
