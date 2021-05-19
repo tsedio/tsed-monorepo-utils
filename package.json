@@ -10,7 +10,7 @@
     "test:lint:fix": "eslint '{packages,test}/**/*.js' --fix",
     "prettier": "prettier '{packages,test}/**/*.js' --write",
     "build": "node packages/monorepo/bin/monorepo-build.js --verbose",
-    "publish": "node packages/monorepo/bin/monorepo-publish.js --dry-run",
+    "publish": "node packages/monorepo/bin/monorepo-publish.js --dry-run packages",
     "release": "semantic-release",
     "release:dryRun": "semantic-release --dry-run",
     "prepare": "husky install"

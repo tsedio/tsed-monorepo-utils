@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import fs from "fs-extra";
 import get from "lodash/get";
-import {dirname, join} from "path";
+import {basename, dirname, join} from "path";
 import {npm} from "../cli";
 import {findPackages} from "./findPackages";
 
@@ -29,15 +29,32 @@ function writeNpmrc(path, registries, scope) {
   return npmrc;
 }
 
+async function publishPackage(pkg, {url, cwd}, context) {
+  const {npmAccess, dryRun, registry} = context;
+  const npmrc = writeNpmrc(cwd, [url], pkg.name.split("/")[0]);
+
+  if (dryRun) {
+    npm.pack().sync({
+      cwd,
+      env: {
+        NPM_TOKEN: "test"
+      }
+    });
+  } else {
+    await npm.publish("--userconfig", npmrc, "--access", npmAccess, "--registry", registry).cwd(cwd);
+  }
+}
+
 /**
  *
  * @param context {MonoRepo}
  * @returns {Promise<void>}
  */
 export async function publishPackages(context) {
-  const {logger, npmAccess, dryRun, registry, registries} = context;
+  const {logger, registry, registries} = context;
 
   const packages = await findPackages(context);
+  const distDir = join(context.rootDir, context.outputDir);
 
   const urls = [...new Set(registries.concat(registry).filter(Boolean))];
   const errors = [];
@@ -46,28 +63,17 @@ export async function publishPackages(context) {
     .map(async ({path, pkg}) => {
       logger.info("Publish package", chalk.cyan(pkg.name));
 
-      const registries = get(pkg, "monorepo", urls);
-
       try {
-        const cwd = dirname(path);
+        const cwd = join(distDir, basename(dirname(path)));
+        const registries = get(pkg, "monorepo", urls);
 
-        if (dryRun) {
-          npm.pack().sync({
-            cwd,
-            env: {
-              NPM_TOKEN: "test"
-            }
-          });
-        } else {
-          for (const url of registries) {
-            const npmrc = writeNpmrc(cwd, [url], pkg.name.split("/")[0]);
-            try {
-              logger.info("Publish package", chalk.cyan(pkg.name), "on", url);
-              await npm.publish("--userconfig", npmrc, "--access", npmAccess, "--registry", registry).cwd(cwd);
-            } catch (er) {
-              errors.push({pkg, error: er, registry});
-              logger.error(chalk.red(er.message), chalk.red(er.stack));
-            }
+        for (const url of registries) {
+          try {
+            logger.info("Publish package", chalk.cyan(pkg.name), "on", url);
+            await publishPackage(pkg, {cwd, url}, context);
+          } catch (er) {
+            errors.push({pkg, error: er, registry});
+            logger.error(chalk.red(er.message), chalk.red(er.stack));
           }
         }
       } catch (er) {

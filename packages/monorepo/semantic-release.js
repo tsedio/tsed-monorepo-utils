@@ -1,5 +1,7 @@
 const {MonoRepo} = require("./src");
-
+/**
+ * @type {MonoRepo}
+ */
 let monoRepo;
 
 module.exports = {

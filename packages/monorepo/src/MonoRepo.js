@@ -295,6 +295,7 @@ export class MonoRepo {
     const newCtx = this.fork(options);
 
     switch (type) {
+      case "workspaces":
       case "workspace":
         return this.buildWorkspace();
       case "packages":
@@ -350,6 +351,7 @@ export class MonoRepo {
   }
 
   publish(type, options = {}) {
+    console.log(type, options);
     switch (type) {
       case "packages":
         return this.publishPackages(options);
@@ -372,12 +374,7 @@ export class MonoRepo {
       return;
     }
 
-    return publishPackages(
-      this.fork({
-        ...options,
-        rootDir: join(this.rootDir, this.outputDir)
-      })
-    );
+    return publishPackages(this.fork(options));
   }
 
   async publishGhPages(options = {}) {

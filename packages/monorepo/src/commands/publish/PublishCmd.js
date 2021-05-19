@@ -6,6 +6,10 @@ export class PublishCmd {
     };
   }
 
+  /**
+   *
+   * @param context {MonoRepo}
+   */
   getTasks(context) {
     return [
       {
@@ -22,13 +26,13 @@ export class PublishCmd {
       {
         title: `Publish packages on NPM ${context.dryRun ? "(DryRun)" : ""}`,
         enabled: () => ["packages"].includes(context.type),
-        task: () => context.publish(context.type, context)
+        task: () => context.publish(context.type)
       },
       {
         title: "Publish on DockerHub",
         enabled: () => ["docker"].includes(context.type),
         skip: () => context.dryRun,
-        task: () => context.publish(context.type, context)
+        task: () => context.publish(context.type)
       },
       {
         title: "Publish on Heroku",
