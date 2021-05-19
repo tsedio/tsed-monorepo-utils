@@ -1,6 +1,6 @@
 {
   "name": "@tsed/monorepo-utils",
-  "version": "1.17.8",
+  "version": "1.18.0",
   "description": "Mono repo utils",
   "private": false,
   "main": "./src/index.js",
@@ -40,8 +40,8 @@
   "bin": {
     "monorepo": "./bin/monorepo.js"
   },
-  "devDependencies": {},
   "peerDependencies": {
     "semantic-release": "17.4.3"
-  }
+  },
+  "devDependencies": {}
 }
