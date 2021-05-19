@@ -121,9 +121,7 @@ export class MonoRepo {
           join(this.rootDir, this.packagesDir, '*', 'lib'),
           join(this.rootDir, this.packagesDir, '*', 'dist'),
           'test/**/*.{js,js.map,d.ts}',
-          'test/**/*.{js,js.map,d.ts}',
-          join(this.rootDir, this.packagesDir, '**', '*.{js,js.map,d.ts,d.ts.map}'),
-          join(this.rootDir, this.packagesDir, '**', '*.{js,js.map,d.ts,d.ts.map}')
+          'test/**/*.{js,js.map,d.ts}'
         ])
       case 'docker':
         return cleanTagsDocker({
