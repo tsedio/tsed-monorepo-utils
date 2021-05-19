@@ -41,5 +41,7 @@
     "monorepo": "./bin/monorepo.js"
   },
   "devDependencies": {},
-  "peerDependencies": {}
+  "peerDependencies": {
+    "semantic-release": "17.4.3"
+  }
 }

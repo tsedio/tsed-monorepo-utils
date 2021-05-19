@@ -1,36 +1,35 @@
-import semver from 'semver'
-import { syncDependencies } from '../../utils/depencencies/syncDependencies'
-import { newVersion } from '../../utils/packages/newVersion'
-
+import semver from "semver";
+import {syncDependencies} from "../../utils/depencencies/syncDependencies";
+import {newVersion} from "../../utils/packages/newVersion";
 
 export class VersionCmd {
-  mapContext (commander, monoRepo) {
-    let version = commander.version
-    const [major, minor, patch] = monoRepo.rootPkg.version.split('.')
+  mapContext(commander, monoRepo) {
+    let version = commander.version;
+    const [major, minor, patch] = monoRepo.rootPkg.version.split(".");
 
-    if (['major', 'minor', 'patch'].includes(version)) {
-      version = semver.inc(`${major}.${minor}.${patch}`, version)
+    if (["major", "minor", "patch"].includes(version)) {
+      version = semver.inc(`${major}.${minor}.${patch}`, version);
     }
 
     if (!version) {
-      semver.inc(`${major}.${minor}.${patch}`, 'patch')
+      semver.inc(`${major}.${minor}.${patch}`, "patch");
     }
 
     return {
       version
-    }
+    };
   }
 
-  getTasks (context) {
+  getTasks(context) {
     return [
       {
         title: `Bump version to ${context.version}`,
         task: () => newVersion(context)
       },
       {
-        title: 'Sync dependencies from root package.json',
+        title: "Sync dependencies from root package.json",
         task: () => syncDependencies(context)
       }
-    ]
+    ];
   }
 }

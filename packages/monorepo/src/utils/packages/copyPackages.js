@@ -1,48 +1,47 @@
-import { existsSync, readFileSync } from 'fs'
-import { join } from 'path'
-import { copy } from '../common/copy'
-import { findPackages } from './findPackages'
+import {existsSync, readFileSync} from "fs";
+import {dirname} from "path";
+import {copy} from "../common/copy";
+import {findPackages} from "./findPackages";
 
-export async function copyPackages ({ rootDir, outputDir, packagesDir = 'packages', silent = false, ignore = [] }) {
-  const packages = await findPackages({
-    cwd: join(rootDir, packagesDir)
-  })
+function getPatternsFormNmpIgnore(file, baseDir) {
+  if (existsSync(file)) {
+    return readFileSync(file, {encoding: "utf8"})
+      .split("\n")
+      .filter(Boolean)
+      .map((rule) => `!${baseDir}/${rule}`);
+  }
 
-  const ignores = packages.reduce((ignores, { path, name }) => {
-    const file = path.replace('package.json', '.npmignore')
+  return [];
+}
 
-    if (existsSync(file)) {
-      ignores.push(
-        ...readFileSync(file, { encoding: 'utf8' })
-          .split('\n')
-          .filter(Boolean)
-          .map((rule) => `!${packagesDir}/${name}/${rule}`))
-    }
+/**
+ *
+ * @param context {MonoRepo}
+ */
+export async function copyPackages(context) {
+  const {rootDir, outputDir, ignore = []} = context;
+  const packages = await findPackages(context);
 
-    return ignores
-  }, [])
+  const promises = packages.map(async (pkg) => {
+    const baseDir = pkg.path.replace("package.json", "").replace(rootDir, "");
+    const file = pkg.path.replace("package.json", ".npmignore");
 
-  let patterns = packages
-    .reduce((patterns, { name }) => {
-      return [
-        ...patterns,
-        `${packagesDir}/${name}/**`,
-        `${packagesDir}/${name}/**/.*`
-      ]
-    }, [])
+    const patterns = [
+      `${baseDir}/**`,
+      `${baseDir}/**/.*`,
+      `!${baseDir}/tsconfig.compile.json`,
+      `!${baseDir}/test/**`,
+      `!${baseDir}/package-lock.json`,
+      `!${baseDir}/yarn.lock`,
+      `!${baseDir}/node_modules/**`,
+      ...getPatternsFormNmpIgnore(file, baseDir)
+    ];
 
-  await copy([
-      ...patterns,
-      ...ignores,
-      `!${packagesDir}/*/tsconfig.compile.json`,
-      `!${packagesDir}/*/test/**`,
-      `!${packagesDir}/*/package-lock.json`,
-      `!${packagesDir}/*/yarn.lock`,
-      `!${packagesDir}/*/node_modules/**`
-    ],
-    {
-      baseDir: packagesDir,
+    await copy(patterns, {
+      baseDir: dirname(pkg.path),
       outputDir
-    }
-  )
+    });
+  });
+
+  await Promise.all(promises);
 }

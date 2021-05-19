@@ -7,11 +7,16 @@ import { readPackage } from '../packages/readPackage'
 import { updateVersions } from '../packages/updateVersions'
 import { writePackage } from '../packages/writePackage'
 
+/**
+ *
+ * @param context {MonoRepo}
+ * @returns {Promise<*>}
+ */
 async function resolveDependencies (context) {
-  const { rootDir, packagesDir = 'packages' } = context
+  const { rootDir } = context
   const dependenciesMap = await getDependencies(join(rootDir, 'package.json'))
 
-  const packages = await findPackages({ cwd: join(rootDir, packagesDir) })
+  const packages = await findPackages(context)
 
   packages.forEach(({ pkg: { name, version, devDependencies, dependencies } }) => {
     dependenciesMap.set(name, version)

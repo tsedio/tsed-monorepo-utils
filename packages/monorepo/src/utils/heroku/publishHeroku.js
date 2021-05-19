@@ -1,11 +1,20 @@
-import { heroku } from '../cli/Heroku'
+import {heroku} from "../cli/Heroku";
 
-export async function publishHeroku (context) {
-  const { heroku: { app } } = context
+/**
+ *
+ * @param context {MonoRepo}
+ * @returns {Promise<void>}
+ */
+export async function publishHeroku(context) {
+  const {
+    heroku: {app, team}
+  } = context;
 
   if (app) {
-    heroku.containerLogin().sync()
-    await heroku.containerPush('web', '-a', app)
-    await heroku.containerRelease('web', '-a', app)
+    const args = ["web", "-a", app, team && "-t", team].filter(Boolean);
+
+    heroku.containerLogin().sync();
+    await heroku.containerPush(...args);
+    await heroku.containerRelease(...args);
   }
 }

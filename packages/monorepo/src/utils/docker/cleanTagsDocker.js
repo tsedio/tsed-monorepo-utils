@@ -1,41 +1,47 @@
-import { docker } from '../cli/Docker'
+import {docker} from "../cli/Docker";
 
-function mapTags (tags) {
+function mapTags(tags) {
   tags = tags
-    .map(tag => {
+    .map((tag) => {
       return {
         name: tag.name,
         date: new Date(tag.last_updated).getTime()
-      }
-    }).sort((a, b) => b.date - a.date)
+      };
+    })
+    .sort((a, b) => b.date - a.date);
 
-  let tagFound = false
+  let tagFound = false;
 
   return tags.reduce((result, tag) => {
     if (tag.name.match(/\d+\.\d+\.\d+/)) {
-      tagFound = true
+      tagFound = true;
     } else if (tagFound) {
-      result.push(tag)
+      result.push(tag);
     }
-    return result
-  }, [])
+    return result;
+  }, []);
 }
 
-export async function cleanTagsDocker (context) {
-  const { logger, dockerhub: { id, pwd, repository } } = context
+export async function cleanTagsDocker(context) {
+  const {
+    logger,
+    dockerhub: {id, pwd, repository}
+  } = context;
 
-  const token = await docker.getToken(id, pwd)
+  const token = await docker.getToken(id, pwd);
   const options = {
     token,
     repository
-  }
+  };
 
-  const tags = mapTags(await docker.getTags(options))
+  const tags = mapTags(await docker.getTags(options));
 
-  await Promise.all(tags.map(async (tag) => {
-    await docker.deleteTag(tag.name, options)
-    logger.info(`TAG : ${tag.name} deleted`)
-  }))
+  await Promise.all(
+    tags.map(async (tag) => {
+      await docker.deleteTag(tag.name, options);
+      logger.info(`TAG : ${tag.name} deleted`);
+    })
+  );
 
-  logger.info('Docker Hub Clean !')
+  logger.info("Docker Hub Clean !");
 }

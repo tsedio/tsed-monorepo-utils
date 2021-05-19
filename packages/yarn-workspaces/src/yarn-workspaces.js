@@ -1,317 +1,296 @@
-'use strict'
+"use strict";
 
-const fse = require('fs-extra')
-const path = require('path')
-const findUp = require('find-up')
-const glob = require('glob')
+const fse = require("fs-extra");
+const path = require("path");
+const findUp = require("find-up");
+const glob = require("glob");
 
-const loadPackageJson = packagePath => {
+const loadPackageJson = (packagePath) => {
   try {
-    return fse.readJsonSync(packagePath)
+    return fse.readJsonSync(packagePath);
   } catch (err) {
-    throw err
+    throw err;
   }
-}
+};
 
-const getWorkspacesRootConfig = dir => {
-  const packageJsonUp = findUp.sync('package.json', { cwd: dir })
+const getWorkspacesRootConfig = (dir) => {
+  const packageJsonUp = findUp.sync("package.json", {cwd: dir});
 
   if (packageJsonUp === null) {
-    return false
+    return false;
   }
 
-  const packageObj = loadPackageJson(packageJsonUp)
+  const packageObj = loadPackageJson(packageJsonUp);
 
-  if (
-    packageObj.workspaces &&
-    (Array.isArray(packageObj.workspaces) ||
-      Reflect.has(packageObj.workspaces, 'packages'))
-  ) {
+  if (packageObj.workspaces && (Array.isArray(packageObj.workspaces) || Reflect.has(packageObj.workspaces, "packages"))) {
     return {
       root: path.dirname(packageJsonUp),
       workspaces: packageObj.workspaces
-    }
+    };
   }
 
-  return getWorkspacesRootConfig(path.dirname(dir))
-}
+  return getWorkspacesRootConfig(path.dirname(dir));
+};
 
 const getPackagePaths = (root, workspacesList) => {
-  const packageList = []
+  const packageList = [];
 
-  workspacesList.forEach(workspace => {
-    const workspaceDir = path.dirname(workspace)
-    const workspaceAbsDir = path.join(root, workspaceDir)
-    const packageJsonGlob = path.join('**!(node_modules)', 'package.json')
-    const packageJsonAbsPaths = glob
-      .sync(packageJsonGlob, { cwd: workspaceAbsDir })
-      .map(pkgPath => path.join(workspaceAbsDir, pkgPath))
+  workspacesList.forEach((workspace) => {
+    const workspaceDir = path.dirname(workspace);
+    const workspaceAbsDir = path.join(root, workspaceDir);
+    const packageJsonGlob = path.join("**!(node_modules)", "package.json");
+    const packageJsonAbsPaths = glob.sync(packageJsonGlob, {cwd: workspaceAbsDir}).map((pkgPath) => path.join(workspaceAbsDir, pkgPath));
 
-    packageList.push(...packageJsonAbsPaths)
-  })
+    packageList.push(...packageJsonAbsPaths);
+  });
 
-  return packageList
-}
+  return packageList;
+};
 
 const getDeep = (obj, keyChain) => {
-  const nextKey = keyChain.shift()
-  const has = Reflect.has(obj, nextKey)
-  const val = obj[nextKey]
+  const nextKey = keyChain.shift();
+  const has = Reflect.has(obj, nextKey);
+  const val = obj[nextKey];
 
   if (keyChain.length === 0) {
-    return val
+    return val;
   }
 
   if (has) {
-    return getDeep(val, keyChain)
+    return getDeep(val, keyChain);
   }
 
-  return false
-}
+  return false;
+};
 
-const resolveBabelLoaderPaths = ({ root, workspacesList }, packageEntry) => {
-  const packageJsonPaths = getPackagePaths(root, workspacesList)
-  const babelLoaderPaths = []
+const resolveBabelLoaderPaths = ({root, workspacesList}, packageEntry) => {
+  const packageJsonPaths = getPackagePaths(root, workspacesList);
+  const babelLoaderPaths = [];
 
-  packageJsonPaths.map(absPkgPath => {
-    const packageJson = loadPackageJson(absPkgPath)
-    const mainSrcFile = getDeep(packageJson, [packageEntry])
+  packageJsonPaths.map((absPkgPath) => {
+    const packageJson = loadPackageJson(absPkgPath);
+    const mainSrcFile = getDeep(packageJson, [packageEntry]);
 
     if (mainSrcFile) {
-      const mainSrcPath = path.dirname(mainSrcFile)
-      const packageAbsDir = path.dirname(absPkgPath)
-      const absSrcPath = path.join(packageAbsDir, mainSrcPath)
-      babelLoaderPaths.push(absSrcPath)
+      const mainSrcPath = path.dirname(mainSrcFile);
+      const packageAbsDir = path.dirname(absPkgPath);
+      const absSrcPath = path.join(packageAbsDir, mainSrcPath);
+      babelLoaderPaths.push(absSrcPath);
     }
-  })
+  });
 
-  return babelLoaderPaths
-}
+  return babelLoaderPaths;
+};
 
-const loadAppSettings = appPackageJson => {
-  const result = { workspaces: {}, dependencies: {} }
+const loadAppSettings = (appPackageJson) => {
+  const result = {workspaces: {}, dependencies: {}};
 
-  const appPackageObj = loadPackageJson(appPackageJson)
-  const dependencies = getDeep(appPackageObj, ['dependencies'])
-  const devDependencies = getDeep(appPackageObj, ['devDependencies'])
+  const appPackageObj = loadPackageJson(appPackageJson);
+  const dependencies = getDeep(appPackageObj, ["dependencies"]);
+  const devDependencies = getDeep(appPackageObj, ["devDependencies"]);
 
   if (!dependencies && !devDependencies) {
-    return result
+    return result;
   }
 
   if (dependencies) {
-    result.dependencies = Object.assign(result.dependencies, dependencies)
+    result.dependencies = Object.assign(result.dependencies, dependencies);
   }
 
   if (devDependencies) {
-    result.dependencies = Object.assign(result.dependencies, devDependencies)
+    result.dependencies = Object.assign(result.dependencies, devDependencies);
   }
 
-  const reactScripts = getDeep(appPackageObj, ['react-scripts'])
+  const reactScripts = getDeep(appPackageObj, ["react-scripts"]);
 
   if (!reactScripts) {
-    return result
+    return result;
   }
 
-  const workspaces = getDeep(reactScripts, ['workspaces'])
+  const workspaces = getDeep(reactScripts, ["workspaces"]);
 
-  result.workspaces = workspaces
+  result.workspaces = workspaces;
   if (!workspaces) {
-    return result
+    return result;
   }
 
-  return workspaces
-}
+  return workspaces;
+};
 
 const guard = (appDirectory, appPackageJson) => {
   if (!appDirectory) {
-    throw new Error('appDirectory not provided')
+    throw new Error("appDirectory not provided");
   }
 
-  if (typeof appDirectory !== 'string') {
-    throw new Error('appDirectory should be a string')
+  if (typeof appDirectory !== "string") {
+    throw new Error("appDirectory should be a string");
   }
 
   if (!appPackageJson) {
-    throw new Error('appPackageJson not provided')
+    throw new Error("appPackageJson not provided");
   }
 
-  if (typeof appPackageJson !== 'string') {
-    throw new Error('appPackageJson should be a string')
+  if (typeof appPackageJson !== "string") {
+    throw new Error("appPackageJson should be a string");
   }
-}
+};
 
-const getPkg = path => {
-  const pkgPath = findUp.sync('package.json', { cwd: path })
-  return loadPackageJson(pkgPath)
-}
+const getPkg = (path) => {
+  const pkgPath = findUp.sync("package.json", {cwd: path});
+  return loadPackageJson(pkgPath);
+};
 
-const getDeps = pkg => {
-  const deps = getDeep(pkg, ['dependencies'])
-  const devDeps = getDeep(pkg, ['devDependencies'])
+const getDeps = (pkg) => {
+  const deps = getDeep(pkg, ["dependencies"]);
+  const devDeps = getDeep(pkg, ["devDependencies"]);
 
-  let dependencies = {}
+  let dependencies = {};
 
   if (deps) {
-    dependencies = Object.assign(dependencies, deps)
+    dependencies = Object.assign(dependencies, deps);
   }
 
   if (devDeps) {
-    dependencies = Object.assign(dependencies, devDeps)
+    dependencies = Object.assign(dependencies, devDeps);
   }
 
-  return dependencies
-}
+  return dependencies;
+};
 
-const depsTable = {}
+const depsTable = {};
 
-const buildDepsTable = srcPaths => {
-  srcPaths.forEach(path => {
-    const pkg = getPkg(path)
-    const name = pkg.name
-    const deps = getDeps(pkg)
-    depsTable[name] = { path, deps }
-  })
-}
+const buildDepsTable = (srcPaths) => {
+  srcPaths.forEach((path) => {
+    const pkg = getPkg(path);
+    const name = pkg.name;
+    const deps = getDeps(pkg);
+    depsTable[name] = {path, deps};
+  });
+};
 
 const filterSrcPaths = (srcPaths, dependencies) => {
-  const filteredPaths = []
+  const filteredPaths = [];
 
-  srcPaths.forEach(path => {
-    const pkg = getPkg(path)
+  srcPaths.forEach((path) => {
+    const pkg = getPkg(path);
 
     if (dependencies && Reflect.has(dependencies, pkg.name)) {
-      filteredPaths.push(path)
+      filteredPaths.push(path);
 
-      const subDeps = depsTable[pkg.name].deps
-      const subPaths = filterSrcPaths(srcPaths, subDeps)
-      filteredPaths.push(...subPaths)
+      const subDeps = depsTable[pkg.name].deps;
+      const subPaths = filterSrcPaths(srcPaths, subDeps);
+      filteredPaths.push(...subPaths);
     }
-  })
+  });
 
-  return filteredPaths
-}
+  return filteredPaths;
+};
 
-const init = paths => {
-  guard(paths.appPath, paths.appPackageJson)
+const init = (paths) => {
+  guard(paths.appPath, paths.appPackageJson);
 
   const config = {
     root: null,
     paths: [],
-    packageEntry: 'main',
+    packageEntry: "main",
     development: true,
     production: true
-  }
+  };
 
-  const { root, workspaces } = getWorkspacesRootConfig(path.resolve(paths.appPath))
+  const {root, workspaces} = getWorkspacesRootConfig(path.resolve(paths.appPath));
 
-  const workspacesList = []
+  const workspacesList = [];
 
   // Normally "workspaces" in package.json is an array
   if (Array.isArray(workspaces)) {
-    workspacesList.push(...workspaces)
+    workspacesList.push(...workspaces);
   }
 
   // Sometimes "workspaces" in package.json is an object
   // with a ".packages" sub-array, eg: when used with "nohoist"
   // See: https://yarnpkg.com/blog/2018/02/15/nohoist
-  if (
-    workspaces &&
-    !Array.isArray(workspaces) &&
-    Reflect.has(workspaces, 'packages')
-  ) {
-    workspacesList.push(...workspaces.packages)
+  if (workspaces && !Array.isArray(workspaces) && Reflect.has(workspaces, "packages")) {
+    workspacesList.push(...workspaces.packages);
   }
 
   if (workspacesList.length === 0) {
-    return config
+    return config;
   }
-  console.log('Yarn Workspaces paths detected.')
-  config.root = root
+  console.log("Yarn Workspaces paths detected.");
+  config.root = root;
 
-  const appSettings = loadAppSettings(paths.appPackageJson)
+  const appSettings = loadAppSettings(paths.appPackageJson);
 
-  if (Reflect.has(appSettings.workspaces, 'development')) {
-    config.development = !!appSettings.workspaces.development
-  }
-
-  if (Reflect.has(appSettings.workspaces, 'production')) {
-    config.production = !!appSettings.workspaces.production
+  if (Reflect.has(appSettings.workspaces, "development")) {
+    config.development = !!appSettings.workspaces.development;
   }
 
-  if (Reflect.has(appSettings.workspaces, 'package-entry')) {
-    config.packageEntry = appSettings.workspaces['package-entry']
+  if (Reflect.has(appSettings.workspaces, "production")) {
+    config.production = !!appSettings.workspaces.production;
   }
 
-  const babelSrcPaths = resolveBabelLoaderPaths(
-    { root, workspacesList },
-    config.packageEntry
-  )
+  if (Reflect.has(appSettings.workspaces, "package-entry")) {
+    config.packageEntry = appSettings.workspaces["package-entry"];
+  }
 
-  buildDepsTable(babelSrcPaths)
+  const babelSrcPaths = resolveBabelLoaderPaths({root, workspacesList}, config.packageEntry);
 
-  const applicableSrcPaths = [
-    ...new Set(filterSrcPaths(babelSrcPaths, appSettings.dependencies))
-  ]
+  buildDepsTable(babelSrcPaths);
 
-  console.log(
-    `Found ${babelSrcPaths.length} path(s) with "${config.packageEntry}" entry.`
-  )
+  const applicableSrcPaths = [...new Set(filterSrcPaths(babelSrcPaths, appSettings.dependencies))];
+
+  console.log(`Found ${babelSrcPaths.length} path(s) with "${config.packageEntry}" entry.`);
 
   if (applicableSrcPaths.length > 0) {
-    config.paths.push(...applicableSrcPaths)
+    config.paths.push(...applicableSrcPaths);
   }
 
-  console.log('Exporting Workspaces config to Webpack.')
+  console.log("Exporting Workspaces config to Webpack.");
 
-  return config
-}
+  return config;
+};
 
 module.exports = {
   init,
-  configure(webpackConfig, { env, paths }) {
-    const workspacesConfig = init(paths)
+  configure(webpackConfig, {env, paths}) {
+    const workspacesConfig = init(paths);
 
-    const dev = env === 'development'
-    const prod = env === 'production'
-    const node_modules = [workspacesConfig.root]
-      .concat(workspacesConfig.paths)
-      .map(p => `${p}/node_modules`)
+    const dev = env === "development";
+    const prod = env === "production";
+    const node_modules = [workspacesConfig.root].concat(workspacesConfig.paths).map((p) => `${p}/node_modules`);
 
     // update node_modules paths
-    webpackConfig.resolve.modules = Array.from(webpackConfig.resolve.modules).concat(
-      node_modules
-    )
+    webpackConfig.resolve.modules = Array.from(webpackConfig.resolve.modules).concat(node_modules);
 
-    webpackConfig.resolve.plugins = [webpackConfig.resolve.plugins[0]]
+    webpackConfig.resolve.plugins = [webpackConfig.resolve.plugins[0]];
 
     const include =
       dev && workspacesConfig.development
         ? [workspacesConfig.paths, paths.appSrc]
         : prod && workspacesConfig.production
         ? [workspacesConfig.paths, paths.appSrc]
-        : paths.appSrc
+        : paths.appSrc;
 
-    const rule = webpackConfig.module.rules[1]
+    const rule = webpackConfig.module.rules[1];
 
     // linter
-    rule.include = include
+    rule.include = include;
     // skip package node_modules from linter
-    rule.exclude = node_modules
+    rule.exclude = node_modules;
     // loader
-    rule.oneOf[2].include = include
+    rule.oneOf[2].include = include;
 
     // process.exit()
-    return webpackConfig
+    return webpackConfig;
   },
-  ensureReact(webpackConfig){
+  ensureReact(webpackConfig) {
     webpackConfig.resolve.alias = {
       ...webpackConfig.resolve.alias,
-      'react/jsx-dev-runtime': require.resolve('react/jsx-dev-runtime'),
-      'react/jsx-runtime': require.resolve('react/jsx-runtime'),
-      react: require.resolve('react')
-    }
+      "react/jsx-dev-runtime": require.resolve("react/jsx-dev-runtime"),
+      "react/jsx-runtime": require.resolve("react/jsx-runtime"),
+      react: require.resolve("react")
+    };
 
-    return webpackConfig
+    return webpackConfig;
   }
-}
+};

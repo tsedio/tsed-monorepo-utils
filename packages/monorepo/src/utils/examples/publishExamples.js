@@ -3,6 +3,11 @@ import { createTasksRunner } from '../common/createTasksRunner'
 import { createExampleOptions } from './createExampleOptions'
 import { syncExample } from './syncExample'
 
+/**
+ *
+ * @param context {MonoRepo}
+ * @returns {HTMLElement|*}
+ */
 export function publishExamples (context) {
   const { examples: { repositories = {} } } = context
 
