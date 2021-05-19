@@ -1,33 +1,33 @@
-import { Cli } from './Cli'
+import {Cli} from "./Cli";
 
 class YarnCli extends Cli {
-  constructor () {
-    super('yarn')
+  constructor() {
+    super("yarn");
   }
 
-  newVersion (version) {
-    return this.version('--no-git-tag-version', '--new-version', version)
+  newVersion(version) {
+    return this.version("--no-git-tag-version", "--new-version", version);
   }
 
-  version (...args) {
-    return this.sync('version', ...args)
+  version(...args) {
+    return this.sync("version", ...args);
   }
 
-  run (...args) {
-    return super.run(...args)
+  run(...args) {
+    return super.run(...args);
   }
 
-  install (...args) {
-    return super.run(args.length ? 'add' : 'install', ...args)
+  install(...args) {
+    return super.run(args.length ? "add" : "install", ...args);
   }
 
   /**
    * Reinstall dependencies without yarn.lock mutation
    * @returns {Promise<unknown>}
    */
-  restore () {
-    return super.run('install', '--frozen-lockfile', '--production=false')
+  restore() {
+    return super.run("install", "--frozen-lockfile", "--production=false");
   }
 }
 
-export const yarn = new YarnCli()
+export const yarn = new YarnCli();

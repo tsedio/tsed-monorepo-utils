@@ -1,91 +1,95 @@
-import chalk from 'chalk'
-import fs from 'fs-extra'
-import {dirname, join} from 'path'
-import {npm} from '../cli'
-import {findPackages} from './findPackages'
+import chalk from "chalk";
+import fs from "fs-extra";
+import get from "lodash/get";
+import {dirname, join} from "path";
+import {npm} from "../cli";
+import {findPackages} from "./findPackages";
 
 function writeNpmrc(path, registries, scope) {
-  const npmrc = join(path, '.npmrc')
+  const npmrc = join(path, ".npmrc");
 
   const content = registries.map((registry) => {
-    registry = registry.replace('https:', '').replace('http:', '')
+    registry = registry.replace("https:", "").replace("http:", "");
 
-    let token = 'NODE_AUTH_TOKEN'
+    let token = "NODE_AUTH_TOKEN";
 
-    if (registry.includes('github')) {
-      return scope + ':registry=https:' + registry + '\n' +
-        registry + '/:_authToken=${GH_TOKEN}\n'
+    if (registry.includes("github")) {
+      return scope + ":registry=https:" + registry + "\n" + registry + "/:_authToken=${GH_TOKEN}\n";
     }
 
-    if (registry.includes('npmjs')) {
-      token = 'NPM_TOKEN'
+    if (registry.includes("npmjs")) {
+      token = "NPM_TOKEN";
     }
 
+    return registry + ":_authToken=${" + token + "}";
+  });
 
-    return registry + ':_authToken=${' + token + '}'
-  })
+  fs.writeFileSync(npmrc, content.join("\n"), {encoding: "utf8"});
 
-  fs.writeFileSync(npmrc, content.join('\n'), {encoding: 'utf8'})
-
-  return npmrc
+  return npmrc;
 }
 
+/**
+ *
+ * @param context {MonoRepo}
+ * @returns {Promise<void>}
+ */
 export async function publishPackages(context) {
-  const {
-    logger,
-    rootDir,
-    npmAccess,
-    dryRun = false,
-    registry = 'https://registry.npmjs.org/',
-    registries = []
-  } = context
+  const {logger, npmAccess, dryRun, registry, registries} = context;
 
-  const pkgs = await findPackages({
-    cwd: rootDir
-  })
+  const packages = await findPackages(context);
 
-  const urls = [...new Set(registries.concat(registry).filter(Boolean))]
-  const errors = []
-  const promises = pkgs
+  const urls = [...new Set(registries.concat(registry).filter(Boolean))];
+  const errors = [];
+  const promises = packages
     .filter(({pkg}) => !pkg.private)
     .map(async ({path, pkg}) => {
-      logger.info('Publish package', chalk.cyan(pkg.name))
+      logger.info("Publish package", chalk.cyan(pkg.name));
+
+      const registries = get(pkg, "monorepo", urls);
 
       try {
-        const cwd = dirname(path)
+        const cwd = dirname(path);
 
         if (dryRun) {
           npm.pack().sync({
             cwd,
             env: {
-              NPM_TOKEN: 'test'
+              NPM_TOKEN: "test"
             }
-          })
+          });
         } else {
-          for (const url of urls) {
-            const npmrc = writeNpmrc(cwd, [url], pkg.name.split('/')[0])
+          for (const url of registries) {
+            const npmrc = writeNpmrc(cwd, [url], pkg.name.split("/")[0]);
             try {
-              logger.info("Publish package",  chalk.cyan(pkg.name),  "on", url)
-              await npm.publish('--userconfig', npmrc, '--access', npmAccess, '--registry', registry).cwd(cwd)
+              logger.info("Publish package", chalk.cyan(pkg.name), "on", url);
+              await npm.publish("--userconfig", npmrc, "--access", npmAccess, "--registry", registry).cwd(cwd);
             } catch (er) {
-              errors.push({pkg, error: er, registry})
-              logger.error(chalk.red(er.message), chalk.red(er.stack))
+              errors.push({pkg, error: er, registry});
+              logger.error(chalk.red(er.message), chalk.red(er.stack));
             }
           }
         }
       } catch (er) {
-        logger.error(chalk.red(er.message), chalk.red(er.stack))
-        errors.push({pkg, error: er})
+        logger.error(chalk.red(er.message), chalk.red(er.stack));
+        errors.push({pkg, error: er});
       }
 
-      return undefined
-    })
+      return undefined;
+    });
 
   if (errors.length) {
-    logger.error(chalk.red('Some packages have not been published: \n' + errors.map(({pkg, error, registry}) => {
-      return [pkg.name, registry, error.message].filter(Boolean).join(' - ')
-    }).join('\n')))
+    logger.error(
+      chalk.red(
+        "Some packages have not been published: \n" +
+          errors
+            .map(({pkg, error, registry}) => {
+              return [pkg.name, registry, error.message].filter(Boolean).join(" - ");
+            })
+            .join("\n")
+      )
+    );
   }
 
-  await Promise.all(promises)
+  await Promise.all(promises);
 }

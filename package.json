@@ -4,11 +4,16 @@
   "description": "Monorepo CLI and utils to deploy packages on NPM",
   "private": true,
   "scripts": {
-    "test": "exit 0",
-    "build": "node packages/monorepo/bin/monorepo-build.js",
+    "clean": "node packages/monorepo/bin/monorepo-clean workspace",
+    "test": "yarn test:lint",
+    "test:lint": "eslint '{packages,test}/**/*.js' --ext .ts",
+    "test:lint:fix": "eslint '{packages,test}/**/*.js' --fix",
+    "prettier": "prettier '{packages,test}/**/*.js' --write",
+    "build": "node packages/monorepo/bin/monorepo-build.js --verbose",
     "publish": "node packages/monorepo/bin/monorepo-publish.js --dry-run",
     "release": "semantic-release",
-    "release:dryRun": "semantic-release --dry-run"
+    "release:dryRun": "semantic-release --dry-run",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
@@ -25,7 +30,15 @@
     "lerna": "3.22.0"
   },
   "devDependencies": {
-    "semantic-release": "17.0.8"
+    "microbundle": "0.13.0",
+    "semantic-release": "17.4.3",
+    "eslint": "^7.10.0",
+    "eslint-config-prettier": "6.12.0",
+    "eslint-plugin-jest": "24.2.1",
+    "eslint-plugin-prettier": "3.3.1",
+    "prettier": "2.2.1",
+    "husky": "^6.0.0",
+    "lint-staged": "10.5.4"
   },
   "workspaces": {
     "packages": [

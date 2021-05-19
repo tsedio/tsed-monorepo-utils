@@ -1,9 +1,7 @@
-import { build } from '../../tasks/build'
+import {build} from "../../tasks/build";
 
 export class BuildCmd {
-  getTasks (context) {
-    return [
-      ...build(context)
-    ]
+  getTasks(context) {
+    return [...build(context)];
   }
 }

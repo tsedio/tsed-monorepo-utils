@@ -24,13 +24,13 @@
     "fancy-log": "1.3.3",
     "figures": "3.2.0",
     "fs-extra": "9.0.0",
-    "globby": "11.0.0",
+    "globby": "11.0.3",
     "has-yarn": "^2.1.0",
     "inquirer": "7.1.0",
     "listr": "0.14.3",
-    "lodash": "4.17.19",
+    "lodash": "4.17.21",
     "normalize-path": "3.0.0",
-    "read-package-json": "2.1.1",
+    "read-package-json": "2.1.2",
     "semver": "7.3.2"
   },
   "directories": {
@@ -41,5 +41,7 @@
     "monorepo": "./bin/monorepo.js"
   },
   "devDependencies": {},
-  "peerDependencies": {}
+  "peerDependencies": {
+    "semantic-release": "17.4.3"
+  }
 }

@@ -3,7 +3,13 @@
   "version": "1.17.8",
   "description": "Yarn workspaces utils for CRACO",
   "private": false,
-  "main": "./src/index.js",
+  "source": "./src/index.js",
+  "main": "./lib/index.js",
+  "typings": "./lib/index.d.ts",
+  "exports": {
+    "require": "./lib/index.js",
+    "default": "./lib/index.modern.js"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/tsedio/tsed-monorepo-utils.git"
@@ -15,13 +21,16 @@
     "url": "https://github.com/tsedio/tsed-monorepo-utils/issues"
   },
   "homepage": "http://tsed.io/",
+  "directories": {
+    "src": "./src"
+  },
+  "scripts": {
+    "build": "yarn microbundle --target node --no-compress --format modern,cjs"
+  },
   "dependencies": {
     "find-up": "5.0.0",
     "fs-extra": "9.1.0",
     "glob": "7.1.6"
-  },
-  "directories": {
-    "src": "./src"
   },
   "devDependencies": {},
   "peerDependencies": {}
