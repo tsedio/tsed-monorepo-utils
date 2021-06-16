@@ -36,7 +36,7 @@ npm install --save-dev @tsed/monorepo-utils
 
 ## Configuration
 
-MonoRepoUtils support [semantic-release] versioning tools and publishing Release note on Github. By the way, it's not mandatory. You can manage manage versioning 
+MonoRepoUtils support [semantic-release](https://github.com/semantic-release/semantic-release) versioning tools and publishing Release note on Github. By the way, it's not mandatory. You can manage manage versioning 
 by you own way.
 
 ### Prerequisite configuration
