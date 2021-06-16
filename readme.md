@@ -18,7 +18,7 @@ mono repository [lerna](https://lerna.js.org/).
 ## Workspaces
 
 MonoRepoUtils use Lerna to manage scripts between package. By default, MonoRepoUtils use Yarn as workspaces manager.
-You can try with NPM 7. But isn't officially supported right know.
+You can try with NPM 7. But isn't officially supported right now.
 
 ## Supported CI
 
@@ -80,7 +80,7 @@ Add these tasks to your package.json:
 
 ### Configuration with Semantic-release
 
-Install [semantic-release](https://github.com/semantic-release/semantic-release) and add `repo.config.js` file and add these lines:
+Install [semantic-release](https://github.com/semantic-release/semantic-release) and add `release.config.js` file and add these lines:
 
 ```javascript
 module.exports = {
