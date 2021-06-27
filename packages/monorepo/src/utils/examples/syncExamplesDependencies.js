@@ -40,8 +40,8 @@ async function updatePackage (pkgPath, context) {
 
   !silent && logger('Update package', chalk.cyan(pkgPath))
 
-  currentPkg.dependencies = updateVersions(currentPkg.dependencies, dependencies, context)
-  currentPkg.devDependencies = updateVersions(currentPkg.devDependencies, dependencies, context)
+  currentPkg.dependencies = updateVersions(currentPkg.dependencies, dependencies, {}, context)
+  currentPkg.devDependencies = updateVersions(currentPkg.devDependencies, dependencies, {}, context)
 
   await writePackage(pkgPath, currentPkg)
 }
