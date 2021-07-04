@@ -351,7 +351,6 @@ export class MonoRepo {
   }
 
   publish(type, options = {}) {
-    console.log(type, options);
     switch (type) {
       case "packages":
         return this.publishPackages(options);
