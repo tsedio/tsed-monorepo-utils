@@ -1,9 +1,7 @@
-"use strict";
-
-const fse = require("fs-extra");
-const path = require("path");
-const findUp = require("find-up");
-const glob = require("glob");
+import fse from "fs-extra";
+import path from "path";
+import findUp from "find-up";
+import glob from "glob";
 
 const loadPackageJson = (packagePath) => {
   try {
@@ -186,7 +184,7 @@ const filterSrcPaths = (srcPaths, dependencies) => {
   return filteredPaths;
 };
 
-const init = (paths) => {
+export const init = (paths) => {
   guard(paths.appPath, paths.appPackageJson);
 
   const config = {
@@ -250,47 +248,45 @@ const init = (paths) => {
   return config;
 };
 
-module.exports = {
-  init,
-  configure(webpackConfig, {env, paths}) {
-    const workspacesConfig = init(paths);
+export function configure(webpackConfig, {env, paths}) {
+  const workspacesConfig = init(paths);
 
-    const dev = env === "development";
-    const prod = env === "production";
-    const node_modules = [workspacesConfig.root].concat(workspacesConfig.paths).map((p) => `${p}/node_modules`);
+  const dev = env === "development";
+  const prod = env === "production";
+  const node_modules = [workspacesConfig.root].concat(workspacesConfig.paths).map((p) => `${p}/node_modules`);
 
-    // update node_modules paths
-    webpackConfig.resolve.modules = Array.from(webpackConfig.resolve.modules).concat(node_modules);
+  // update node_modules paths
+  webpackConfig.resolve.modules = Array.from(webpackConfig.resolve.modules).concat(node_modules);
 
-    webpackConfig.resolve.plugins = [webpackConfig.resolve.plugins[0]];
+  webpackConfig.resolve.plugins = [webpackConfig.resolve.plugins[0]];
 
-    const include =
-      dev && workspacesConfig.development
-        ? [workspacesConfig.paths, paths.appSrc]
-        : prod && workspacesConfig.production
-        ? [workspacesConfig.paths, paths.appSrc]
-        : paths.appSrc;
+  const include =
+    dev && workspacesConfig.development
+      ? [workspacesConfig.paths, paths.appSrc]
+      : prod && workspacesConfig.production
+      ? [workspacesConfig.paths, paths.appSrc]
+      : paths.appSrc;
 
-    const rule = webpackConfig.module.rules[1];
+  const rule = webpackConfig.module.rules[1];
 
-    // linter
-    rule.include = include;
-    // skip package node_modules from linter
-    rule.exclude = node_modules;
-    // loader
-    rule.oneOf[2].include = include;
+  // linter
+  rule.include = include;
+  // skip package node_modules from linter
+  rule.exclude = node_modules;
+  // loader
+  rule.oneOf[2].include = include;
 
-    // process.exit()
-    return webpackConfig;
-  },
-  ensureReact(webpackConfig) {
-    webpackConfig.resolve.alias = {
-      ...webpackConfig.resolve.alias,
-      "react/jsx-dev-runtime": require.resolve("react/jsx-dev-runtime"),
-      "react/jsx-runtime": require.resolve("react/jsx-runtime"),
-      react: require.resolve("react")
-    };
+  // process.exit()
+  return webpackConfig;
+}
 
-    return webpackConfig;
-  }
-};
+export function ensureReact(webpackConfig) {
+  webpackConfig.resolve.alias = {
+    ...webpackConfig.resolve.alias,
+    "react/jsx-dev-runtime": require.resolve("react/jsx-dev-runtime"),
+    "react/jsx-runtime": require.resolve("react/jsx-runtime"),
+    react: require.resolve("react")
+  };
+
+  return webpackConfig;
+}

@@ -1,1 +1,1 @@
-module.exports = require("./yarn-workspaces");
+export * from "./yarn-workspaces";
