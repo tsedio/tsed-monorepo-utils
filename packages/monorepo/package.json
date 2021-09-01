@@ -30,7 +30,7 @@
     "listr": "0.14.3",
     "lodash": "4.17.21",
     "normalize-path": "3.0.0",
-    "read-package-json": "2.1.2",
+    "read-package-json": "4.0.1",
     "semver": "7.3.2"
   },
   "directories": {
