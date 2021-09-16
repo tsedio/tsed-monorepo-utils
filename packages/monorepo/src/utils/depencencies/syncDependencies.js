@@ -17,6 +17,10 @@ export async function syncDependencies(context) {
     dependencies.delete(pkg);
   });
 
+  packages.map(({pkg}) => {
+    dependencies.set(pkg.name, pkg.version);
+  });
+
   const promises = packages.map(async ({path, pkg}) => {
     !silent && logger.info("Update package.json", chalk.cyan(pkg.name));
 
