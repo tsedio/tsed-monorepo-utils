@@ -14,6 +14,7 @@ export function defaultPackageMapper(pkgInfo, context) {
     .replace(/git:\/\//gi, "https://");
 
   const packageName = path.replace(rootDir, "").replace("/package.json", "");
+  const subpath = `/tree/${productionBranch}/${packageName}`.replace("//", "/");
 
   return {
     ...pkg,
@@ -21,7 +22,7 @@ export function defaultPackageMapper(pkgInfo, context) {
     typings: pkg.typings && !pkg.typings.endsWith(".d.ts") ? pkg.typings.replace(/\.ts/, ".d.ts") : pkg.typings,
     repository,
     bugs,
-    homepage: `${repository}/tree/${productionBranch}/${packageName}`,
+    homepage: `${repository}${subpath}`,
     author,
     contributors,
     license,
