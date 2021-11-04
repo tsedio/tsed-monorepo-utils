@@ -276,6 +276,8 @@ export function configure(webpackConfig, {env, paths}) {
   // loader
   rule.oneOf[2].include = include;
 
+  webpackConfig.resolve.extensions.unshift(".ts", ".tsx");
+
   // process.exit()
   return webpackConfig;
 }
