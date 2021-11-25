@@ -12,7 +12,7 @@ export async function cleanPackages(context) {
   const patterns = packages.reduce(
     (patterns, {path}) => {
       const base = dirname(path);
-      return [...patterns, join(base, "lib"), join(base, "dist")];
+      return [...patterns, join(base, "esm"), join(base, "types"), join(base, "lib"), join(base, "dist")];
     },
     [join(context.rootDir, context.outputDir), "test/**/*.{js,js.map,d.ts}", "test/**/*.{js,js.map,d.ts}"]
   );
