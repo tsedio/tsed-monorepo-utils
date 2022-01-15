@@ -197,13 +197,15 @@ export class MonoRepo {
     this.dryRun = dryRun;
 
     // DOC
-    this.ghpages = {
-      dir: get(this.rootPkg, "monorepo.ghpages.dir", ""),
-      url: get(this.rootPkg, "monorepo.ghpages.url", this.repositoryUrl),
-      branch: get(this.rootPkg, "monorepo.ghpages.branch", "gh-pages"),
-      cname: get(this.rootPkg, "monorepo.ghpages.cname", ""),
-      ...(options.ghpages || {})
-    };
+    this.ghpages = get(this.rootPkg, "monorepo.ghpages", []).map((item) => {
+      return {
+        ...item,
+        dir: get(item, "dir", ""),
+        url: get(item, "url", this.repositoryUrl),
+        branch: get(item, "branch", "gh-pages"),
+        cname: get(item, "cname", "")
+      };
+    });
 
     // EXAMPLES
     this.examples = {

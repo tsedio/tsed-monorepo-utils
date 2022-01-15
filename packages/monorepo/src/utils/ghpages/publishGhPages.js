@@ -1,4 +1,4 @@
-import {writeFileSync} from "fs";
+import {existsSync, writeFileSync} from "fs";
 import {git} from "../cli/Git";
 
 /**
@@ -9,8 +9,8 @@ import {git} from "../cli/Git";
 export async function publishGhPages(context) {
   const {ghpages, version, ghToken, env} = context;
 
-  const promises = [].concat(ghpages).map(async () => {
-    if (ghpages.dir) {
+  const promises = [].concat(ghpages).map(async (ghpages) => {
+    if (ghpages.dir && existsSync(ghpages)) {
       const repository = ghpages.url.split("://")[1] || ghpages.url;
 
       writeFileSync(`${ghpages.dir}/CNAME`, ghpages.cname, {});
