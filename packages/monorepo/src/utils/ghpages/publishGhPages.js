@@ -10,7 +10,7 @@ export async function publishGhPages(context) {
   const {ghpages, version, ghToken, env} = context;
 
   const promises = [].concat(ghpages).map(async (ghpages) => {
-    if (ghpages.dir && existsSync(ghpages)) {
+    if (ghpages.dir && existsSync(ghpages.dir)) {
       const repository = ghpages.url.split("://")[1] || ghpages.url;
 
       writeFileSync(`${ghpages.dir}/CNAME`, ghpages.cname, {});
