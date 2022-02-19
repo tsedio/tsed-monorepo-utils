@@ -22,7 +22,7 @@ export async function buildHybridPackages(context) {
     if (pkg.exports) {
       if (pkg.exports.import && pkg.exports.require) {
         const esmDir = join(packageDir, dirname(pkg.exports.import));
-        const commonJsDir = join(packageDir, dirname(pkg.exports.import));
+        const commonJsDir = join(packageDir, dirname(pkg.exports.require));
 
         await Promise.all([
           addJsExtension(esmDir, context),
