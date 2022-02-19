@@ -17,7 +17,7 @@
   "homepage": "http://tsed.io/",
   "dependencies": {
     "@typescript-eslint/typescript-estree": "5.12.0",
-    "axios": "0.21.1",
+    "axios": "0.26.0",
     "chalk": "3.0.0",
     "commander": "5.1.0",
     "esm": "3.2.25",
