@@ -3,6 +3,7 @@ import {copyPackages} from "../utils/packages/copyPackages";
 import {writePackages} from "../utils/packages/writePackages";
 import {syncDependencies} from "../utils/depencencies/syncDependencies";
 import {clean} from "../utils/common/clean";
+import {buildHybridPackages} from "../utils/packages/buildHybridPackages";
 
 export function build(context) {
   return [
@@ -25,6 +26,10 @@ export function build(context) {
     {
       title: "Write package.json",
       task: () => writePackages(context)
+    },
+    {
+      title: "Build hybrid CommonJS/ESM modules",
+      task: () => buildHybridPackages(context)
     }
   ];
 }
