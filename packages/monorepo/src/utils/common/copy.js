@@ -4,6 +4,7 @@ import {globAsync} from "./glob";
 export async function copy(patterns, {baseDir, outputDir}) {
   const files = await globAsync(patterns, {
     cwd: baseDir,
+    dot: true,
     absolute: true
   });
 
