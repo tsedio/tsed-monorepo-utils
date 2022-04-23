@@ -1,5 +1,5 @@
 import fs from "fs-extra";
-import {globAsync} from "./glob";
+import {globAsync} from "./glob.js";
 
 export async function clean(patterns) {
   const files = await globAsync(

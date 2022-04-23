@@ -1,4 +1,4 @@
-import {build} from "../../tasks/build";
+import {build} from "../../tasks/build.js";
 
 export class BuildCmd {
   getTasks(context) {

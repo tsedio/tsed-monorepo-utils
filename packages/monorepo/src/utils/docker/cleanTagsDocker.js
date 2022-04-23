@@ -1,4 +1,4 @@
-import {docker} from "../cli/Docker";
+import {docker} from "../cli/Docker.js";
 
 function mapTags(tags) {
   tags = tags

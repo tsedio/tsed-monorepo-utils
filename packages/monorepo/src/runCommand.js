@@ -1,8 +1,8 @@
 import chalk from "chalk";
 import figures from "figures";
 import inquirer from "inquirer";
-import {MonoRepo} from "./MonoRepo";
-import {createTasksRunner} from "./utils/common/createTasksRunner";
+import {MonoRepo} from "./MonoRepo.js";
+import {createTasksRunner} from "./utils/common/createTasksRunner.js";
 
 export async function runCommand(klass, options) {
   try {

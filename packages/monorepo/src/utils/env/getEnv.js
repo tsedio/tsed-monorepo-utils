@@ -1,4 +1,4 @@
-import {getCI} from "./getCi";
+import {getCI} from "./getCi.js";
 
 export function getEnv(pkg) {
   const [owner, projectName] = pkg.name.replace(/^@/, "").split("/");

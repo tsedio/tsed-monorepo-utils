@@ -1,5 +1,5 @@
 import {join} from "path";
-import {readPackage} from "../packages/readPackage";
+import {readPackage} from "../packages/readPackage.js";
 
 export function getDependencies(path = join(process.cwd(), "package.json")) {
   const pkg = readPackage(path);

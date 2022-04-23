@@ -1,9 +1,9 @@
 import {dirname, join} from "path";
 import chalk from "chalk";
 import logger from "fancy-log";
-import {writePackage} from "./writePackage";
-import {findPackages} from "./findPackages";
-import {addJsExtension} from "./addJsExtension";
+import {writePackage} from "./writePackage.js";
+import {findPackages} from "./findPackages.js";
+import {addJsExtension} from "./addJsExtension.js";
 
 /**
  *

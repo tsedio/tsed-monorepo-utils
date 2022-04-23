@@ -1,6 +1,6 @@
 import {dirname, join} from "path";
-import {clean} from "../common/clean";
-import {findPackages} from "./findPackages";
+import {clean} from "../common/clean.js";
+import {findPackages} from "./findPackages.js";
 
 /**
  *

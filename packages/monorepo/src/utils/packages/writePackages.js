@@ -1,9 +1,8 @@
 import {join} from "path";
 import chalk from "chalk";
 import logger from "fancy-log";
-import {writePackage} from "./writePackage";
-import {findPackages} from "./findPackages";
-import {readPackage} from "./readPackage";
+import {writePackage} from "./writePackage.js";
+import {findPackages} from "./findPackages.js";
 
 const noop = (p) => p;
 
@@ -13,7 +12,12 @@ const noop = (p) => p;
  * @returns {Promise<void[]>}
  */
 export async function writePackages(context) {
-  const {npmDistTag, outputDir, silent, ignore = [], pkgMapper = noop} = context;
+  const {outputDir, silent, ignore = [], pkgMapper = noop, branchName} = context;
+  let {npmDistTag} = context;
+
+  if (["alpha", "beta", "rc"].includes(branchName)) {
+    npmDistTag = branchName;
+  }
 
   const packages = await findPackages(context);
 

@@ -1,5 +1,5 @@
 import axios from "axios";
-import {Cli} from "./Cli";
+import {Cli} from "./Cli.js";
 
 class DockerCli extends Cli {
   constructor() {

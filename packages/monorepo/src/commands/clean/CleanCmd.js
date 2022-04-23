@@ -1,5 +1,5 @@
-import {clean} from "../../utils/common/clean";
-import {cleanTagsDocker} from "../../utils/docker/cleanTagsDocker";
+import {clean} from "../../utils/common/clean.js";
+import {cleanTagsDocker} from "../../utils/docker/cleanTagsDocker.js";
 
 export class CleanCmd {
   mapContext(commander) {

@@ -1,8 +1,8 @@
 import chalk from "chalk";
 import {join} from "path";
-import {updateVersions} from "../packages/updateVersions";
-import {writePackage} from "../packages/writePackage";
-import {findPackages} from "../packages/findPackages";
+import {updateVersions} from "../packages/updateVersions.js";
+import {writePackage} from "../packages/writePackage.js";
+import {findPackages} from "../packages/findPackages.js";
 
 /**
  *

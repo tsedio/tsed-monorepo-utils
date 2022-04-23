@@ -1,6 +1,6 @@
-import {globAsync} from "../common/glob";
+import {globAsync} from "../common/glob.js";
 import {basename, dirname, join} from "path";
-import {readPackage} from "./readPackage";
+import {readPackage} from "./readPackage.js";
 
 function deps(pkg, pkgs, set = new Set()) {
   Object.keys({

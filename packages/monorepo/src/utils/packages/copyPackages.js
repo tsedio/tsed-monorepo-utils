@@ -1,7 +1,7 @@
 import {existsSync, readFileSync} from "fs";
 import {dirname, basename, join} from "path";
-import {copy} from "../common/copy";
-import {findPackages} from "./findPackages";
+import {copy} from "../common/copy.js";
+import {findPackages} from "./findPackages.js";
 
 function getPatternsFormNmpIgnore(file) {
   if (existsSync(file)) {

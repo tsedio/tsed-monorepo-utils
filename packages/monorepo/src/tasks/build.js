@@ -1,9 +1,9 @@
-import {compilePackages} from "../utils/packages/compilePackages";
-import {copyPackages} from "../utils/packages/copyPackages";
-import {writePackages} from "../utils/packages/writePackages";
-import {syncDependencies} from "../utils/depencencies/syncDependencies";
-import {clean} from "../utils/common/clean";
-import {buildHybridPackages} from "../utils/packages/buildHybridPackages";
+import {compilePackages} from "../utils/packages/compilePackages.js";
+import {copyPackages} from "../utils/packages/copyPackages.js";
+import {writePackages} from "../utils/packages/writePackages.js";
+import {syncDependencies} from "../utils/depencencies/syncDependencies.js";
+import {clean} from "../utils/common/clean.js";
+import {buildHybridPackages} from "../utils/packages/buildHybridPackages.js";
 
 export function build(context) {
   return [

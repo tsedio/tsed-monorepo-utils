@@ -1,4 +1,4 @@
-import {Cli} from "./Cli";
+import {Cli} from "./Cli.js";
 
 class NpmCli extends Cli {
   constructor() {

@@ -1,4 +1,4 @@
-import {heroku} from "../cli/Heroku";
+import {heroku} from "../cli/Heroku.js";
 
 /**
  *

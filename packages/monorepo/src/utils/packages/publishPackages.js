@@ -2,8 +2,8 @@ import chalk from "chalk";
 import fs from "fs-extra";
 import get from "lodash/get";
 import {basename, dirname, join} from "path";
-import {npm} from "../cli";
-import {findPackages} from "./findPackages";
+import {npm} from "../cli/index.js";
+import {findPackages} from "./findPackages.js";
 
 function writeNpmrc(path, registries, scope) {
   const npmrc = join(path, ".npmrc");

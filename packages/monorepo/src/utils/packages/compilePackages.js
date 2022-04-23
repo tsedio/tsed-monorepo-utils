@@ -1,7 +1,7 @@
-import {lerna} from "../cli";
+import {lerna} from "../cli/index.js";
 import chalk from "chalk";
 import {dirname, join} from "path";
-import {findPackages} from "./findPackages";
+import {findPackages} from "./findPackages.js";
 
 /**
  *

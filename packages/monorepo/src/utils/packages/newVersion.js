@@ -1,4 +1,4 @@
-import {lerna} from "../cli";
+import {lerna} from "../cli/index.js";
 /**
  *
  * @param context {MonoRepo}

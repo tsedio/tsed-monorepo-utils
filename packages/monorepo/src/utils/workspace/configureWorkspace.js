@@ -1,4 +1,4 @@
-import {git} from "../cli/Git";
+import {git} from "../cli/Git.js";
 
 /**
  *

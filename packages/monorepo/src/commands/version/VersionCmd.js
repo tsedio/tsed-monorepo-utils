@@ -1,6 +1,6 @@
 import semver from "semver";
-import {syncDependencies} from "../../utils/depencencies/syncDependencies";
-import {newVersion} from "../../utils/packages/newVersion";
+import {syncDependencies} from "../../utils/depencencies/syncDependencies.js";
+import {newVersion} from "../../utils/packages/newVersion.js";
 
 export class VersionCmd {
   mapContext(commander, monoRepo) {
