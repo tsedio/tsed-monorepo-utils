@@ -27,7 +27,7 @@
     "fs-extra": "10.0.0",
     "globby": "11.0.3",
     "has-yarn": "^2.1.0",
-    "inquirer": "7.1.0",
+    "inquirer": "8.2.4",
     "listr": "0.14.3",
     "lodash": "4.17.21",
     "normalize-path": "3.0.0",
