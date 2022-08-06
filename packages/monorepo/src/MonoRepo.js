@@ -2,7 +2,7 @@ import get from "lodash/get";
 import hasYarn from "has-yarn";
 import logger from "fancy-log";
 import {join} from "path";
-import {npm, yarn} from "./utils/cli/index.js";
+import {lerna, npm, nx, yarn} from "./utils/cli/index.js";
 import {getDependencies} from "./utils/depencencies/getDependencies.js";
 import {syncExamples} from "./utils/examples/syncExample.js";
 import {syncDependencies} from "./utils/depencencies/syncDependencies.js";
@@ -23,6 +23,7 @@ import {publishHeroku} from "./utils/heroku/publishHeroku.js";
 import {cleanTagsDocker} from "./utils/docker/cleanTagsDocker.js";
 import {getWorkspaces} from "./utils/workspace/getWorkspaces.js";
 import {cleanPackages} from "./utils/packages/cleanPackages.js";
+import {yarnBerry} from "./utils/cli/YarnBerry.js";
 
 function getDefaultOptions(rootPkg) {
   return {
@@ -260,15 +261,31 @@ export class MonoRepo {
   }
 
   get manager() {
-    return this.hasYarn ? yarn : npm;
+    return this.hasYarn ? (this.hasYarnBerry ? yarnBerry : yarn) : npm;
+  }
+
+  get workspaceManager() {
+    return this.hasNx ? nx : lerna;
   }
 
   get hasYarn() {
     return hasYarn(this.rootDir);
   }
 
+  get hasWorkspaceManager() {
+    return this.hasNx || this.hasLerna;
+  }
+
+  get hasYarnBerry() {
+    return this.hasYarn && (this.rootPkg.packageManager || "").includes("yarn@");
+  }
+
   get hasLerna() {
     return Boolean(this.rootPkg.dependencies.lerna || this.rootPkg.devDependencies.lerna);
+  }
+
+  get hasNx() {
+    return Boolean(this.rootPkg.dependencies.nx || this.rootPkg.devDependencies.nx);
   }
 
   get hasBuild() {

@@ -1,15 +1,13 @@
 import {Cli} from "./Cli.js";
+import {bumpPackagesVersion} from "../packages/bumpPackagesVersion.js";
 
-class YarnCli extends Cli {
+class YarnBerryCli extends Cli {
   constructor() {
     super("yarn");
   }
 
-  newVersion(version) {
-
-
-
-    return this.version("--no-git-tag-version", "--new-version", version);
+  newVersion(version, context) {
+    return bumpPackagesVersion(version, context);
   }
 
   version(...args) {
@@ -29,8 +27,8 @@ class YarnCli extends Cli {
    * @returns {Promise<unknown>}
    */
   restore() {
-    return super.run("install", "--frozen-lockfile", "--production=false");
+    return super.run("install", "--immutable");
   }
 }
 
-export const yarn = new YarnCli();
+export const yarnBerry = new YarnBerryCli();

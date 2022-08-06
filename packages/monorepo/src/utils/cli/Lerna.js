@@ -13,12 +13,12 @@ class LernaCli extends Cli {
     return this.sync("version", ...args);
   }
 
-  run(...args) {
-    return super.run("run", ...args);
+  run(cmd, ...args) {
+    return super.run("run", cmd, "--stream", ...args);
   }
 
-  install(...args) {
-    return super.run("install", ...args);
+  runMany(cmd, ...args) {
+    return super.run("run", cmd, "--stream", ...args);
   }
 }
 
