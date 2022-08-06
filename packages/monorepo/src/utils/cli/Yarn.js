@@ -6,9 +6,6 @@ class YarnCli extends Cli {
   }
 
   newVersion(version) {
-
-
-
     return this.version("--no-git-tag-version", "--new-version", version);
   }
 

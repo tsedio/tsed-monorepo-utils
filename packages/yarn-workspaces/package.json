@@ -2,7 +2,6 @@
   "name": "@tsed/yarn-workspaces",
   "version": "1.21.0",
   "description": "Yarn workspaces utils for CRACO",
-  "private": false,
   "source": "./src/index.js",
   "main": "./lib/index.js",
   "typings": "./lib/index.d.ts",
@@ -31,7 +30,5 @@
     "find-up": "5.0.0",
     "fs-extra": "10.0.0",
     "glob": "7.1.6"
-  },
-  "devDependencies": {},
-  "peerDependencies": {}
+  }
 }
