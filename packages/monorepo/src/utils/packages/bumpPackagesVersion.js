@@ -1,5 +1,6 @@
 import globby from "globby";
 import fs from "fs-extra";
+import {writePackage} from "./writePackage.js";
 
 const PACKAGE_JSON_PROPS = ["dependencies", "devDependencies", "peerDependencies"];
 
@@ -34,13 +35,11 @@ export async function bumpPackagesVersion(version, context) {
 
     PACKAGE_JSON_PROPS.forEach((key) => bumpDependencies(pkg, key, version, names));
 
-    return fs.writeJson(file, pkg);
+    return writePackage(file, pkg);
   });
 }
 
 function bumpDependencies(pkg, key, version, names) {
-  pkg[key] = pkg[key] || {};
-
   if (pkg[key]) {
     names.forEach((name) => {
       if (pkg[key][name] && !pkg[key][name].startsWith("workspace:")) {

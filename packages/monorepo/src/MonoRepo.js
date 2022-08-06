@@ -55,10 +55,6 @@ export class MonoRepo {
      * @public
      */
     this.rootPkg = options.rootPkg || readPackage(join(this.rootDir, "package.json"));
-
-    this.rootPkg.dependencies = this.rootPkg.dependencies || {};
-    this.rootPkg.devDependencies = this.rootPkg.devDependencies || {};
-    this.rootPkg.peerDependencies = this.rootPkg.peerDependencies || {};
     /**
      * @type {any[]}
      * @public
@@ -301,15 +297,15 @@ export class MonoRepo {
   }
 
   get hasLerna() {
-    return Boolean(this.rootPkg.dependencies.lerna || this.rootPkg.devDependencies.lerna);
+    return Boolean(get(this.rootPkg, "dependencies.lerna") || get(this.rootPkg, "devDependencies.lerna"));
   }
 
   get hasNx() {
-    return Boolean(this.rootPkg.dependencies.nx || this.rootPkg.devDependencies.nx);
+    return Boolean(get(this.rootPkg, "dependencies.nx") || get(this.rootPkg, "devDependencies.nx"));
   }
 
   get hasBuild() {
-    return Boolean(this.rootPkg.scripts.build);
+    return Boolean(get(this.rootPkg, "scripts.build"));
   }
 
   get hasE2E() {
