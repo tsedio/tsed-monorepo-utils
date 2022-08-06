@@ -1,6 +1,6 @@
 {
   "name": "@tsed/yarn-workspaces",
-  "version": "1.21.0",
+  "version": "1.22.0",
   "description": "Yarn workspaces utils for CRACO",
   "source": "./src/index.js",
   "main": "./lib/index.js",
