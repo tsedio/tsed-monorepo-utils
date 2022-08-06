@@ -269,7 +269,23 @@ export class MonoRepo {
   }
 
   get workspaceManager() {
-    return this.hasNx ? nx : lerna;
+    if (this.hasNx) {
+      return nx;
+    }
+
+    if (this.hasLerna) {
+      return lerna;
+    }
+
+    if (this.hasYarnBerry) {
+      return yarnBerry;
+    }
+
+    if (this.hasYarn) {
+      return yarn;
+    }
+
+    return npm;
   }
 
   get hasYarn() {

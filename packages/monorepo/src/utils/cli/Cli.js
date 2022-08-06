@@ -4,6 +4,10 @@ import streamToObservable from "@samverschueren/stream-to-observable";
 import {filter, merge} from "rxjs/operators";
 import split from "split";
 import {spawnSync} from "child_process";
+import {findPackages} from "../packages/findPackages.js";
+import {dirname} from "path";
+import get from "lodash/get.js";
+import chalk from "chalk";
 
 export class Cli {
   constructor(cmd) {
@@ -20,6 +24,55 @@ export class Cli {
 
   get(...args) {
     return Cli.run(this.cmd, args).get();
+  }
+
+  /**
+   * @param cmd string
+   * @param args {any[]}
+   * @param context {MonoRepo}
+   * @returns {Promise<void>}
+   */
+  async runMany(cmd, args = [], context) {
+    const {logger} = context;
+    const pkgs = await findPackages(context);
+
+    for (const {path, pkg} of pkgs) {
+      const cwd = dirname(path);
+
+      if (get(pkg, `scripts.${cmd}`)) {
+        const child = this.run(cmd, ...args).sync({
+          cwd
+        });
+
+        await this.handleStream(child, {
+          success(line) {
+            logger.info(chalk.magenta(pkg.name), line.replace(/^ > /, ""));
+          },
+          error(line) {
+            logger.error(chalk.red(pkg.name), line.replace(/^ > /, ""));
+          }
+        });
+      }
+    }
+  }
+
+  handleStream(child, {success, error}) {
+    child.stdout.on("data", (data) => {
+      data
+        .toString()
+        .split("\n")
+        .filter((line) => !!line.trim())
+        .map(success);
+    });
+    child.stderr.on("data", (data) => {
+      data
+        .toString()
+        .split("\n")
+        .filter((line) => !!line.trim())
+        .map(error);
+    });
+
+    return child;
   }
 
   static run(cmd, args = [], options = {}) {

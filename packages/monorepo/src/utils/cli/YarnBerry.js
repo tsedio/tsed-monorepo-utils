@@ -15,7 +15,21 @@ class YarnBerryCli extends Cli {
   }
 
   run(...args) {
-    return super.run(...args);
+    return super.run("run", ...args);
+  }
+
+  async runMany(cmd, args = [], context) {
+    const {logger} = context;
+    const child = super.run("workspaces", "foreach", "run", cmd, ...args).toStream();
+
+    return await this.handleStream(child, {
+      success(line) {
+        logger.info(line);
+      },
+      error(line) {
+        logger.error(line);
+      }
+    });
   }
 
   install(...args) {

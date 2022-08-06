@@ -24,11 +24,15 @@
     "src": "./src"
   },
   "scripts": {
-    "build": "yarn microbundle --target node --no-compress --format modern,cjs"
+    "build": "microbundle --target node --no-compress --format modern,cjs"
+  },
+  "devDependencies": {
+    "microbundle": "0.13.0"
   },
   "dependencies": {
     "find-up": "5.0.0",
     "fs-extra": "10.0.0",
     "glob": "7.1.6"
-  }
+  },
+  "peerDependencies": {}
 }

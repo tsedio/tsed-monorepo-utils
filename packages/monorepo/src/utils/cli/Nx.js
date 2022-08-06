@@ -9,8 +9,18 @@ class NxCli extends Cli {
     return super.run(cmd, ...args);
   }
 
-  runMany(cmd, ...args) {
-    return super.run("run-many", `--target=${cmd}`, "--all", ...args);
+  async runMany(cmd, args = [], context) {
+    const {logger} = context;
+    const child = super.run("run-many", `--target=${cmd}`, "--all", ...args).toStream();
+
+    return await this.handleStream(child, {
+      success(line) {
+        logger.info(line);
+      },
+      error(line) {
+        logger.error(line);
+      }
+    });
   }
 
   install(...args) {

@@ -14,6 +14,13 @@
     "url": "https://github.com/tsedio/tsed-monorepo-utils/issues"
   },
   "homepage": "http://tsed.io/",
+  "directories": {
+    "src": "./src",
+    "bin": "./bin"
+  },
+  "bin": {
+    "monorepo": "./bin/monorepo.js"
+  },
   "dependencies": {
     "axios": "0.27.2",
     "chalk": "4.1.2",
@@ -31,14 +38,8 @@
     "normalize-path": "3.0.0",
     "semver": "7.3.7"
   },
-  "directories": {
-    "src": "./src",
-    "bin": "./bin"
-  },
-  "bin": {
-    "monorepo": "./bin/monorepo.js"
-  },
   "peerDependencies": {
     "semantic-release": ">=19"
-  }
+  },
+  "devDependencies": {}
 }

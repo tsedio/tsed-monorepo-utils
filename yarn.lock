@@ -2070,6 +2070,7 @@ __metadata:
     find-up: 5.0.0
     fs-extra: 10.0.0
     glob: 7.1.6
+    microbundle: 0.13.0
   languageName: unknown
   linkType: soft
 

@@ -13,8 +13,22 @@ class NpmCli extends Cli {
     return this.sync("version", ...args);
   }
 
-  run(...args) {
-    return super.run("run", ...args);
+  run(cmd, ...args) {
+    return super.run("run", cmd, ...args);
+  }
+
+  async runMany(cmd, args = [], context) {
+    const {logger} = context;
+    const child = super.run("run", "test", "--workspaces", ...args).toStream();
+
+    return await this.handleStream(child, {
+      success(line) {
+        logger.info(line);
+      },
+      error(line) {
+        logger.error(line);
+      }
+    });
   }
 
   publish(...args) {
