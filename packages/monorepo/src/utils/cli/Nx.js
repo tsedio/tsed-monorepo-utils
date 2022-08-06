@@ -11,7 +11,7 @@ class NxCli extends Cli {
 
   async runMany(cmd, args = [], context) {
     const {logger} = context;
-    const child = super.run("run-many", `--target=${cmd}`, "--all", ...args).toStream();
+    const child = super.run("run-many", `--target=${cmd}`, ...args).toStream();
 
     return await this.handleStream(child, {
       success(line) {
