@@ -31,7 +31,7 @@
     "figures": "3.2.0",
     "fs-extra": "10.1.0",
     "globby": "11.1.0",
-    "has-yarn": "2.1.0",
+    "has-yarn": "3.0.0",
     "inquirer": "7.3.3",
     "listr": "0.14.3",
     "lodash": "4.17.21",
