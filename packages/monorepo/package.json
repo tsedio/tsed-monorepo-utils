@@ -1,1 +1,45 @@
-{"name":"@tsed/monorepo-utils","version":"1.22.1","description":"Mono repo utils","main":"./src/index.js","repository":{"type":"git","url":"https://github.com/tsedio/tsed-monorepo-utils.git"},"keywords":[],"author":"Romain Lenzotti","license":"MIT","bugs":{"url":"https://github.com/tsedio/tsed-monorepo-utils/issues"},"homepage":"http://tsed.io/","directories":{"src":"./src","bin":"./bin"},"bin":{"monorepo":"./bin/monorepo.js"},"dependencies":{"axios":"0.27.2","chalk":"4.1.2","commander":"9.4.0","esm":"3.2.25","execa":"5.0.1","fancy-log":"1.3.3","figures":"3.2.0","fs-extra":"10.1.0","globby":"11.1.0","has-yarn":"2.1.0","inquirer":"7.3.3","listr":"0.14.3","lodash":"4.17.21","normalize-path":"3.0.0","semver":"7.3.7"},"peerDependencies":{"semantic-release":">=19"},"devDependencies":{}}
+{
+  "name": "@tsed/monorepo-utils",
+  "version": "1.22.2",
+  "description": "Mono repo utils",
+  "main": "./src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tsedio/tsed-monorepo-utils.git"
+  },
+  "keywords": [],
+  "author": "Romain Lenzotti",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tsedio/tsed-monorepo-utils/issues"
+  },
+  "homepage": "http://tsed.io/",
+  "directories": {
+    "src": "./src",
+    "bin": "./bin"
+  },
+  "bin": {
+    "monorepo": "./bin/monorepo.js"
+  },
+  "dependencies": {
+    "axios": "0.27.2",
+    "chalk": "4.1.2",
+    "commander": "9.4.0",
+    "esm": "3.2.25",
+    "execa": "5.0.1",
+    "fancy-log": "1.3.3",
+    "figures": "3.2.0",
+    "fs-extra": "10.1.0",
+    "globby": "11.1.0",
+    "has-yarn": "2.1.0",
+    "inquirer": "7.3.3",
+    "listr": "0.14.3",
+    "lodash": "4.17.21",
+    "normalize-path": "3.0.0",
+    "semver": "7.3.7"
+  },
+  "peerDependencies": {
+    "semantic-release": ">=19"
+  },
+  "devDependencies": {}
+}
