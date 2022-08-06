@@ -2,7 +2,6 @@
   "name": "@tsed/monorepo-utils",
   "version": "1.21.0",
   "description": "Mono repo utils",
-  "private": false,
   "main": "./src/index.js",
   "repository": {
     "type": "git",
@@ -16,23 +15,21 @@
   },
   "homepage": "http://tsed.io/",
   "dependencies": {
-    "@typescript-eslint/typescript-estree": "5.12.0",
-    "axios": "0.21.1",
-    "chalk": "3.0.0",
-    "commander": "5.1.0",
+    "axios": "0.27.2",
+    "chalk": "4.1.2",
+    "commander": "9.4.0",
     "esm": "3.2.25",
-    "execa": "4.0.0",
+    "execa": "5.0.1",
     "fancy-log": "1.3.3",
     "figures": "3.2.0",
-    "fs-extra": "10.0.0",
-    "globby": "11.0.3",
-    "has-yarn": "^2.1.0",
-    "inquirer": "7.1.0",
+    "fs-extra": "10.1.0",
+    "globby": "11.1.0",
+    "has-yarn": "2.1.0",
+    "inquirer": "7.3.3",
     "listr": "0.14.3",
     "lodash": "4.17.21",
     "normalize-path": "3.0.0",
-    "read-package-json": "2.1.2",
-    "semver": "7.3.2"
+    "semver": "7.3.7"
   },
   "directories": {
     "src": "./src",
@@ -42,9 +39,6 @@
     "monorepo": "./bin/monorepo.js"
   },
   "peerDependencies": {
-    "semantic-release": "17.4.3"
-  },
-  "devDependencies": {
-    "@types/fs-extra": "9.0.13"
+    "semantic-release": ">=19"
   }
 }

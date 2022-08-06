@@ -37,11 +37,12 @@ node_modules
 dist
 lib
 
-# Typings
-typings/
-
-# Typescript
-
-# Test
-
-
+#yarn
+.pnp.*
+.yarn/*
+!.yarn/cache
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

@@ -2,10 +2,14 @@ import chalk from "chalk";
 import {dirname} from "path";
 import {findPackages} from "./findPackages.js";
 
-async function compilePackagesWithWorkspaceManager(manager, context) {
-  const {buildCmd, logger} = context;
+/**
+ * @param context {MonoRepo}
+ * @returns {Promise<void>}
+ */
+async function compilePackagesWithWorkspaceManager(context) {
+  const {buildCmd, workspaceManager, logger} = context;
 
-  const child = manager.runMany(buildCmd).toStream();
+  const child = workspaceManager.runMany(buildCmd).toStream();
 
   child.stdout.on("data", (data) => {
     data
@@ -30,6 +34,10 @@ async function compilePackagesWithWorkspaceManager(manager, context) {
   await child;
 }
 
+/**
+ * @param context {MonoRepo}
+ * @returns {Promise<void>}
+ */
 async function compilePackagesWithPackageManager(context) {
   const {buildCmd, logger, manager} = context;
 
@@ -71,11 +79,11 @@ async function compilePackagesWithPackageManager(context) {
  * @returns {Promise<void>}
  */
 export async function compilePackages(context) {
-  const {workspaceManager, manager, hasWorkspaceManager} = context;
+  const {hasWorkspaceManager} = context;
 
   if (hasWorkspaceManager) {
-    return compilePackagesWithWorkspaceManager(workspaceManager, context);
+    return compilePackagesWithWorkspaceManager(context);
   }
 
-  return compilePackagesWithPackageManager(manager);
+  return compilePackagesWithPackageManager(context);
 }

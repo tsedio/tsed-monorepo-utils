@@ -55,6 +55,10 @@ export class MonoRepo {
      * @public
      */
     this.rootPkg = options.rootPkg || readPackage(join(this.rootDir, "package.json"));
+
+    this.rootPkg.dependencies = this.rootPkg.dependencies || {};
+    this.rootPkg.devDependencies = this.rootPkg.devDependencies || {};
+    this.rootPkg.peerDependencies = this.rootPkg.peerDependencies || {};
     /**
      * @type {any[]}
      * @public
