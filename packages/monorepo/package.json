@@ -40,6 +40,5 @@
   },
   "peerDependencies": {
     "semantic-release": ">=19"
-  },
-  "devDependencies": {}
+  }
 }
