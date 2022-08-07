@@ -11,5 +11,6 @@ export async function newVersion(context) {
     lerna.newVersion(context.version, context);
   }
 
-  return context.manager.newVersion(context.version, context);
+  await context.manager.newVersion(context.version, context);
+  await context.manager.install();
 }
