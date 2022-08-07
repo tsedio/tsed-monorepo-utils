@@ -31,6 +31,8 @@ export function commitChanges(context) {
   logger.info("Reset .npmrc");
   git.reset("--", ".npmrc");
 
+  logger.info(git.status());
+
   logger.info("Commit files");
   git.commit("-m", `${CI_NAME} build: ${BUILD_NUMBER} v${version} ${CI_SKIP}`).sync();
 }
