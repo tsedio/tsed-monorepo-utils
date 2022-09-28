@@ -32,7 +32,7 @@
     "fs-extra": "10.1.0",
     "globby": "11.1.0",
     "has-yarn": "2.1.0",
-    "inquirer": "7.3.3",
+    "inquirer": "9.1.2",
     "listr": "0.14.3",
     "lodash": "4.17.21",
     "normalize-path": "3.0.0",
