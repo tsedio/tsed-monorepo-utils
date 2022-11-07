@@ -30,7 +30,7 @@
     "microbundle": "0.13.0"
   },
   "dependencies": {
-    "find-up": "5.0.0",
+    "find-up": "6.3.0",
     "fs-extra": "10.0.0",
     "glob": "7.1.6"
   },
