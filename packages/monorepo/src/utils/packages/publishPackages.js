@@ -95,6 +95,8 @@ export async function publishPackages(context) {
             .join("\n")
       )
     );
+
+    process.exit(-1);
   }
 
   await Promise.all(promises);
