@@ -92,8 +92,13 @@ export class MonoRepo {
       branch,
       nextRelease
     } = options;
-
+    /**
+     * @type {{name: string}}
+     */
     this.branch = branch;
+    /**
+     * @type {string}
+     */
     this.nextRelease = nextRelease;
     /**
      * @type {string}

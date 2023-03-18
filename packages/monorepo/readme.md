@@ -28,12 +28,13 @@ Add these tasks to your package.json:
     "docs:publish": "yarn docs:build && monorepo publish ghpages"
   },
   "monorepo": {
-     "ghpages": {
+     "ghpages": [{
        "dir": "./docs/.vuepress/dist",
        "url": "https://github.com/tsedio/tsed.git",
        "branch": "gh-pages",
-       "cname": "tsed.io"
-     }
+       "cname": "tsed.io",
+       "if": "main"
+     }]
    }
 }
 ```
@@ -46,7 +47,7 @@ Install semantic-release and add repo.config.js file and add these lines:
 
 ```javascript
 module.exports = {
-  branch: 'master',
+  branch: 'main',
   verifyConditions: ['@semantic-release/github', '@semantic-release/npm', '@tsed/monorepo-utils/semantic-release'],
   analyzeCommits: ['@semantic-release/commit-analyzer'],
   verifyRelease: [],
