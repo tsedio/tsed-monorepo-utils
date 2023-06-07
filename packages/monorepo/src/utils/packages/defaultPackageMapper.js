@@ -1,4 +1,4 @@
-import get from "lodash/get";
+import {get} from "lodash";
 /**
  *
  * @param pkgInfo {{name: string, pkg: any, path: string}}

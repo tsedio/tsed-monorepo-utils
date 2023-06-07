@@ -20,6 +20,10 @@ export async function publishGhPages(context) {
 
         writeFileSync(`${ghpages.dir}/CNAME`, ghpages.cname, {});
 
+        if (!existsSync(`${ghpages.dir}/.nojekyll`)) {
+          writeFileSync(`${ghpages.dir}/.nojekyll`, "", {});
+        }
+
         await git.init().cwd(ghpages.dir);
         await git.add("-A").cwd(ghpages.dir);
         await git.commit("-m", `Deploy documentation v${version}`).cwd(ghpages.dir);

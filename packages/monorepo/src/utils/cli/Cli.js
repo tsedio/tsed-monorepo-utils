@@ -6,7 +6,7 @@ import split from "split";
 import {spawnSync} from "child_process";
 import {findPackages} from "../packages/findPackages.js";
 import {dirname} from "path";
-import get from "lodash/get.js";
+import {get} from "lodash";
 import chalk from "chalk";
 
 export class Cli {

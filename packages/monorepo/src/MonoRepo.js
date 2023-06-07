@@ -1,4 +1,4 @@
-import get from "lodash/get";
+import {get} from "lodash";
 import hasYarn from "has-yarn";
 import logger from "fancy-log";
 import {join} from "path";
