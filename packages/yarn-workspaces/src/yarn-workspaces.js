@@ -264,8 +264,8 @@ export function configure(webpackConfig, {env, paths}) {
     dev && workspacesConfig.development
       ? [workspacesConfig.paths, paths.appSrc]
       : prod && workspacesConfig.production
-      ? [workspacesConfig.paths, paths.appSrc]
-      : paths.appSrc;
+        ? [workspacesConfig.paths, paths.appSrc]
+        : paths.appSrc;
 
   const rule = webpackConfig.module.rules[1];
 
