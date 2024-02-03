@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-const commander = require("commander");
+const {program} = require("commander");
 
-commander
+program
   .usage("monorepo version <version>")
   .arguments("<version>")
   .option("-v, --verbose", "Enable verbose log", (v, t) => t + 1, 0)
@@ -9,7 +9,7 @@ commander
     const {commands, runCommand} = await import("../src/index.js");
     runCommand(commands.VersionCmd, {
       version,
-      verbose: !!commander.opts().verbose
+      verbose: !!program.opts().verbose
     });
   })
   .parse(process.argv);

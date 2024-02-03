@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-const commander = require("commander");
+const {program} = require("commander");
 
-commander
+program
   .usage("monorepo build [options]")
   .option("-v, --verbose", "Enable verbose log", (v, t) => t + 1, 0)
   .parse(process.argv);
@@ -9,5 +9,5 @@ commander
 (async () => {
   const {commands, runCommand} = await import("../src/index.js");
 
-  runCommand(commands.BuildCmd, commander.opts());
+  runCommand(commands.BuildCmd, program.opts());
 })();

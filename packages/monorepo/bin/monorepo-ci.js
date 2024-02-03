@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-const commander = require("commander");
+const {program} = require("commander");
 
-commander
+program
   .usage("monorepo ci <type> [options]")
   .arguments("<type>")
   .option("-v, --verbose", "Enable verbose log", (v, t) => t + 1, 0)
@@ -10,7 +10,7 @@ commander
 
     runCommand(commands.CICmd, {
       type,
-      verbose: !!commander.opts().verbose
+      verbose: !!program.opts().verbose
     });
   })
   .parse(process.argv);

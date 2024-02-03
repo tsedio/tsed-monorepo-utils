@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-const commander = require("commander");
+const {program} = require("commander");
 const cliPkg = require("../package.json");
 
-commander
+program
   .version(cliPkg.version)
   .command("ci <type>", "Perform ci actions (configure)")
   .command("build <type>", "Build artifacts (workspace, packages)")
