@@ -1,4 +1,4 @@
-import globby from "globby";
+import {globby} from "globby";
 import normalizePath from "normalize-path";
 
 export function globSync(patterns, options) {

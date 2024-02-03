@@ -1,4 +1,4 @@
-import Listr from "listr";
+import {Listr} from "listr2";
 
 export function createTasksRunner(tasks, context) {
   const list = new Listr(tasks, {

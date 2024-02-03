@@ -1,4 +1,4 @@
-import {get} from "lodash";
+import get from "lodash/get.js";
 
 export function getWorkspaces(workspaces, rootPkg) {
   if (workspaces) {

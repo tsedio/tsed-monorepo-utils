@@ -1,37 +1,36 @@
-const {MonoRepo} = require("./src");
+import {MonoRepo} from "./src/index.js";
+
 /**
  * @type {MonoRepo}
  */
 let monoRepo;
 
-module.exports = {
-  async verifyConditions(pluginConfig, context) {
-    monoRepo = new MonoRepo({
-      rootDir: context.cwd
-    });
+export async function verifyConditions(pluginConfig, context) {
+  monoRepo = new MonoRepo({
+    rootDir: context.cwd
+  });
 
-    await monoRepo.configureWorkspace({
-      dryRun: pluginConfig.dryRun
-    });
-  },
+  await monoRepo.configureWorkspace({
+    dryRun: pluginConfig.dryRun
+  });
+}
 
-  async prepare(pluginConfig, context) {
-    const {
-      nextRelease: {version}
-    } = context;
+export async function prepare(pluginConfig, context) {
+  const {
+    nextRelease: {version}
+  } = context;
 
-    await monoRepo.newVersion({version});
-    await monoRepo.build("workspace");
-    await monoRepo.commitChanges({version});
-  },
+  await monoRepo.newVersion({version});
+  await monoRepo.build("workspace");
+  await monoRepo.commitChanges({version});
+}
 
-  async publish(pluginConfig) {
-    return monoRepo.publish("packages", {dryRun: pluginConfig.dryRun});
-  },
+export async function publish(pluginConfig) {
+  return monoRepo.publish("packages", {dryRun: pluginConfig.dryRun});
+}
 
-  async success(pluginConfig) {
-    if (!pluginConfig.dryRun) {
-      return monoRepo.sync("repository");
-    }
+export async function success(pluginConfig) {
+  if (!pluginConfig.dryRun) {
+    return monoRepo.sync("repository");
   }
-};
+}

@@ -1,13 +1,13 @@
-import "any-observable/register/rxjs-all";
-import execa from "execa";
+import "any-observable/register/rxjs-all.js";
+import {execa, execaSync} from "execa";
 import streamToObservable from "@samverschueren/stream-to-observable";
-import {filter, merge} from "rxjs/operators";
+import {filter, merge} from "rxjs";
 import split from "split";
 import {spawnSync} from "child_process";
-import {findPackages} from "../packages/findPackages.js";
 import {dirname} from "path";
-import {get} from "lodash";
+import get from "lodash/get.js";
 import chalk from "chalk";
+import {findPackages} from "../packages/findPackages.js";
 
 export class Cli {
   constructor(cmd) {
@@ -128,7 +128,7 @@ export class Cli {
     promise.sync = (opt) => {
       isPromise = false;
 
-      return execa.sync(cmd, args, {
+      return execaSync(cmd, args, {
         cwd: process.cwd(),
         stdio: "inherit",
         ...options,
@@ -148,7 +148,7 @@ export class Cli {
     promise.get = () => {
       isPromise = false;
 
-      return execa.sync(cmd, args, {
+      return execaSync(cmd, args, {
         cwd: process.cwd()
       }).stdout;
     };

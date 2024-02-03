@@ -6,10 +6,12 @@ import {createTasksRunner} from "./utils/common/createTasksRunner.js";
 
 export async function runCommand(klass, options) {
   try {
+    const config = await import(`${process.cwd()}/release.config.js`);
+
     const monoRepo = new MonoRepo({
       rootDir: process.cwd(),
       verbose: !!options.verbose,
-      ...require(`${process.cwd()}/release.config`)
+      ...(config.default || config)
     });
 
     // eslint-disable-next-line new-cap

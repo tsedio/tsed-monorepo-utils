@@ -1,6 +1,6 @@
 import {parse} from "@typescript-eslint/typescript-estree";
-import {readdirSync, statSync} from "fs";
-import {readFile, writeFile} from "fs-extra";
+import {readdirSync, statSync} from "node:fs";
+import {writeFile, readFile} from "node:fs/promises";
 import logger from "fancy-log";
 import {extname} from "path";
 

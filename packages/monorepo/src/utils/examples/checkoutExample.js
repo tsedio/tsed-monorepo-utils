@@ -1,4 +1,4 @@
-import {ensureDirSync} from "fs-extra";
+import fs from "fs-extra";
 import {git} from "../cli/index.js";
 import {clean} from "../common/clean.js";
 import {createTasksRunner} from "../common/createTasksRunner.js";
@@ -13,7 +13,7 @@ export function checkoutExample(projectOptions, context) {
         title: "Clean",
         task: async () => {
           await clean([tmpDir]);
-          ensureDirSync(tmpDir);
+          fs.ensureDirSync(tmpDir);
         }
       },
       {

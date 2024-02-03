@@ -1,4 +1,4 @@
-import {get} from "lodash";
+import _ from "lodash";
 import hasYarn from "has-yarn";
 import logger from "fancy-log";
 import {join} from "path";
@@ -27,19 +27,19 @@ import {yarnBerry} from "./utils/cli/YarnBerry.js";
 
 function getDefaultOptions(rootPkg) {
   return {
-    version: get(rootPkg, "version"),
-    outputDir: get(rootPkg, "monorepo.outputDir", "./dist"),
-    npmAccess: get(rootPkg, "monorepo.npmAccess", "public"),
-    npmDistTag: get(rootPkg, "monorepo.npmDistTag", get(rootPkg, "publishConfig.tag")),
-    skipNpmPublish: get(rootPkg, "monorepo.skipNpmPublish", false),
-    productionBranch: get(rootPkg, "monorepo.productionBranch", "master"),
-    developBranch: get(rootPkg, "monorepo.developBranch", "master"),
-    origin: get(rootPkg, "monorepo.origin", "origin"),
-    registry: get(rootPkg, "publishConfig.registry", "https://registry.npmjs.org/"),
-    registries: get(rootPkg, "monorepo.registries", []),
-    repositoryUrl: get(rootPkg, "repository.url", get(rootPkg, "repository")),
-    ignoreSyncDependencies: get(rootPkg, "monorepo.ignoreSyncDependencies", []),
-    buildCmd: get(rootPkg, "monorepo.buildCmd", "build")
+    version: _.get(rootPkg, "version"),
+    outputDir: _.get(rootPkg, "monorepo.outputDir", "./dist"),
+    npmAccess: _.get(rootPkg, "monorepo.npmAccess", "public"),
+    npmDistTag: _.get(rootPkg, "monorepo.npmDistTag", _.get(rootPkg, "publishConfig.tag")),
+    skipNpmPublish: _.get(rootPkg, "monorepo.skipNpmPublish", false),
+    productionBranch: _.get(rootPkg, "monorepo.productionBranch", "master"),
+    developBranch: _.get(rootPkg, "monorepo.developBranch", "master"),
+    origin: _.get(rootPkg, "monorepo.origin", "origin"),
+    registry: _.get(rootPkg, "publishConfig.registry", "https://registry.npmjs.org/"),
+    registries: _.get(rootPkg, "monorepo.registries", []),
+    repositoryUrl: _.get(rootPkg, "repository.url", _.get(rootPkg, "repository")),
+    ignoreSyncDependencies: _.get(rootPkg, "monorepo.ignoreSyncDependencies", []),
+    buildCmd: _.get(rootPkg, "monorepo.buildCmd", "build")
   };
 }
 
@@ -114,7 +114,7 @@ export class MonoRepo {
      * @type {string}
      * @public
      */
-    this.version = version || get(this.rootPkg, "version");
+    this.version = version || _.get(this.rootPkg, "version");
     /**
      * @type {string}
      * @public
@@ -203,20 +203,20 @@ export class MonoRepo {
     this.dryRun = dryRun;
 
     // DOC
-    this.ghpages = get(this.rootPkg, "monorepo.ghpages", []).map((item) => {
+    this.ghpages = _.get(this.rootPkg, "monorepo.ghpages", []).map((item) => {
       return {
         ...item,
-        dir: get(item, "dir", ""),
-        url: get(item, "url", this.repositoryUrl),
-        branch: get(item, "branch", "gh-pages"),
-        cname: get(item, "cname", "")
+        dir: _.get(item, "dir", ""),
+        url: _.get(item, "url", this.repositoryUrl),
+        branch: _.get(item, "branch", "gh-pages"),
+        cname: _.get(item, "cname", "")
       };
     });
 
     // EXAMPLES
     this.examples = {
-      dir: get(this.rootPkg, "monorepo.examples.dir", "./examples"),
-      repositories: get(this.rootPkg, "monorepo.examples.repositories", {}),
+      dir: _.get(this.rootPkg, "monorepo.examples.dir", "./examples"),
+      repositories: _.get(this.rootPkg, "monorepo.examples.repositories", {}),
       ...(options.examples || {})
     };
 
@@ -226,17 +226,17 @@ export class MonoRepo {
        * @type {string}
        * @public
        */
-      app: this.env.HEROKU_APP || get(this.rootPkg, "monorepo.heroku.app", ""),
+      app: this.env.HEROKU_APP || _.get(this.rootPkg, "monorepo.heroku.app", ""),
       /**
        * @type {string}
        * @public
        */
-      apiKey: this.env.HEROKU_API_KEY || get(this.rootPkg, "monorepo.heroku.apiKey", ""),
+      apiKey: this.env.HEROKU_API_KEY || _.get(this.rootPkg, "monorepo.heroku.apiKey", ""),
       /**
        * @type {string}
        * @public
        */
-      team: this.env.HEROKU_TEAM || get(this.rootPkg, "monorepo.heroku.team", ""),
+      team: this.env.HEROKU_TEAM || _.get(this.rootPkg, "monorepo.heroku.team", ""),
       ...(options.heroku || {})
     };
 
@@ -246,17 +246,17 @@ export class MonoRepo {
        * @type {string}
        * @public
        */
-      repository: this.env.DOCKER_REPOSITORY || get(this.rootPkg, "monorepo.dockerhub.repository", ""),
+      repository: this.env.DOCKER_REPOSITORY || _.get(this.rootPkg, "monorepo.dockerhub.repository", ""),
       /**
        * @type {string}
        * @public
        */
-      id: this.env.DOCKER_HUB_ID || get(this.rootPkg, "monorepo.dockerhub.id", ""),
+      id: this.env.DOCKER_HUB_ID || _.get(this.rootPkg, "monorepo.dockerhub.id", ""),
       /**
        * @type {string}
        * @public
        */
-      pwd: this.env.DOCKER_HUB_PWD || get(this.rootPkg, "monorepo.dockerhub.pwd", ""),
+      pwd: this.env.DOCKER_HUB_PWD || _.get(this.rootPkg, "monorepo.dockerhub.pwd", ""),
       ...(options.dockerhub || {})
     };
   }
@@ -302,15 +302,15 @@ export class MonoRepo {
   }
 
   get hasLerna() {
-    return Boolean(get(this.rootPkg, "dependencies.lerna") || get(this.rootPkg, "devDependencies.lerna"));
+    return Boolean(_.get(this.rootPkg, "dependencies.lerna") || _.get(this.rootPkg, "devDependencies.lerna"));
   }
 
   get hasNx() {
-    return Boolean(get(this.rootPkg, "dependencies.nx") || get(this.rootPkg, "devDependencies.nx"));
+    return Boolean(_.get(this.rootPkg, "dependencies.nx") || _.get(this.rootPkg, "devDependencies.nx"));
   }
 
   get hasBuild() {
-    return Boolean(get(this.rootPkg, "scripts.build"));
+    return Boolean(_.get(this.rootPkg, "scripts.build"));
   }
 
   get hasE2E() {

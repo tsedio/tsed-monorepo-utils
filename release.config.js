@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   branch: "master",
   verifyConditions: ["@semantic-release/github", "@semantic-release/npm", "@tsed/monorepo-utils/semantic-release"],
   analyzeCommits: ["@semantic-release/commit-analyzer"],

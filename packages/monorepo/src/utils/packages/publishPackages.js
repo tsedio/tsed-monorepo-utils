@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import fs from "fs-extra";
-import {get} from "lodash";
+import get from "lodash/get.js";
 import {basename, dirname, join} from "path";
 import {npm} from "../cli/index.js";
 import {findPackages} from "./findPackages.js";
