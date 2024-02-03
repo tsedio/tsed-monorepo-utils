@@ -20,7 +20,7 @@ class YarnBerryCli extends Cli {
 
   async runMany(cmd, args = [], context) {
     const {logger} = context;
-    const child = super.run("workspaces", "foreach", "run", cmd, ...args).toStream();
+    const child = super.run("workspaces", "foreach", "-A", "run", cmd, ...args).toStream();
 
     return await this.handleStream(child, {
       success(line) {
