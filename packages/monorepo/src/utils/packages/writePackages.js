@@ -12,7 +12,7 @@ const noop = (p) => p;
  * @returns {Promise<void[]>}
  */
 export async function writePackages(context) {
-  const {outputDir, silent, ignore = [], pkgMapper = noop, branchName} = context;
+  const {outputDir, silent, ignore = [], pkgMapper = noop, branchName, rootPkg} = context;
   let {npmDistTag} = context;
 
   if (["alpha", "beta", "rc"].includes(branchName)) {
@@ -37,6 +37,18 @@ export async function writePackages(context) {
       pkg.main = "./lib/index.js";
       pkg.typings = "lib/index.d.ts";
     }
+
+    Object.entries(pkg.dependencies || {}).forEach(([name, version]) => {
+      if (version.startsWith("workspace:")) {
+        pkg.dependencies[name] = version.replace("workspace:*", rootPkg.version);
+      }
+    });
+
+    Object.entries(pkg.devDependencies || {}).forEach(([name, version]) => {
+      if (version.startsWith("workspace:")) {
+        pkg.devDependencies[name] = version.replace("workspace:*", rootPkg.version);
+      }
+    });
 
     return writePackage(join(outputDir, name, "package.json"), pkg);
   });
