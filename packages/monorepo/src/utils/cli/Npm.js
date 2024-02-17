@@ -42,6 +42,9 @@ class NpmCli extends Cli {
   install(...args) {
     return super.run("install", ...args);
   }
+  refreshInstall() {
+    return this.install();
+  }
 
   /**
    * Reinstall dependencies without package-lock mutation
