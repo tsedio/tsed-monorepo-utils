@@ -12,5 +12,9 @@ export async function newVersion(context) {
   }
 
   await context.manager.newVersion(context.version, context);
-  await context.manager.install();
+  try {
+    await context.manager.install();
+  } catch (er) {
+    console.warn(er);
+  }
 }
