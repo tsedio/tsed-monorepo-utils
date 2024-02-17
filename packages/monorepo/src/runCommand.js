@@ -4,9 +4,17 @@ import inquirer from "inquirer";
 import {MonoRepo} from "./MonoRepo.js";
 import {createTasksRunner} from "./utils/common/createTasksRunner.js";
 
+async function importConfig() {
+  try {
+    return await import(`${process.cwd()}/release.config.mjs`);
+  } catch (er) {
+    return await import(`${process.cwd()}/release.config.js`);
+  }
+}
+
 export async function runCommand(klass, options) {
   try {
-    const config = await import(`${process.cwd()}/release.config.js`);
+    const config = await importConfig();
 
     const monoRepo = new MonoRepo({
       rootDir: process.cwd(),
