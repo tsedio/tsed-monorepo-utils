@@ -95,7 +95,7 @@ export class MonoRepo {
     /**
      * @type {{name: string}}
      */
-    this.branch = branch;
+    this.branch = branch || {name: branchName};
     /**
      * @type {string}
      */
