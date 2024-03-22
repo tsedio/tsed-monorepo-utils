@@ -12,10 +12,4 @@ export async function newVersion(context) {
   }
 
   await context.manager.newVersion(context.version, context);
-
-  try {
-    await context.manager.refreshInstall();
-  } catch (er) {
-    console.warn(er);
-  }
 }

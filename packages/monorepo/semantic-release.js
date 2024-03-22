@@ -22,6 +22,7 @@ export async function prepare(pluginConfig, context) {
 
   await monoRepo.newVersion({version});
   await monoRepo.build("workspace");
+  await monoRepo.manager.refreshInstall();
   await monoRepo.commitChanges({version});
 }
 
