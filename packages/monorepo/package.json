@@ -1,6 +1,6 @@
 {
   "name": "@tsed/monorepo-utils",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Mono repo utils",
   "type": "module",
   "main": "./src/index.js",
@@ -51,6 +51,5 @@
   },
   "peerDependencies": {
     "semantic-release": ">=19"
-  },
-  "devDependencies": {}
+  }
 }
