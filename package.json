@@ -1,6 +1,6 @@
 {
   "name": "@tsed/root",
-  "version": "2.1.2",
+  "version": "2.2.0",
   "description": "Monorepo CLI and utils to deploy packages on NPM",
   "private": true,
   "type": "module",
