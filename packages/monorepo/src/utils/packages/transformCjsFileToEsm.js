@@ -97,7 +97,7 @@ export async function transformCjsFileToEsm(dir, context) {
       .flatMap((t) => transform(t))
       .map(async ({code, file}) => {
         try {
-          await writeFile(context?.out ? file + ".mjs" : "", code, {encoding: "utf8"});
+          await writeFile(context?.out ? file + ".mjs" : file, code, {encoding: "utf8"});
         } catch (er) {
           !context.silent && logger.warn(er);
         }

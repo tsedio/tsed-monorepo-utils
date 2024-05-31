@@ -8,7 +8,11 @@ async function importConfig() {
   try {
     return await import(`${process.cwd()}/release.config.mjs`);
   } catch (er) {
-    return await import(`${process.cwd()}/release.config.js`);
+    try {
+      return await import(`${process.cwd()}/release.config.js`);
+    } catch (er) {
+      return {};
+    }
   }
 }
 
