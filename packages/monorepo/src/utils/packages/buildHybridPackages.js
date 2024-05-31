@@ -21,7 +21,7 @@ export async function buildHybridPackage(packageDir, pkg, context) {
       const commonJsDir = join(packageDir, dirname(pkg.exports.require));
 
       await Promise.all([
-        transformCjsFileToEsm(esmDir, context).then(() => replacePlaceholder(commonJsDir, context)),
+        transformCjsFileToEsm(esmDir, context),
         writePackage(join(esmDir, "package.json"), {type: "module"}),
         writePackage(join(commonJsDir, "package.json"), {type: "commonjs"})
       ]);
