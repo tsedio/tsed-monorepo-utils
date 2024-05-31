@@ -24,6 +24,7 @@ import {cleanTagsDocker} from "./utils/docker/cleanTagsDocker.js";
 import {getWorkspaces} from "./utils/workspace/getWorkspaces.js";
 import {cleanPackages} from "./utils/packages/cleanPackages.js";
 import {yarnBerry} from "./utils/cli/YarnBerry.js";
+import {buildHybridPackage, buildHybridPackages} from "./utils/packages/buildHybridPackages.js";
 
 function getDefaultOptions(rootPkg) {
   return {
@@ -335,6 +336,8 @@ export class MonoRepo {
     const newCtx = this.fork(options);
 
     switch (type) {
+      case "package":
+        return buildHybridPackage(process.cwd(), null, newCtx);
       case "workspaces":
       case "workspace":
         return this.buildWorkspace();
@@ -345,6 +348,16 @@ export class MonoRepo {
   }
 
   async buildWorkspace() {
+    if (this.hasBuild) {
+      await this.manager.run("build");
+    }
+
+    if (this.hasE2E) {
+      await this.manager.run("test:e2e");
+    }
+  }
+
+  async buildPackage() {
     if (this.hasBuild) {
       await this.manager.run("build");
     }

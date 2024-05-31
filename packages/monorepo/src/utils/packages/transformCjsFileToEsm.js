@@ -30,12 +30,13 @@ function getAllJavaScriptCodes(files) {
   });
 }
 
-function addExtension({ast: {body}, code, file}) {
+function transform({ast: {body}, code, file}) {
   const codeWithoutCarriageReturn = code.replace(/\r/gm, "");
   const splitted = codeWithoutCarriageReturn.split("\n");
 
   const replaceNodes = body.flatMap((statement) => {
     const {type} = statement;
+
     switch (type) {
       case "ExportAllDeclaration":
       case "ExportNamedDeclaration":
@@ -70,17 +71,19 @@ function addExtension({ast: {body}, code, file}) {
     return [];
   });
 
+  const newCode = replaceNodes.length
+    ? replaceNodes.reduce((prev, {oldCode, newCode}) => prev.replace(oldCode, newCode), codeWithoutCarriageReturn)
+    : codeWithoutCarriageReturn;
+
   return [
     {
-      code: replaceNodes.length
-        ? replaceNodes.reduce((prev, {oldCode, newCode}) => prev.replace(oldCode, newCode), codeWithoutCarriageReturn)
-        : codeWithoutCarriageReturn,
+      code: newCode.replace(/__dirname/g, "import.meta.dirname"),
       file
     }
   ];
 }
 
-export async function addJsExtension(dir, context) {
+export async function transformCjsFileToEsm(dir, context) {
   const files = getAllJavaScriptFiles(dir);
 
   if (files.length === 0) {
@@ -91,10 +94,10 @@ export async function addJsExtension(dir, context) {
 
   await Promise.all(
     tasks
-      .flatMap((t) => addExtension(t))
+      .flatMap((t) => transform(t))
       .map(async ({code, file}) => {
         try {
-          await writeFile(file, code, {encoding: "utf8"});
+          await writeFile(context?.out ? file + ".mjs" : "", code, {encoding: "utf8"});
         } catch (er) {
           !context.silent && logger.warn(er);
         }
