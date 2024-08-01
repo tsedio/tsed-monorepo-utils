@@ -1,6 +1,6 @@
 import {parse} from "@typescript-eslint/typescript-estree";
 import {readdirSync, statSync} from "node:fs";
-import {writeFile, readFile} from "node:fs/promises";
+import {readFile, writeFile} from "node:fs/promises";
 import logger from "fancy-log";
 import {extname} from "path";
 
@@ -77,7 +77,7 @@ function transform({ast: {body}, code, file}) {
 
   return [
     {
-      code: newCode.replace(/__dirname/g, "import.meta.dirname"),
+      code: newCode,
       file
     }
   ];
@@ -95,9 +95,43 @@ export async function transformCjsFileToEsm(dir, context) {
   await Promise.all(
     tasks
       .flatMap((t) => transform(t))
+      .map(({code, file}) => {
+        return {
+          code: code.replace(/__dirname/g, "import.meta.dirname").replace(/require.resolve/g, "import.meta.resolve"),
+          file
+        };
+      })
       .map(async ({code, file}) => {
         try {
           await writeFile(context?.out ? file + ".mjs" : file, code, {encoding: "utf8"});
+        } catch (er) {
+          !context.silent && logger.warn(er);
+        }
+      })
+  );
+}
+
+export async function transformEsmFileToCjs(dir, context) {
+  const files = getAllJavaScriptFiles(dir);
+
+  if (files.length === 0) {
+    return;
+  }
+
+  const tasks = await getAllJavaScriptCodes(files).reduce(async (prev, curr) => (await prev).concat(await curr), Promise.resolve([]));
+
+  await Promise.all(
+    tasks
+      .flatMap((t) => transform(t))
+      .map(({code, file}) => {
+        return {
+          code: code.replace(/import.meta.dirname/g, "__dirname").replace(/import.meta.resolve/g, "require.resolve"),
+          file
+        };
+      })
+      .map(async ({code, file}) => {
+        try {
+          await writeFile(context?.out ? file + ".cjs" : file, code, {encoding: "utf8"});
         } catch (er) {
           !context.silent && logger.warn(er);
         }
