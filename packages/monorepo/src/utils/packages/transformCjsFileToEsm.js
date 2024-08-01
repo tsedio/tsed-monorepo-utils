@@ -97,7 +97,7 @@ export async function transformCjsFileToEsm(dir, context) {
       .flatMap((t) => transform(t))
       .map(({code, file}) => {
         return {
-          code: code.replace(/__dirname/g, "import.meta.dirname").replace(/require.resolve/g, "import.meta.resolve"),
+          code: code.replace(/__dirname/g, "import.meta.dirname").replace(/require\.resolve/g, "import.meta.resolve"),
           file
         };
       })
@@ -125,7 +125,7 @@ export async function transformEsmFileToCjs(dir, context) {
       .flatMap((t) => transform(t))
       .map(({code, file}) => {
         return {
-          code: code.replace(/import.meta.dirname/g, "__dirname").replace(/import.meta.resolve/g, "require.resolve"),
+          code: code.replace(/import\.meta\.dirname/g, "__dirname").replace(/import\.meta\.resolve/g, "require.resolve"),
           file
         };
       })
