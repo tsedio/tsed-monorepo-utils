@@ -3,7 +3,7 @@ import chalk from "chalk";
 import logger from "fancy-log";
 import {writePackage} from "./writePackage.js";
 import {findPackages} from "./findPackages.js";
-import {transformCjsFileToEsm} from "./transformCjsFileToEsm.js";
+import {transformCjsFileToEsm, transformEsmFileToCjs} from "./transformCjsFileToEsm.js";
 import {readPackage} from "./readPackage.js";
 
 export async function buildHybridPackage(packageDir, pkg, context) {
