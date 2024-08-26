@@ -16,9 +16,9 @@ export async function buildHybridPackage(packageDir, pkg, context) {
   !silent && logger("Build hybrid package", chalk.cyan(pkg.name));
 
   if (pkg.exports) {
-    if (pkg.exports.import && pkg.exports.require) {
-      const esmDir = join(packageDir, dirname(pkg.exports.import));
-      const commonJsDir = join(packageDir, dirname(pkg.exports.require));
+    if ((pkg.exports.import && pkg.exports.require) || (pkg.exports["."]?.import && pkg.exports["."]?.require)) {
+      const esmDir = join(packageDir, dirname(pkg.exports["."]?.import || pkg.exports.import));
+      const commonJsDir = join(packageDir, dirname(pkg.exports["."]?.require || pkg.exports.require));
 
       await Promise.all([
         transformCjsFileToEsm(esmDir, context),
