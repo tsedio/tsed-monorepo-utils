@@ -128,7 +128,7 @@ export async function transformEsmFileToCjs(dir, context) {
           code: code
             .replace(/import\.meta\.dirname/g, "__dirname")
             .replace(/import\.meta\.resolve/g, "require.resolve")
-            .replace(/await import\("@tsed\//g, 'await require("@tsed/"'),
+            .replace(/await import\("@tsed\//g, 'await require("@tsed/'),
           file
         };
       })
