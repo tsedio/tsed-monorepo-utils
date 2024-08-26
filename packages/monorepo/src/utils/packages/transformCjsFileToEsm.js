@@ -125,7 +125,10 @@ export async function transformEsmFileToCjs(dir, context) {
       .flatMap((t) => transform(t))
       .map(({code, file}) => {
         return {
-          code: code.replace(/import\.meta\.dirname/g, "__dirname").replace(/import\.meta\.resolve/g, "require.resolve"),
+          code: code
+            .replace(/import\.meta\.dirname/g, "__dirname")
+            .replace(/import\.meta\.resolve/g, "require.resolve")
+            .replace(/await import\("@tsed\//g, 'await require("@tsed/"'),
           file
         };
       })
