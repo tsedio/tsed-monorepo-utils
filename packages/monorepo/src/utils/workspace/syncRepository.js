@@ -1,28 +1,35 @@
 import {git} from "../cli/index.js";
+
+function asyncCatchError(fn, context) {
+  return async (...args) => {
+    try {
+      return await fn(...args);
+    } catch (er) {
+      context.logger.error(String(er), er.stack);
+    }
+  };
+}
+
 /**
  *
  * @param context {MonoRepo}
  */
 export async function syncRepository(context) {
   const {logger, productionBranch, developBranch, branchName, origin} = context;
-  try {
-    logger.info(`Push ${productionBranch}`);
-    await git.push("--quiet", "--set-upstream", origin, productionBranch);
 
-    if (productionBranch !== developBranch) {
-      logger.info(`Sync ${developBranch} with ${productionBranch}`);
-      await git.push("-f", origin, `${productionBranch}:refs/heads/${developBranch}`);
-    }
-  } catch (er) {
-    logger.error(String(er), er.stack);
+  logger.info(`Push ${productionBranch}`);
+  logger.info(`git push --quiet --set-upstream ${origin} ${productionBranch}`);
+
+  await asyncCatchError(() => git.push("--quiet", "--set-upstream", origin, productionBranch));
+
+  if (productionBranch !== developBranch) {
+    logger.info(`Sync ${developBranch} with ${productionBranch}`);
+    logger.info(`git push -f origin ${productionBranch}:refs/heads/${developBranch}`);
+
+    await asyncCatchError(() => git.push("-f", origin, `${productionBranch}:refs/heads/${developBranch}`));
   }
 
   if (["alpha", "beta", "rc"].includes(branchName)) {
-    try {
-      logger.info(`Push ${branchName}`);
-      await git.push("--quiet", "--set-upstream", origin, branchName);
-    } catch (er) {
-      logger.error(`Fail to Push ${branchName}`);
-    }
+    await asyncCatchError(() => git.push("--quiet", "--set-upstream", origin, branchName));
   }
 }
