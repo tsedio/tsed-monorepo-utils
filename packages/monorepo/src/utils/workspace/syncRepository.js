@@ -1,18 +1,18 @@
 import {git} from "../cli/index.js";
 
-async function asyncCatchError(fn, context) {
-  try {
-    return await fn();
-  } catch (er) {
-    context.logger.error(String(er), er.stack);
-  }
-}
-
 /**
  *
  * @param context {MonoRepo}
  */
 export async function syncRepository(context) {
+  async function asyncCatchError(fn) {
+    try {
+      return await fn();
+    } catch (er) {
+      context.logger.error(String(er), er.stack);
+    }
+  }
+
   const {logger, productionBranch, developBranch, branchName, origin} = context;
 
   await asyncCatchError(() => git.fetch());
