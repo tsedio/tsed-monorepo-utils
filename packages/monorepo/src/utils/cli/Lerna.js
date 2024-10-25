@@ -19,7 +19,7 @@ class LernaCli extends Cli {
 
   async runMany(cmd, args = [], context) {
     const {logger} = context;
-    const child = super.run("run", cmd, "--stream", ...args).toStream();
+    const child = super.run("run", cmd, "--stream", "--concurrency=4", ...args).toStream();
 
     return await this.handleStream(child, {
       success(line) {
