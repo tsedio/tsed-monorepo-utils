@@ -43,7 +43,7 @@ function bumpDependencies(pkg, key, version, names) {
   if (pkg[key]) {
     names.forEach((name) => {
       if (pkg[key][name] && !pkg[key][name].startsWith("workspace:")) {
-        pkg[key][name] = version;
+        pkg[key][name] = key === "peerDependencies" ? `>=${version}` : version;
       }
     });
   }
