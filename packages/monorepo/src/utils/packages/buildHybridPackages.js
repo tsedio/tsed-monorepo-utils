@@ -6,19 +6,19 @@ import {findPackages} from "./findPackages.js";
 import {transformCjsFileToEsm, transformEsmFileToCjs} from "./transformCjsFileToEsm.js";
 import {readPackage} from "./readPackage.js";
 
-export async function buildHybridPackage(packageDir, pkg, context) {
+export async function buildHybridPackage(distPath, pkg, context) {
   const {silent, ignore = []} = context;
 
   if (!pkg) {
-    pkg = readPackage(join(packageDir, "package.json"));
+    pkg = readPackage(join(distPath, "package.json"));
   }
 
   !silent && logger("Build hybrid package", chalk.cyan(pkg.name));
 
   if (pkg.exports) {
     if ((pkg.exports.import && pkg.exports.require) || (pkg.exports["."]?.import && pkg.exports["."]?.require)) {
-      const esmDir = join(packageDir, dirname(pkg.exports["."]?.import || pkg.exports.import));
-      const commonJsDir = join(packageDir, dirname(pkg.exports["."]?.require || pkg.exports.require));
+      const esmDir = join(distPath, dirname(pkg.exports["."]?.import || pkg.exports.import));
+      const commonJsDir = join(distPath, dirname(pkg.exports["."]?.require || pkg.exports.require));
 
       await Promise.all([
         transformCjsFileToEsm(esmDir, context),
@@ -40,9 +40,8 @@ export async function buildHybridPackages(context) {
 
   const packages = await findPackages(context);
 
-  const promises = packages.map(async ({name, pkg}) => {
-    const packageDir = join(outputDir, name);
-    await buildHybridPackage(packageDir, pkg, context);
+  const promises = packages.map(async ({distPath, pkg}) => {
+    await buildHybridPackage(distPath, pkg, context);
   });
 
   await Promise.all(promises);

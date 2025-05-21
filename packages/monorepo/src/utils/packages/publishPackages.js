@@ -54,17 +54,16 @@ export async function publishPackages(context) {
   const {logger, registry, registries} = context;
 
   const packages = await findPackages(context);
-  const distDir = join(context.rootDir, context.outputDir);
 
   const urls = [...new Set(registries.concat(registry).filter(Boolean))];
   const errors = [];
   const promises = packages
     .filter(({pkg}) => !pkg.private)
-    .map(async ({path, pkg}) => {
+    .map(async ({distPath, pkg}) => {
       logger.info("Publish package", chalk.cyan(pkg.name));
 
       try {
-        const cwd = join(distDir, basename(dirname(path)));
+        const cwd = distPath;
         const registries = get(pkg, "monorepo", urls);
 
         for (const url of registries) {

@@ -21,7 +21,7 @@ export async function writePackages(context) {
 
   const packages = await findPackages(context);
 
-  const promises = packages.map(async ({name, path, pkg}) => {
+  const promises = packages.map(async ({distPath, name, path, pkg}) => {
     !silent && logger("Write package.json", chalk.cyan(pkg.name));
 
     pkg = pkgMapper({pkg, path, name}, context);
@@ -50,7 +50,7 @@ export async function writePackages(context) {
       }
     });
 
-    return writePackage(join(outputDir, name, "package.json"), pkg);
+    return writePackage(join(distPath, "package.json"), pkg);
   });
 
   await Promise.all(promises);

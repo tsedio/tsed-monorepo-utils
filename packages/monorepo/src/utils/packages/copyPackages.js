@@ -42,7 +42,7 @@ export async function copyPackages(context) {
 
     await copy(patterns, {
       baseDir: pkgDir,
-      outputDir: join(rootDir, outputDir, dirName)
+      outputDir: pkg.distPath
     });
   });
 

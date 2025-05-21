@@ -29,11 +29,15 @@ export async function findPackages(context) {
     absolute: true
   });
 
-  const promises = pkgs.map(async (file) => ({
-    path: file,
-    name: basename(dirname(file)),
-    pkg: readPackage(file)
-  }));
+  const promises = pkgs.map(async (file) => {
+    const pkg = readPackage(file);
+    return {
+      path: file,
+      name: basename(dirname(file)),
+      distPath: join(context.rootDir, context.outputDir, pkg.name),
+      pkg
+    };
+  });
 
   pkgs = await Promise.all(promises);
 
