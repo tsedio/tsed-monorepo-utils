@@ -2,7 +2,8 @@ import _ from "lodash";
 import hasYarn from "has-yarn";
 import logger from "fancy-log";
 import {join} from "path";
-import {lerna, npm, nx, yarn} from "./utils/cli/index.js";
+import {existsSync} from "fs";
+import {lerna, npm, nx, yarn, pnpm} from "./utils/cli/index.js";
 import {getDependencies} from "./utils/depencencies/getDependencies.js";
 import {syncExamples} from "./utils/examples/syncExample.js";
 import {syncDependencies} from "./utils/depencencies/syncDependencies.js";
@@ -266,6 +267,7 @@ export class MonoRepo {
   }
 
   get manager() {
+    if (this.hasPnpm) return pnpm;
     return this.hasYarn ? (this.hasYarnBerry ? yarnBerry : yarn) : npm;
   }
 
@@ -286,6 +288,10 @@ export class MonoRepo {
       return yarn;
     }
 
+    if (this.hasPnpm) {
+      return pnpm;
+    }
+
     return npm;
   }
 
@@ -299,6 +305,17 @@ export class MonoRepo {
 
   get hasYarnBerry() {
     return this.hasYarn && (this.rootPkg.packageManager || "").includes("yarn@");
+  }
+
+  get hasPnpm() {
+    const pm = this.rootPkg.packageManager || "";
+    if (pm.includes("pnpm@")) return true;
+
+    try {
+      return existsSync(join(this.rootDir, "pnpm-lock.yaml")) || existsSync(join(this.rootDir, "pnpm-workspace.yaml"));
+    } catch (e) {
+      return false;
+    }
   }
 
   get hasLerna() {
