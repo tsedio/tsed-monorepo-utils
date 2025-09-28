@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "clean": "node packages/monorepo/bin/monorepo-clean workspace",
-    "test": "yarn test:lint && yarn test:unit",
+    "test": "pnpm run test:lint && pnpm run test:unit",
     "test:lint": "eslint '{packages,test}/**/*.js' --ext .ts",
     "test:lint:fix": "eslint '{packages,test}/**/*.js' --fix",
     "prettier": "prettier '{packages,test}/**/*.js' --write",
@@ -45,5 +45,5 @@
   "monorepo": {
     "npmAccess": "public"
   },
-  "packageManager": "yarn@4.1.0"
+  "packageManager": "pnpm@9.0.0"
 }
