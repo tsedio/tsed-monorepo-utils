@@ -32,7 +32,7 @@ This document captures project-specific notes to speed up future development on 
 
 2) Testing
 
-This repository currently treats “tests” as lint checks. There is no unit test harness configured by default.
+Unit tests are now integrated using Vitest (ESM-friendly). Lint checks remain as before. Use the following commands:
 
 - Lint/format checks:
   - yarn test → yarn test:lint
@@ -42,40 +42,29 @@ This repository currently treats “tests” as lint checks. There is no unit te
   Notes:
   - ESLint 8 + Prettier 3 are used. The project is ESM; ensure your editor/ESLint understands ESM config resolution. The lint command targets JS files under packages/ and test/; adjust if you add TypeScript or change locations.
 
-- Adding unit tests (optional):
-  - If you want true unit tests, integrate a runner (e.g., Vitest or Node’s test runner). Keep ESM in mind. Example with Node’s built-in test runner (Node >=18):
-    - Create test/example.test.mjs:
-      import test from 'node:test';
-      import assert from 'node:assert/strict';
-      import {readPackage} from '../packages/monorepo/src/utils/packages/readPackage.js';
-      test('readPackage reads root package.json', () => {
-        const pkg = readPackage(new URL('../package.json', import.meta.url).pathname);
-        assert.equal(pkg.name, '@tsed/root');
-      });
-    - Run: node --test ./test
-  - If you add Vitest/Jest, make sure to wire scripts and configs respecting ESM and Yarn Berry.
+- Unit tests (Vitest):
+  - Config: vitest.config.js at the repo root.
+  - Test files: packages/*/src/**/*.spec.js
+  - Env: node (no DOM globals). Globals (describe/it/expect/vi) are enabled by config; do not import them from 'vitest' (globals: true).
+  - Commands:
+    - yarn test:unit → run the unit test suite once (CI-friendly)
+    - yarn test:watch → watch mode during development
 
-- Demonstration: simple, dependency-free test we verified
-  - We validated a minimal smoke test that exercises an internal helper without any external dependency installation. You can reproduce with:
-    1. Create temp-readPackage-test.mjs at the repo root:
-       import {readPackage} from './packages/monorepo/src/utils/packages/readPackage.js';
-       try {
-         const pkg = readPackage(new URL('./package.json', import.meta.url).pathname);
-         if (pkg && pkg.name === '@tsed/root') {
-           console.log('OK: readPackage read project package.json correctly.');
-           process.exit(0);
-         } else {
-           console.error('FAIL: Unexpected package name:', pkg && pkg.name);
-           process.exit(2);
-         }
-       } catch (er) {
-         console.error('FAIL:', er);
-         process.exit(1);
-       }
-    2. Run: node temp-readPackage-test.mjs
-    3. Expected: prints "OK: readPackage read project package.json correctly." and exits 0.
-    4. Clean up: remove the temp file after the check.
-  - This approach avoids installing dev dependencies and is useful for quick sanity checks while developing utilities that rely only on Node core modules.
+- Writing tests (ESM):
+  - Use ESM imports and include the .js extension for local files.
+  - Example minimal spec (placed under packages/monorepo/src/utils/packages/readPackage.spec.js):
+    // Note: Vitest globals are enabled; do not import from 'vitest'.
+    import {readPackage} from './readPackage.js';
+    describe('readPackage', () => {
+      it('reads the root package.json', () => {
+        const pkg = readPackage(new URL('../../../../package.json', import.meta.url).pathname);
+        expect(pkg.name).toBe('@tsed/root');
+      });
+    });
+
+- Notes
+  - Node >=18 recommended. Repo is ESM-only ("type": "module").
+  - If you add new packages or utilities, co-locate specs next to source under src using the .spec.js suffix so they are auto-discovered by Vitest.
 
 3) Additional development information
 
