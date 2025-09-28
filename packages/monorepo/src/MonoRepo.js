@@ -5,7 +5,6 @@ import {join} from "path";
 import {existsSync} from "fs";
 import {lerna, npm, nx, yarn, pnpm} from "./utils/cli/index.js";
 import {getDependencies} from "./utils/depencencies/getDependencies.js";
-import {syncExamples} from "./utils/examples/syncExample.js";
 import {syncDependencies} from "./utils/depencencies/syncDependencies.js";
 import {publishPackages} from "./utils/packages/publishPackages.js";
 import {readPackage} from "./utils/packages/readPackage.js";
@@ -17,7 +16,6 @@ import {syncRepository} from "./utils/workspace/syncRepository.js";
 import {createTasksRunner} from "./utils/common/createTasksRunner.js";
 import {newVersion} from "./utils/packages/newVersion.js";
 import {publishGhPages} from "./utils/ghpages/publishGhPages.js";
-import {publishExamples} from "./utils/examples/publishExamples.js";
 import {defaultPackageMapper} from "./utils/packages/defaultPackageMapper.js";
 import {publishDocker} from "./utils/docker/publishDocker.js";
 import {publishHeroku} from "./utils/heroku/publishHeroku.js";
@@ -387,8 +385,6 @@ export class MonoRepo {
     switch (type) {
       case "repository":
         return this.syncRepository(options);
-      case "examples":
-        return this.syncExamples(options);
       case "packages":
         return this.syncDependencies(options);
     }
@@ -403,10 +399,6 @@ export class MonoRepo {
     return syncRepository(this.fork(options));
   }
 
-  async syncExamples(options = {}) {
-    return syncExamples(this.fork(options));
-  }
-
   publish(type, options = {}) {
     switch (type) {
       case "packages":
@@ -417,8 +409,6 @@ export class MonoRepo {
         return this.publishHeroku(options);
       case "docker":
         return this.publishDocker(options);
-      case "examples":
-        return this.publishExamples(options);
     }
 
     throw new Error(`Unsupported publish type: ${type}. Supported types: packages, ghpages, heroku, docker, examples`);

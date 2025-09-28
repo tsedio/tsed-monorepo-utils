@@ -7,12 +7,11 @@ import {findPackages} from "./findPackages.js";
 const noop = (p) => p;
 
 /**
- *
  * @param context {MonoRepo}
  * @returns {Promise<void[]>}
  */
 export async function writePackages(context) {
-  const {outputDir, silent, ignore = [], pkgMapper = noop, branchName, rootPkg} = context;
+  const {silent, ignore = [], pkgMapper = noop, branchName, rootPkg} = context;
   let {npmDistTag} = context;
 
   if (["alpha", "beta", "rc"].includes(branchName)) {
