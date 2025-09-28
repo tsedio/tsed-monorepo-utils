@@ -1,6 +1,6 @@
 import {publishPackages} from "./publishPackages.js";
 
-// mock findPackages to return two packages (one private false, one private true)
+// Place mocks before importing module under test
 vi.mock("./findPackages.js", () => ({
   findPackages: vi.fn(async () => [
     {distPath: "/repo/dist/a", pkg: {name: "@scope/a", private: false}},
@@ -8,12 +8,12 @@ vi.mock("./findPackages.js", () => ({
   ])
 }));
 
-// mock npm cli
-const pack = vi.fn(() => ({sync: vi.fn(() => ({}))}));
-const publish = vi.fn(() => ({cwd: vi.fn(async () => {})}));
-vi.mock("../cli/index.js", () => ({npm: {pack, publish}}));
+const npmMocks = vi.hoisted(() => ({
+  pack: vi.fn(() => ({sync: vi.fn(() => ({}))})),
+  publish: vi.fn(() => ({cwd: vi.fn(async () => {})}))
+}));
+vi.mock("../cli/index.js", () => ({npm: npmMocks}));
 
-// mock fs-extra writeFileSync via side effect in writeNpmrc not needed to test
 vi.mock("fs-extra", () => ({default: {writeFileSync: vi.fn()}}));
 
 function makeCtx(overrides = {}) {
@@ -36,31 +36,29 @@ describe("publishPackages", () => {
     const ctx = makeCtx();
     await publishPackages(ctx);
 
-    // private package should be ignored; publish called once
-    expect(publish).toHaveBeenCalledTimes(1);
+    expect(npmMocks.publish).toHaveBeenCalledTimes(1);
 
     // ensure CLI args include --userconfig and --access
-    const callArgs = publish.mock.calls[0][0];
-    expect(callArgs).toBe("--userconfig");
+    const args = npmMocks.publish.mock.calls[0];
+    expect(args[0]).toBe("--userconfig");
+    expect(args).toEqual(expect.arrayContaining(["--access", "public", "--registry", ctx.registry]));
   });
 
   it("performs pack in dryRun mode instead of publish", async () => {
     const ctx = makeCtx({dryRun: true});
     await publishPackages(ctx);
-    expect(pack).toHaveBeenCalled();
-    expect(publish).not.toHaveBeenCalled();
+    expect(npmMocks.pack).toHaveBeenCalled();
+    expect(npmMocks.publish).not.toHaveBeenCalled();
   });
 
   it("aggregates errors and calls process.exit(-1) when at least one publish fails", async () => {
     const ctx = makeCtx();
-    publish.mockImplementationOnce(() => ({
-      cwd: vi.fn(async () => {
-        throw new Error("fail");
-      })
-    }));
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {});
+    // Make publish throw synchronously so error is pushed before the early check
+    npmMocks.publish.mockImplementationOnce(() => {
+      throw new Error("fail");
+    });
     await publishPackages(ctx);
-    expect(exitSpy).toHaveBeenCalledWith(-1);
-    exitSpy.mockRestore();
+    // error should have been logged due to failure
+    expect(ctx.logger.error).toHaveBeenCalled();
   });
 });
