@@ -1,4 +1,5 @@
 import {writePackage} from "./writePackage.js";
+import {join} from "path";
 
 /**
  *
@@ -8,6 +9,6 @@ export async function newVersion(context) {
   const {version} = context;
   context.rootPkg.version = version;
 
-  await writePackage(context.rootPkg, context.rootPkg);
-  await context.manager.install(context);
+  await writePackage(join(context.rootDir, "package.json"), context.rootPkg);
+  await context.manager.install();
 }

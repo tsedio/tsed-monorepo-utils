@@ -14,6 +14,7 @@ describe("newVersion", () => {
   it("updates rootPkg.version, writes package.json, then runs manager.install", async () => {
     const ctx = {
       version: "2.0.0",
+      rootDir: "/repo",
       rootPkg: {name: "@scope/root", version: "1.0.0"},
       manager: {install: vi.fn(async () => {})}
     };
@@ -24,9 +25,9 @@ describe("newVersion", () => {
     expect(ctx.rootPkg.version).toBe("2.0.0");
 
     // writePackage called with path and pkg (implementation currently passes the object twice)
-    expect(writePkgMock.writePackage).toHaveBeenCalledWith(ctx.rootPkg, ctx.rootPkg);
+    expect(writePkgMock.writePackage).toHaveBeenCalledWith("/repo/package.json", ctx.rootPkg);
 
     // manager.install called with context
-    expect(ctx.manager.install).toHaveBeenCalledWith(ctx);
+    expect(ctx.manager.install).toHaveBeenCalledWith();
   });
 });
