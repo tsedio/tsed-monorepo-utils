@@ -19,12 +19,12 @@ function getPatternsFormNmpIgnore(file) {
  * @param context {MonoRepo}
  */
 export async function copyPackages(context) {
-  const {rootDir, outputDir, ignore = []} = context;
+  const {ignore = []} = context;
   const packages = await findPackages(context);
 
   const promises = packages.map(async (pkg) => {
     const pkgDir = dirname(pkg.path);
-    const dirName = basename(pkgDir);
+    // const dirName = basename(pkgDir);
     const file = pkg.path.replace("package.json", ".npmignore");
 
     const patterns = [
@@ -32,6 +32,7 @@ export async function copyPackages(context) {
       "*/**",
       ".*",
       "**/.*",
+      "!package.json",
       "!tsconfig.compile.json",
       "!test/**",
       "!package-lock.json",

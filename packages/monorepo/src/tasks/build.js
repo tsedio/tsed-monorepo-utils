@@ -1,7 +1,6 @@
 import {compilePackages} from "../utils/packages/compilePackages.js";
 import {copyPackages} from "../utils/packages/copyPackages.js";
 import {writePackages} from "../utils/packages/writePackages.js";
-import {syncDependencies} from "../utils/depencencies/syncDependencies.js";
 import {clean} from "../utils/common/clean.js";
 import {buildHybridPackages} from "../utils/packages/buildHybridPackages.js";
 
@@ -14,10 +13,6 @@ export function build(context) {
     {
       title: "Compile packages",
       task: () => compilePackages(context)
-    },
-    {
-      title: "Sync dependencies",
-      task: () => syncDependencies(context)
     },
     {
       title: "Copy packages",

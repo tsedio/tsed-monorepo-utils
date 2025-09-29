@@ -5,10 +5,6 @@ class LernaCli extends Cli {
     super("lerna");
   }
 
-  newVersion(version) {
-    return this.version(version, "--exact", "--yes", "--no-git-tag-version", "--no-push");
-  }
-
   version(...args) {
     return this.sync("version", ...args);
   }

@@ -5,10 +5,6 @@ class PnpmCli extends Cli {
     super("pnpm");
   }
 
-  newVersion(version) {
-    return this.version("--no-git-tag-version", version);
-  }
-
   version(...args) {
     return this.sync("version", ...args);
   }

@@ -32,6 +32,9 @@ function makeCtx(overrides = {}) {
     pkgMapper: ({pkg}) => ({...pkg, custom: true}),
     branchName: "beta",
     rootPkg: {version: "2.3.4"},
+    ignoreSyncDependencies: [],
+    dependencies: new Map(),
+    version: "2.3.4",
     ...overrides
   };
 }

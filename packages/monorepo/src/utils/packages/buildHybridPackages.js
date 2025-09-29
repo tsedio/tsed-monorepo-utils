@@ -36,7 +36,7 @@ export async function buildHybridPackage(distPath, pkg, context) {
  * @returns {Promise<void[]>}
  */
 export async function buildHybridPackages(context) {
-  const {outputDir, silent, ignore = []} = context;
+  const {ignore = []} = context;
 
   const packages = await findPackages(context);
 

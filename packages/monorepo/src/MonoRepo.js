@@ -5,7 +5,6 @@ import {join} from "path";
 import {existsSync} from "fs";
 import {lerna, npm, nx, yarn, pnpm} from "./utils/cli/index.js";
 import {getDependencies} from "./utils/depencencies/getDependencies.js";
-import {syncDependencies} from "./utils/depencencies/syncDependencies.js";
 import {publishPackages} from "./utils/packages/publishPackages.js";
 import {readPackage} from "./utils/packages/readPackage.js";
 import {getEnv} from "./utils/env/getEnv.js";
@@ -385,14 +384,8 @@ export class MonoRepo {
     switch (type) {
       case "repository":
         return this.syncRepository(options);
-      case "packages":
-        return this.syncDependencies(options);
     }
     throw new Error(`Unsupported clean type: ${type}. Supported types: repository, examples, packages`);
-  }
-
-  async syncDependencies(options = {}) {
-    return syncDependencies(this.fork(options));
   }
 
   async syncRepository(options = {}) {

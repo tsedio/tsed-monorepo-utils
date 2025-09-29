@@ -11,12 +11,6 @@ describe("YarnBerry CLI", () => {
     vi.restoreAllMocks();
   });
 
-  it("newVersion should delegate to bumpPackagesVersion", async () => {
-    const res = await yarnBerry.newVersion("2.0.0", {some: "ctx"});
-    expect(bumpPackagesVersion).toHaveBeenCalledWith("2.0.0", {some: "ctx"});
-    expect(res).toBe("BUMPED");
-  });
-
   it("version should call sync version", () => {
     const spy = vi.spyOn(Cli, "run").mockReturnValue({sync: vi.fn()});
     yarnBerry.version("--json");

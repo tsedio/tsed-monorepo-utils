@@ -16,8 +16,8 @@ describe("Pnpm CLI helper", () => {
     execaSync.mockClear();
   });
 
-  it("newVersion should call pnpm version with --no-git-tag-version", () => {
-    pnpm.newVersion("3.4.5");
+  it("version should call pnpm version with provided flags", () => {
+    pnpm.version("--no-git-tag-version", "3.4.5");
     const [cmd, args, options] = execaSync.mock.calls.at(-1);
     expect(cmd).toBe("pnpm");
     expect(args).toEqual(["version", "--no-git-tag-version", "3.4.5"]);

@@ -6,12 +6,6 @@ describe("Yarn CLI", () => {
     vi.restoreAllMocks();
   });
 
-  it("newVersion should call yarn version with flags", () => {
-    const spy = vi.spyOn(Cli, "run").mockReturnValue({sync: vi.fn()});
-    yarn.newVersion("1.2.3");
-    expect(spy).toHaveBeenCalledWith("yarn", ["version", "--no-git-tag-version", "--new-version", "1.2.3"]);
-  });
-
   it("version should call sync version", () => {
     const spy = vi.spyOn(Cli, "run").mockReturnValue({sync: vi.fn()});
     yarn.version("arg1");

@@ -11,7 +11,6 @@ export * from "./utils/env/getCi.js";
 export * from "./utils/env/getEnv.js";
 
 export * from "./utils/depencencies/getDependencies.js";
-export * from "./utils/depencencies/syncDependencies.js";
 
 export * from "./utils/packages/compilePackages.js";
 export * from "./utils/packages/publishPackages.js";

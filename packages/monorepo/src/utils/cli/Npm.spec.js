@@ -16,8 +16,8 @@ describe("Npm CLI helper", () => {
     execaSync.mockClear();
   });
 
-  it("newVersion should call npm version with --no-git-tag-version", () => {
-    npm.newVersion("1.2.3");
+  it("version should call npm version with provided flags", () => {
+    npm.version("--no-git-tag-version", "1.2.3");
     expect(execaSync).toHaveBeenCalledTimes(1);
     const [cmd, args, options] = execaSync.mock.calls[0];
     expect(cmd).toBe("npm");

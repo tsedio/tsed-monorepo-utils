@@ -76,26 +76,17 @@ Plugin: `@semantic-release/release-notes-generator`
 ### 4) prepare
 Plugins: `@semantic-release/npm`, `@tsed/monorepo-utils/semantic-release`
 
-- `@semantic-release/npm`: met à jour `package.json` (version), prépare d’éventuels artefacts;
-- Plugin interne (comment le bump de version est propagé):
+- `@semantic-release/npm`: met à jour la version du `package.json` ROOT uniquement et prépare d’éventuels artefacts;
+- Plugin interne (orchestration):
   1. Récupère `nextRelease.version` depuis le contexte semantic-release.
-  2. Appelle `monoRepo.newVersion({version})` qui délègue à l’outil de workspace détecté (Yarn Berry, pnpm, npm, Lerna…).
-     - Yarn Berry: `YarnBerry.newVersion()` appelle `bumpPackagesVersion(version, context)`.
-       - `bumpPackagesVersion`:
-         - Parcourt `package.json` du root + tous les workspaces.
-         - Écrit `version = <version>` dans chacun.
-         - Met à jour les dépendances internes (entre packages du monorepo) pour `dependencies`, `devDependencies`, `peerDependencies`:
-           - Si la dépendance pointe vers un package interne et ne commence PAS par `workspace:`:
-             - `dependencies`/`devDependencies` → remplace par la version exacte `<version>`.
-             - `peerDependencies` → remplace par `>=<MAJOR>.0.0`.
-           - Si la dépendance utilise `workspace:*`, elle reste intacte à ce stade; elle sera résolue plus tard lors de l’écriture des packages (voir ci-dessous).
-     - Lerna: si présent, une commande `lerna version` est invoquée (sans tag git) puis l’outil du workspace met aussi à jour les versions.
-  3. Construit les packages: `monoRepo.build("workspace")` (exécute les scripts de build des workspaces si configurés).
+  2. Appelle `monoRepo.newVersion({version})` pour mettre à jour la VERSION DU ROOT UNIQUEMENT (les `package.json` des workspaces ne sont plus modifiés à ce stade).
+  3. Construit les packages: `monoRepo.build("workspace")` (exécute les scripts de build des workspaces si configurés). C’est durant cette phase que les `package.json` destinés à la publication sont générés dans `dist` et alignés sur la version du root (voir ci-dessous `writePackages`).
   4. Rafraîchit les installations: `monoRepo.manager.refreshInstall()` (ex. `yarn install --refresh-lockfile`).
-  5. Commit des changements: `monoRepo.commitChanges({version})` (ajoute les `package.json`, lockfile, artefacts de build, etc.).
+  5. Commit des changements: `monoRepo.commitChanges({version})` (commite le `package.json` root, lockfile, et éventuels artefacts de build; les `package.json` des workspaces sources ne sont pas bumpés).
 
 Détails sur la résolution `workspace:*` lors de l’empaquetage:
 - La phase de build utilise `writePackages()` pour générer les `package.json` finaux à publier dans `distPath`.
+- `writePackages` aligne le champ `version` de CHAQUE package sur la version du root (`rootPkg.version`). Durant la release, seul le `package.json` root est bumpé dans le repository; les `package.json` des workspaces sources ne sont pas modifiés.
 - `writePackages` remplace toutes les versions `workspace:*` dans `dependencies` et `devDependencies` par la version du root (`rootPkg.version`, c.-à-d. la version calculée par semantic-release).
 - `writePackages` ajuste aussi:
   - `main`: si `main` contient `/src/index.ts`, il devient `./lib/index.js` (et `typings` → `lib/index.d.ts`).
@@ -130,10 +121,13 @@ Plugins: `@tsed/monorepo-utils/semantic-release`, `@semantic-release/github`
      - Remplacement des versions `workspace:*` par `rootPkg.version` dans `dependencies` et `devDependencies`.
      - Application du `publishConfig.tag` (dist-tag npm), déterminé par `branchName` ou `npmDistTag`.
      - Normalisation de `main`/`typings` si nécessaire (ex: `src/index.ts` -> `lib/index.js`).
-  3. Sélection du registre/npm config: lecture de `.npmrc`/env et utilisation de `NPM_TOKEN` si disponible.
+  3. Sélection du/des registre(s) et auth npm: génération d’un `.npmrc` local par package. Les tokens utilisés sont déterminés par le registre:
+     - Registre GitHub (`npm.pkg.github.com`, etc.): variable `GH_TOKEN`.
+     - Registre npmjs (`registry.npmjs.org`): variable `NPM_TOKEN`.
+     - Autres registres: variable générique `NODE_AUTH_TOKEN`.
   4. Boucle de publication:
-     - Pour chaque package non marqué `private: true`, exécuter `npm publish` (ou équivalent via le gestionnaire détecté) dans son dossier de distribution avec `--tag <dist-tag>`.
-     - Respect du `dryRun`: en mode dry-run, la commande est simulée et les actions sont loguées sans pousser sur le registre.
+     - Pour chaque package non marqué `private: true`, exécuter `npm publish` (ou équivalent via le gestionnaire détecté) dans son dossier de distribution. Le dist-tag provient de `publishConfig.tag` injecté lors de `writePackages()` (aucun `--tag` explicite n’est passé).
+     - Respect du `dryRun`: en mode dry-run, aucune publication réseau n’est effectuée; un `npm pack` est réalisé pour valider le contenu et les actions sont loguées.
      - Gestion d’ordre de publication cohérente (packages de base d’abord si nécessaire) et reprise simple en cas d’échec ponctuel (selon le gestionnaire).
   5. Journalisation: pour chaque package, le nom, la version, le tag appliqué et le registre cible sont affichés.
 

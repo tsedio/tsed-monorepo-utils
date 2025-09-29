@@ -6,12 +6,6 @@ describe("Lerna CLI", () => {
     vi.restoreAllMocks();
   });
 
-  it("newVersion should call lerna version with flags", () => {
-    const spy = vi.spyOn(Cli, "run").mockReturnValue({sync: vi.fn()});
-    lerna.newVersion("1.0.0");
-    expect(spy).toHaveBeenCalledWith("lerna", ["version", "1.0.0", "--exact", "--yes", "--no-git-tag-version", "--no-push"]);
-  });
-
   it("version should call sync version", () => {
     const spy = vi.spyOn(Cli, "run").mockReturnValue({sync: vi.fn()});
     lerna.version("--conventional-commits");

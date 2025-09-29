@@ -5,10 +5,6 @@ class NpmCli extends Cli {
     super("npm");
   }
 
-  newVersion(version) {
-    return this.version("--no-git-tag-version", version);
-  }
-
   version(...args) {
     return this.sync("version", ...args);
   }

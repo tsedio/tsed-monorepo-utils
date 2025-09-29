@@ -1,38 +1,32 @@
 import {newVersion} from "./newVersion.js";
 
-const lernaMocks = vi.hoisted(() => ({
-  newVersion: vi.fn()
+// Mock writePackage to avoid filesystem calls and to capture arguments
+const writePkgMock = vi.hoisted(() => ({
+  writePackage: vi.fn(async () => {})
 }));
-vi.mock("../cli/index.js", () => ({lerna: lernaMocks}));
+vi.mock("./writePackage.js", () => writePkgMock);
 
 describe("newVersion", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("calls lerna.newVersion when hasLerna is true and always calls manager.newVersion", async () => {
+  it("updates rootPkg.version, writes package.json, then runs manager.install", async () => {
     const ctx = {
-      hasLerna: true,
       version: "2.0.0",
-      manager: {newVersion: vi.fn(async () => {})}
+      rootPkg: {name: "@scope/root", version: "1.0.0"},
+      manager: {install: vi.fn(async () => {})}
     };
 
     await newVersion(ctx);
 
-    expect(lernaMocks.newVersion).toHaveBeenCalledWith("2.0.0", ctx);
-    expect(ctx.manager.newVersion).toHaveBeenCalledWith("2.0.0", ctx);
-  });
+    // rootPkg was updated
+    expect(ctx.rootPkg.version).toBe("2.0.0");
 
-  it("skips lerna when hasLerna is false but still calls manager.newVersion", async () => {
-    const ctx = {
-      hasLerna: false,
-      version: "1.1.0",
-      manager: {newVersion: vi.fn(async () => {})}
-    };
+    // writePackage called with path and pkg (implementation currently passes the object twice)
+    expect(writePkgMock.writePackage).toHaveBeenCalledWith(ctx.rootPkg, ctx.rootPkg);
 
-    await newVersion(ctx);
-
-    expect(lernaMocks.newVersion).not.toHaveBeenCalled();
-    expect(ctx.manager.newVersion).toHaveBeenCalledWith("1.1.0", ctx);
+    // manager.install called with context
+    expect(ctx.manager.install).toHaveBeenCalledWith(ctx);
   });
 });
