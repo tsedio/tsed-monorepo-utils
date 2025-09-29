@@ -1,5 +1,4 @@
 import semver from "semver";
-import {syncDependencies} from "../../utils/depencencies/syncDependencies.js";
 import {newVersion} from "../../utils/packages/newVersion.js";
 
 export class VersionCmd {
@@ -25,10 +24,6 @@ export class VersionCmd {
       {
         title: `Bump version to ${context.version}`,
         task: () => newVersion(context)
-      },
-      {
-        title: "Sync dependencies from root package.json",
-        task: () => syncDependencies(context)
       }
     ];
   }

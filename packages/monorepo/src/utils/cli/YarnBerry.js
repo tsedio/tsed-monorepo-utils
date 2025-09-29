@@ -6,10 +6,6 @@ class YarnBerryCli extends Cli {
     super("yarn");
   }
 
-  newVersion(version, context) {
-    return bumpPackagesVersion(version, context);
-  }
-
   version(...args) {
     return this.sync("version", ...args);
   }

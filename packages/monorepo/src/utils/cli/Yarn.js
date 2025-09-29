@@ -5,10 +5,6 @@ class YarnCli extends Cli {
     super("yarn");
   }
 
-  newVersion(version) {
-    return this.version("--no-git-tag-version", "--new-version", version);
-  }
-
   version(...args) {
     return this.sync("version", ...args);
   }

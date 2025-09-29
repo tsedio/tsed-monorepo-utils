@@ -2,10 +2,9 @@ import _ from "lodash";
 import hasYarn from "has-yarn";
 import logger from "fancy-log";
 import {join} from "path";
-import {lerna, npm, nx, yarn} from "./utils/cli/index.js";
+import {existsSync} from "fs";
+import {lerna, npm, nx, yarn, pnpm} from "./utils/cli/index.js";
 import {getDependencies} from "./utils/depencencies/getDependencies.js";
-import {syncExamples} from "./utils/examples/syncExample.js";
-import {syncDependencies} from "./utils/depencencies/syncDependencies.js";
 import {publishPackages} from "./utils/packages/publishPackages.js";
 import {readPackage} from "./utils/packages/readPackage.js";
 import {getEnv} from "./utils/env/getEnv.js";
@@ -16,7 +15,6 @@ import {syncRepository} from "./utils/workspace/syncRepository.js";
 import {createTasksRunner} from "./utils/common/createTasksRunner.js";
 import {newVersion} from "./utils/packages/newVersion.js";
 import {publishGhPages} from "./utils/ghpages/publishGhPages.js";
-import {publishExamples} from "./utils/examples/publishExamples.js";
 import {defaultPackageMapper} from "./utils/packages/defaultPackageMapper.js";
 import {publishDocker} from "./utils/docker/publishDocker.js";
 import {publishHeroku} from "./utils/heroku/publishHeroku.js";
@@ -266,6 +264,7 @@ export class MonoRepo {
   }
 
   get manager() {
+    if (this.hasPnpm) return pnpm;
     return this.hasYarn ? (this.hasYarnBerry ? yarnBerry : yarn) : npm;
   }
 
@@ -286,6 +285,10 @@ export class MonoRepo {
       return yarn;
     }
 
+    if (this.hasPnpm) {
+      return pnpm;
+    }
+
     return npm;
   }
 
@@ -299,6 +302,17 @@ export class MonoRepo {
 
   get hasYarnBerry() {
     return this.hasYarn && (this.rootPkg.packageManager || "").includes("yarn@");
+  }
+
+  get hasPnpm() {
+    const pm = this.rootPkg.packageManager || "";
+    if (pm.includes("pnpm@")) return true;
+
+    try {
+      return existsSync(join(this.rootDir, "pnpm-lock.yaml")) || existsSync(join(this.rootDir, "pnpm-workspace.yaml"));
+    } catch (e) {
+      return false;
+    }
   }
 
   get hasLerna() {
@@ -370,24 +384,12 @@ export class MonoRepo {
     switch (type) {
       case "repository":
         return this.syncRepository(options);
-      case "examples":
-        return this.syncExamples(options);
-      case "packages":
-        return this.syncDependencies(options);
     }
     throw new Error(`Unsupported clean type: ${type}. Supported types: repository, examples, packages`);
   }
 
-  async syncDependencies(options = {}) {
-    return syncDependencies(this.fork(options));
-  }
-
   async syncRepository(options = {}) {
     return syncRepository(this.fork(options));
-  }
-
-  async syncExamples(options = {}) {
-    return syncExamples(this.fork(options));
   }
 
   publish(type, options = {}) {
@@ -400,8 +402,6 @@ export class MonoRepo {
         return this.publishHeroku(options);
       case "docker":
         return this.publishDocker(options);
-      case "examples":
-        return this.publishExamples(options);
     }
 
     throw new Error(`Unsupported publish type: ${type}. Supported types: packages, ghpages, heroku, docker, examples`);

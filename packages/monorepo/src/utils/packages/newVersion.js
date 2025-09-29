@@ -1,15 +1,13 @@
-import {lerna} from "../cli/index.js";
+import {writePackage} from "./writePackage.js";
 
 /**
  *
  * @param context {MonoRepo}
  */
 export async function newVersion(context) {
-  const {hasLerna} = context;
+  const {version} = context;
+  context.rootPkg.version = version;
 
-  if (hasLerna) {
-    lerna.newVersion(context.version, context);
-  }
-
-  await context.manager.newVersion(context.version, context);
+  await writePackage(context.rootPkg, context.rootPkg);
+  await context.manager.install(context);
 }

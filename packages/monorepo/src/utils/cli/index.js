@@ -4,5 +4,6 @@ export * from "./Lerna.js";
 export * from "./Nx.js";
 export * from "./Npm.js";
 export * from "./Yarn.js";
+export * from "./Pnpm.js";
 export * from "./Git.js";
 export * from "./Heroku.js";
