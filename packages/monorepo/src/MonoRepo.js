@@ -30,6 +30,7 @@ function getDefaultOptions(rootPkg) {
     npmAccess: _.get(rootPkg, "monorepo.npmAccess", "public"),
     npmDistTag: _.get(rootPkg, "monorepo.npmDistTag", _.get(rootPkg, "publishConfig.tag")),
     skipNpmPublish: _.get(rootPkg, "monorepo.skipNpmPublish", false),
+    trustedPublishing: _.get(rootPkg, "monorepo.trustedPublishing", false),
     productionBranch: _.get(rootPkg, "monorepo.productionBranch", "master"),
     developBranch: _.get(rootPkg, "monorepo.developBranch", "master"),
     origin: _.get(rootPkg, "monorepo.origin", "origin"),
@@ -79,6 +80,7 @@ export class MonoRepo {
       npmAccess,
       npmDistTag,
       skipNpmPublish,
+      trustedPublishing,
       registries,
       version,
       outputDir,
@@ -133,6 +135,12 @@ export class MonoRepo {
      * @public
      */
     this.skipNpmPublish = skipNpmPublish || defaultOptions.skipNpmPublish;
+    /**
+     * Use npm trusted publishing (OIDC) for registry.npmjs.org.
+     * @type {boolean}
+     * @public
+     */
+    this.trustedPublishing = trustedPublishing ?? defaultOptions.trustedPublishing;
     /**
      * @type {string}
      * @public

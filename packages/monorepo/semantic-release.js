@@ -6,9 +6,10 @@ import {execFileSync} from "node:child_process";
  */
 let monoRepo;
 
-export async function verifyConditions(pluginConfig, context) {
+export async function verifyConditions(pluginConfig = {}, context) {
   monoRepo = new MonoRepo({
-    rootDir: context.cwd
+    rootDir: context.cwd,
+    trustedPublishing: pluginConfig.trustedPublishing
   });
 
   await monoRepo.configureWorkspace({

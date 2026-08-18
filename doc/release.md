@@ -123,7 +123,7 @@ Plugins: `@tsed/monorepo-utils/semantic-release`, `@semantic-release/github`
      - Normalisation de `main`/`typings` si nécessaire (ex: `src/index.ts` -> `lib/index.js`).
   3. Sélection du/des registre(s) et auth npm: génération d’un `.npmrc` local par package. Les tokens utilisés sont déterminés par le registre:
      - Registre GitHub (`npm.pkg.github.com`, etc.): variable `GH_TOKEN`.
-     - Registre npmjs (`registry.npmjs.org`): variable `NPM_TOKEN`.
+     - Registre npmjs (`registry.npmjs.org`): variable `NPM_TOKEN`, sauf si l'option `trustedPublishing` est activée. Dans ce cas, le `.npmrc` ne contient pas de jeton npm et npm utilise les identifiants OIDC fournis par la CI.
      - Autres registres: variable générique `NODE_AUTH_TOKEN`.
   4. Boucle de publication:
      - Pour chaque package non marqué `private: true`, exécuter `npm publish` (ou équivalent via le gestionnaire détecté) dans son dossier de distribution. Le dist-tag provient de `publishConfig.tag` injecté lors de `writePackages()` (aucun `--tag` explicite n’est passé).

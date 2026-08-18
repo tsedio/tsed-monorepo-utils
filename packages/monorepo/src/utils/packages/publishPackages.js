@@ -5,7 +5,7 @@ import {join} from "path";
 import {npm} from "../cli/index.js";
 import {findPackages} from "./findPackages.js";
 
-function writeNpmrc(path, registries, scope) {
+function writeNpmrc(path, registries, scope, trustedPublishing) {
   const npmrc = join(path, ".npmrc");
 
   const content = registries.map((registry) => {
@@ -18,6 +18,10 @@ function writeNpmrc(path, registries, scope) {
     }
 
     if (registry.includes("npmjs")) {
+      if (trustedPublishing) {
+        return "";
+      }
+
       token = "NPM_TOKEN";
     }
 
@@ -30,8 +34,8 @@ function writeNpmrc(path, registries, scope) {
 }
 
 async function publishPackage(pkg, {url, cwd}, context) {
-  const {npmAccess, dryRun, registry} = context;
-  const npmrc = writeNpmrc(cwd, [url], pkg.name.split("/")[0]);
+  const {npmAccess, dryRun, registry, trustedPublishing} = context;
+  const npmrc = writeNpmrc(cwd, [url], pkg.name.split("/")[0], trustedPublishing);
 
   if (dryRun) {
     npm.pack().sync({

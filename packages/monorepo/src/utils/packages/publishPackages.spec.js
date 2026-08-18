@@ -12,9 +12,10 @@ const npmMocks = vi.hoisted(() => ({
   pack: vi.fn(() => ({sync: vi.fn(() => ({}))})),
   publish: vi.fn(() => ({cwd: vi.fn(async () => {})}))
 }));
+const fsMocks = vi.hoisted(() => ({writeFileSync: vi.fn()}));
 vi.mock("../cli/index.js", () => ({npm: npmMocks}));
 
-vi.mock("fs-extra", () => ({default: {writeFileSync: vi.fn()}}));
+vi.mock("fs-extra", () => ({default: fsMocks}));
 
 function makeCtx(overrides = {}) {
   return {
@@ -49,6 +50,14 @@ describe("publishPackages", () => {
     await publishPackages(ctx);
     expect(npmMocks.pack).toHaveBeenCalled();
     expect(npmMocks.publish).not.toHaveBeenCalled();
+  });
+
+  it("uses npm trusted publishing without writing an npm token", async () => {
+    const ctx = makeCtx({trustedPublishing: true});
+    await publishPackages(ctx);
+
+    expect(npmMocks.publish).toHaveBeenCalledTimes(1);
+    expect(fsMocks.writeFileSync).toHaveBeenCalledWith(expect.stringContaining(".npmrc"), "", {encoding: "utf8"});
   });
 
   it("aggregates errors and calls process.exit(-1) when at least one publish fails", async () => {
