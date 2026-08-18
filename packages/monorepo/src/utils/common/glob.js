@@ -1,8 +1,8 @@
-import {globby} from "globby";
+import {globby, globbySync} from "globby";
 import normalizePath from "normalize-path";
 
 export function globSync(patterns, options) {
-  return globby.sync(patterns, options).map((file) => normalizePath(file));
+  return globbySync(patterns, options).map((file) => normalizePath(file));
 }
 
 export async function globAsync(patterns, options) {
