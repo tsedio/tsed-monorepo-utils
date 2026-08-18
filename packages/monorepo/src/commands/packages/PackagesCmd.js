@@ -2,6 +2,10 @@ import Table from "cli-table3";
 import {getNpmPackageTrustStatus} from "../../utils/packages/trustedPublishing.js";
 
 export class PackagesCmd {
+  get useListr() {
+    return false;
+  }
+
   mapContext(commander) {
     return {type: commander.type};
   }

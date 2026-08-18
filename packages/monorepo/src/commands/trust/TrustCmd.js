@@ -3,6 +3,10 @@ import {globSync} from "../../utils/common/glob.js";
 import {basename} from "path";
 
 export class TrustCmd {
+  get useListr() {
+    return false;
+  }
+
   mapContext(commander) {
     return {
       type: commander.type,
