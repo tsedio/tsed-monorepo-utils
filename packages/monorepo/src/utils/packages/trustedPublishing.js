@@ -110,7 +110,7 @@ export async function getNpmPackageTrustStatus(context) {
     }
 
     try {
-      statuses.push({pkg, status: getTrustedPublishers(pkg.pkg.name).length ? "trusted" : "untrusted"});
+      statuses.push({pkg, status: (await getTrustedPublishers(pkg.pkg.name)).length ? "trusted" : "untrusted"});
     } catch (error) {
       if (!isAuthenticationError(error)) {
         throw error;
@@ -123,8 +123,8 @@ export async function getNpmPackageTrustStatus(context) {
   return statuses;
 }
 
-function getTrustedPublishers(packageName) {
-  const output = npm.trust("list", packageName, "--json").get();
+async function getTrustedPublishers(packageName) {
+  const output = await npm.trust("list", packageName, "--json").getInteractive();
   const trustedPublishers = JSON.parse(output || "[]");
 
   if (Array.isArray(trustedPublishers)) {
@@ -168,7 +168,7 @@ export async function migrateTrustedPackages(context) {
   const migrated = [];
 
   for (const pkg of packages) {
-    if (getTrustedPublishers(pkg.pkg.name).length) {
+    if ((await getTrustedPublishers(pkg.pkg.name)).length) {
       context.logger?.info(`Trusted publisher already configured for ${pkg.pkg.name}; skipping.`);
       continue;
     }

@@ -153,6 +153,19 @@ export class Cli {
       }).stdout;
     };
 
+    promise.getInteractive = async () => {
+      isPromise = false;
+
+      const result = await execa(cmd, args, {
+        cwd: process.cwd(),
+        stdin: "inherit",
+        stdout: "pipe",
+        stderr: "inherit"
+      });
+
+      return result.stdout;
+    };
+
     return promise;
   }
 

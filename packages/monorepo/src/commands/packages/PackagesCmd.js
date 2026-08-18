@@ -1,3 +1,4 @@
+import Table from "cli-table3";
 import {getNpmPackageTrustStatus} from "../../utils/packages/trustedPublishing.js";
 
 export class PackagesCmd {
@@ -12,7 +13,10 @@ export class PackagesCmd {
         enabled: () => context.type === "status",
         task: async () => {
           const statuses = await getNpmPackageTrustStatus(context);
-          statuses.forEach(({pkg, status}) => context.logger.info(`${pkg.pkg.name}: ${status}`));
+          const table = new Table({head: ["Package", "Status"]});
+
+          statuses.forEach(({pkg, status}) => table.push([pkg.pkg.name, status]));
+          context.logger.info(`\n${table.toString()}`);
         }
       }
     ];

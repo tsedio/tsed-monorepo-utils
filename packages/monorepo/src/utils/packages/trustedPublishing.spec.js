@@ -39,6 +39,10 @@ function npmView(result) {
   return {get: vi.fn(result)};
 }
 
+function npmTrustList(result) {
+  return {getInteractive: vi.fn(result)};
+}
+
 describe("trusted publishing", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -122,7 +126,7 @@ describe("trusted publishing", () => {
     );
     npmMocks.trust.mockImplementation((command) => {
       if (command === "list") {
-        return {get: vi.fn(() => "[]")};
+        return npmTrustList(() => "[]");
       }
 
       return Promise.resolve();
@@ -153,7 +157,7 @@ describe("trusted publishing", () => {
         throw new Error("npm error code E404 404 Not Found");
       })
     );
-    npmMocks.trust.mockImplementation(() => ({get: vi.fn(() => "[]")}));
+    npmMocks.trust.mockImplementation(() => npmTrustList(() => "[]"));
 
     const statuses = await getNpmPackageTrustStatus(makeCtx());
 
@@ -172,7 +176,7 @@ describe("trusted publishing", () => {
       })
     );
     npmMocks.trust.mockImplementation(() =>
-      npmView(() => {
+      npmTrustList(() => {
         throw new Error("npm error code EOTP This operation requires a one-time password.");
       })
     );
