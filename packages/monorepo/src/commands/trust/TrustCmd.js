@@ -28,7 +28,7 @@ export class TrustCmd {
 
     return [
       {
-        type: "list",
+        type: "select",
         name: "trustedPublishingWorkflow",
         message: "Which GitHub Actions workflow can publish these packages?",
         choices: workflows.map((workflow) => basename(workflow))
