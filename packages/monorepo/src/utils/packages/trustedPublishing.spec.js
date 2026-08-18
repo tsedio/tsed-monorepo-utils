@@ -164,7 +164,7 @@ describe("trusted publishing", () => {
     ]);
   });
 
-  it("reports authentication-required when npm refuses trust status access", async () => {
+  it("reports authentication-required when npm requires 2FA for trust status access", async () => {
     npmMocks.view.mockImplementationOnce(() => npmView(() => "1.0.0"));
     npmMocks.view.mockImplementationOnce(() =>
       npmView(() => {
@@ -173,7 +173,7 @@ describe("trusted publishing", () => {
     );
     npmMocks.trust.mockImplementation(() =>
       npmView(() => {
-        throw new Error("npm error code E401 401 Unauthorized");
+        throw new Error("npm error code EOTP This operation requires a one-time password.");
       })
     );
 

@@ -20,7 +20,7 @@ function isNotFoundError(error) {
 }
 
 function isAuthenticationError(error) {
-  return /\bE401\b|401 Unauthorized/.test([error.message, error.stdout, error.stderr].filter(Boolean).join("\n"));
+  return /\bE401\b|\bEOTP\b|401 Unauthorized/.test([error.message, error.stdout, error.stderr].filter(Boolean).join("\n"));
 }
 
 function getGithubRepository(repositoryUrl) {
