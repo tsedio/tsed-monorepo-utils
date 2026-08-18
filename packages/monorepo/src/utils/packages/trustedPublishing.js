@@ -58,30 +58,6 @@ export async function getUnpublishedNpmPackages(context) {
   return unpublished;
 }
 
-export async function getPublishedNpmPackages(context) {
-  const registry = getNpmRegistry(context);
-
-  if (!registry) {
-    return [];
-  }
-
-  const packages = await findPackages(context);
-  const published = [];
-
-  for (const pkg of packages.filter(({pkg}) => !pkg.private)) {
-    try {
-      npm.view(pkg.pkg.name, "version", "--registry", registry).get();
-      published.push(pkg);
-    } catch (error) {
-      if (!isNotFoundError(error)) {
-        throw error;
-      }
-    }
-  }
-
-  return published;
-}
-
 export async function getNpmPackageTrustStatus(context) {
   const registry = getNpmRegistry(context);
 
@@ -181,13 +157,26 @@ export async function bootstrapTrustedPackages(context) {
 }
 
 export async function migrateTrustedPackages(context) {
-  const packages = await getPublishedNpmPackages(context);
+  const packages = (await findPackages(context)).filter(({pkg}) => !pkg.private);
   const repository = context.trustedPublishingRepository || getGithubRepository(context.repositoryUrl);
   const workflow = context.trustedPublishingWorkflow || "build.yml";
   const migrated = [];
 
   for (const pkg of packages) {
-    if ((await getTrustedPublishers(pkg.pkg.name, {interactive: true})).length) {
+    let trustedPublishers;
+
+    try {
+      trustedPublishers = await getTrustedPublishers(pkg.pkg.name, {interactive: true});
+    } catch (error) {
+      if (isNotFoundError(error)) {
+        context.logger?.info(`${pkg.pkg.name} does not exist on npm; skipping.`);
+        continue;
+      }
+
+      throw error;
+    }
+
+    if (trustedPublishers.length) {
       context.logger?.info(`Trusted publisher already configured for ${pkg.pkg.name}; skipping.`);
       continue;
     }

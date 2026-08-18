@@ -124,14 +124,14 @@ describe("trusted publishing", () => {
   });
 
   it("migrates published packages that do not have a trusted publisher", async () => {
-    npmMocks.view.mockImplementationOnce(() => npmView(() => "1.0.0"));
-    npmMocks.view.mockImplementationOnce(() =>
-      npmView(() => {
-        throw new Error("npm error code E404 404 Not Found");
-      })
-    );
-    npmMocks.trust.mockImplementation((command) => {
+    npmMocks.trust.mockImplementation((command, packageName) => {
       if (command === "list") {
+        if (packageName === "@scope/new") {
+          return npmTrustList(() => {
+            throw new Error("npm error code E404 404 Not Found");
+          });
+        }
+
         return npmTrustList(() => "[]");
       }
 
@@ -146,7 +146,8 @@ describe("trusted publishing", () => {
     });
 
     expect(packages.map(({pkg}) => pkg.name)).toEqual(["@scope/existing"]);
-    expect(npmMocks.trust).toHaveBeenLastCalledWith(
+    expect(npmMocks.view).not.toHaveBeenCalled();
+    expect(npmMocks.trust).toHaveBeenCalledWith(
       "github",
       "@scope/existing",
       "--repo",
