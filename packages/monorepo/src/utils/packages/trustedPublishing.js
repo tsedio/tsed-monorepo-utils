@@ -142,7 +142,11 @@ async function getTrustedPublishers(packageName, {interactive = false} = {}) {
     return trustedPublishers;
   }
 
-  return trustedPublishers.trustedPublishers || [];
+  if (Array.isArray(trustedPublishers.trustedPublishers)) {
+    return trustedPublishers.trustedPublishers;
+  }
+
+  return trustedPublishers.id ? [trustedPublishers] : [];
 }
 
 export async function bootstrapTrustedPackages(context) {

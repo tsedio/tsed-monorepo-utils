@@ -174,6 +174,33 @@ describe("trusted publishing", () => {
     ]);
   });
 
+  it("recognises npm's single trusted publisher response", async () => {
+    npmMocks.view.mockImplementationOnce(() => npmView(() => "1.0.0"));
+    npmMocks.view.mockImplementationOnce(() =>
+      npmView(() => {
+        throw new Error("npm error code E404 404 Not Found");
+      })
+    );
+    npmMocks.trust.mockImplementation(() =>
+      npmTrustList(() =>
+        JSON.stringify({
+          id: "aaa80890-69d5-4e5e-993d-cd5217f3b7c5",
+          type: "github",
+          file: "build.yml",
+          repository: "tsedio/tsed-monorepo-utils"
+        })
+      )
+    );
+
+    const statuses = await getNpmPackageTrustStatus(makeCtx());
+
+    expect(statuses.map(({pkg, status}) => [pkg.pkg.name, status])).toEqual([
+      ["@scope/existing", "trusted"],
+      ["@scope/new", "unpublished"],
+      ["@scope/private", "private"]
+    ]);
+  });
+
   it("reports authentication-required when npm requires 2FA for trust status access", async () => {
     npmMocks.view.mockImplementationOnce(() => npmView(() => "1.0.0"));
     npmMocks.view.mockImplementationOnce(() =>
