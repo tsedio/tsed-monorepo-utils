@@ -42,8 +42,8 @@ importers:
         specifier: '>=6.20.0'
         version: 8.44.1(typescript@5.9.2)
       any-observable:
-        specifier: '>=0.5.1'
-        version: 0.5.1(rxjs@7.8.2)
+        specifier: ^0.6.0
+        version: 0.6.0(rxjs@7.8.2)
       axios:
         specifier: '>=1.6.7'
         version: 1.12.2
@@ -730,6 +730,7 @@ packages:
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
+    deprecated: Potential CWE-502 - Update to 1.3.1 or higher
 
   '@vitest/expect@3.2.4':
     resolution: {integrity: sha512-Io0yyORnB6sikFlt8QW5K7slY4OjqNX9jmJQ02QDda8lyM6B5oNgVWoSoKPac8/kgnCUzuHQKrSLtu/uOqqrig==}
@@ -840,9 +841,9 @@ packages:
       zenObservable:
         optional: true
 
-  any-observable@0.5.1:
-    resolution: {integrity: sha512-8zv01bgDOp9PTmRTNCAHTw64TFP2rvlX4LvtNJLachaXY+AjmIvLT47fABNPCiIe89hKiSCo2n5zmPqI9CElPA==}
-    engines: {node: '>=8'}
+  any-observable@0.6.0:
+    resolution: {integrity: sha512-d4MxMWGJG3nsYf50tvqJWQzQZ4YpaOxZB3BWGS/cUNGrp7ag4WTrwXw96jgkCKhOlwIObk65RE0u2ipIiFr+MA==}
+    engines: {node: '>=20'}
     peerDependencies:
       rxjs: '*'
       zen-observable: '*'
@@ -1415,7 +1416,7 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   globals@13.24.0:
     resolution: {integrity: sha512-AhO5QUcj8llrbG09iWhPU2B204J1xnPeL8kQmVorSsy+Sjj1sk8gIyh6cUocGmH4L0UuhAJy+hJMRA4mgA4mFQ==}
@@ -3275,7 +3276,7 @@ snapshots:
     optionalDependencies:
       rxjs: 7.8.2
 
-  any-observable@0.5.1(rxjs@7.8.2):
+  any-observable@0.6.0(rxjs@7.8.2):
     optionalDependencies:
       rxjs: 7.8.2
 

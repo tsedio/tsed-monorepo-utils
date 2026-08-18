@@ -1,4 +1,4 @@
-import "any-observable/register/rxjs-all.js";
+import "any-observable/register/rxjs-all";
 import {execa, execaSync} from "execa";
 import streamToObservable from "@samverschueren/stream-to-observable";
 import {filter, merge} from "rxjs";
