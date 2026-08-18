@@ -87,20 +87,18 @@ export async function publishPackages(context) {
       return undefined;
     });
 
-  if (errors.length) {
-    logger.error(
-      chalk.red(
-        "Some packages have not been published: \n" +
-          errors
-            .map(({pkg, error, registry}) => {
-              return [pkg.name, registry, error.message].filter(Boolean).join(" - ");
-            })
-            .join("\n")
-      )
-    );
-
-    process.exit(-1);
-  }
-
   await Promise.all(promises);
+
+  if (errors.length) {
+    const message =
+      "Some packages have not been published: \n" +
+      errors
+        .map(({pkg, error, registry}) => {
+          return [pkg.name, registry, error.message].filter(Boolean).join(" - ");
+        })
+        .join("\n");
+
+    logger.error(chalk.red(message));
+    throw new Error(message);
+  }
 }

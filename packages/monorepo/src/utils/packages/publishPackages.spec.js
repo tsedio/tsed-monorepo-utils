@@ -60,14 +60,13 @@ describe("publishPackages", () => {
     expect(fsMocks.writeFileSync).toHaveBeenCalledWith(expect.stringContaining(".npmrc"), "", {encoding: "utf8"});
   });
 
-  it("aggregates errors and calls process.exit(-1) when at least one publish fails", async () => {
+  it("fails the release when at least one publish fails", async () => {
     const ctx = makeCtx();
-    // Make publish throw synchronously so error is pushed before the early check
     npmMocks.publish.mockImplementationOnce(() => {
       throw new Error("fail");
     });
-    await publishPackages(ctx);
-    // error should have been logged due to failure
+
+    await expect(publishPackages(ctx)).rejects.toThrow("Some packages have not been published");
     expect(ctx.logger.error).toHaveBeenCalled();
   });
 });
