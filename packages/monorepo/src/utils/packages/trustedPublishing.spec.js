@@ -163,4 +163,26 @@ describe("trusted publishing", () => {
       ["@scope/private", "private"]
     ]);
   });
+
+  it("reports authentication-required when npm refuses trust status access", async () => {
+    npmMocks.view.mockImplementationOnce(() => npmView(() => "1.0.0"));
+    npmMocks.view.mockImplementationOnce(() =>
+      npmView(() => {
+        throw new Error("npm error code E404 404 Not Found");
+      })
+    );
+    npmMocks.trust.mockImplementation(() =>
+      npmView(() => {
+        throw new Error("npm error code E401 401 Unauthorized");
+      })
+    );
+
+    const statuses = await getNpmPackageTrustStatus(makeCtx());
+
+    expect(statuses.map(({pkg, status}) => [pkg.pkg.name, status])).toEqual([
+      ["@scope/existing", "authentication-required"],
+      ["@scope/new", "unpublished"],
+      ["@scope/private", "private"]
+    ]);
+  });
 });

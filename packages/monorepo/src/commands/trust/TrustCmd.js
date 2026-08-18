@@ -1,9 +1,4 @@
-import {
-  assertNoUnpublishedNpmPackages,
-  bootstrapTrustedPackages,
-  getUnpublishedNpmPackages,
-  migrateTrustedPackages
-} from "../../utils/packages/trustedPublishing.js";
+import {assertNoUnpublishedNpmPackages, bootstrapTrustedPackages, migrateTrustedPackages} from "../../utils/packages/trustedPublishing.js";
 import {globSync} from "../../utils/common/glob.js";
 import {basename} from "path";
 
@@ -39,14 +34,6 @@ export class TrustCmd {
 
   getTasks(context) {
     return [
-      {
-        title: "List unpublished npm packages",
-        enabled: () => context.type === "list",
-        task: async () => {
-          const packages = await getUnpublishedNpmPackages(context);
-          packages.forEach(({pkg}) => context.logger.info(pkg.name));
-        }
-      },
       {
         title: "Bootstrap npm packages and configure trusted publishing",
         enabled: () => context.type === "bootstrap",

@@ -10,7 +10,7 @@ program
   .command("build-hybrid <type>", "Build hybrid esm/cjs package (must be run over a single package)")
   .command("clean <type>", "Clean artifacts (workspace, docker)")
   .command("publish <type>", "Publish artifacts (packages, examples, ghpages, docker, heroku)")
-  .command("trust <type>", "Manage npm trusted publishing (list, bootstrap, migrate, verify)")
+  .command("trust <type>", "Manage npm trusted publishing (bootstrap, migrate, verify)")
   .command("packages <type>", "Inspect monorepo packages (status)")
   .command("sync <type>", "Perform synchronisation on given type (repository, packages, examples)")
   .command("version <version>", "Update packages version")

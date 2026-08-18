@@ -121,7 +121,6 @@ export default {
 When trusted publishing is enabled, CI blocks a release if a public workspace package does not yet exist on npm. Bootstrap those packages locally, then complete the 2FA prompt required by npm:
 
 ```sh
-monorepo trust list
 NPM_TOKEN=... monorepo trust bootstrap
 monorepo trust migrate
 ```
@@ -130,7 +129,7 @@ monorepo trust migrate
 
 `monorepo trust migrate` configures trusted publishing for packages already on npm. It does not publish packages and skips any package that already has a trusted publisher, preventing an existing configuration from being replaced.
 
-Use `monorepo packages status` to list every workspace package and its status: `private`, `unpublished`, `untrusted`, or `trusted`. This command makes no changes.
+Use `monorepo packages status` to list every workspace package and its status: `private`, `unpublished`, `untrusted`, or `trusted`. If npm requires authentication to read trusted publishers, it reports `authentication-required` instead. This command makes no changes.
 
 To deploy with your favority CI, you have to create these environments variables
 to allow publishing on your NPM registries,  

@@ -19,6 +19,10 @@ function isNotFoundError(error) {
   return /\bE404\b|404 Not Found/.test([error.message, error.stdout, error.stderr].filter(Boolean).join("\n"));
 }
 
+function isAuthenticationError(error) {
+  return /\bE401\b|401 Unauthorized/.test([error.message, error.stdout, error.stderr].filter(Boolean).join("\n"));
+}
+
 function getGithubRepository(repositoryUrl) {
   const match = repositoryUrl?.match(/github\.com[/:]([^/]+\/[^/#]+?)(?:\.git)?$/);
 
@@ -105,7 +109,15 @@ export async function getNpmPackageTrustStatus(context) {
       throw error;
     }
 
-    statuses.push({pkg, status: getTrustedPublishers(pkg.pkg.name).length ? "trusted" : "untrusted"});
+    try {
+      statuses.push({pkg, status: getTrustedPublishers(pkg.pkg.name).length ? "trusted" : "untrusted"});
+    } catch (error) {
+      if (!isAuthenticationError(error)) {
+        throw error;
+      }
+
+      statuses.push({pkg, status: "authentication-required"});
+    }
   }
 
   return statuses;
