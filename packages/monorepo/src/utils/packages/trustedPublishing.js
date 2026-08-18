@@ -54,6 +54,41 @@ export async function getUnpublishedNpmPackages(context) {
   return unpublished;
 }
 
+export async function getPublishedNpmPackages(context) {
+  const registry = getNpmRegistry(context);
+
+  if (!registry) {
+    return [];
+  }
+
+  const packages = await findPackages(context);
+  const published = [];
+
+  for (const pkg of packages.filter(({pkg}) => !pkg.private)) {
+    try {
+      npm.view(pkg.pkg.name, "version", "--registry", registry).get();
+      published.push(pkg);
+    } catch (error) {
+      if (!isNotFoundError(error)) {
+        throw error;
+      }
+    }
+  }
+
+  return published;
+}
+
+function getTrustedPublishers(packageName) {
+  const output = npm.trust("list", packageName, "--json").get();
+  const trustedPublishers = JSON.parse(output || "[]");
+
+  if (Array.isArray(trustedPublishers)) {
+    return trustedPublishers;
+  }
+
+  return trustedPublishers.trustedPublishers || [];
+}
+
 export async function bootstrapTrustedPackages(context) {
   if (!process.env.NPM_TOKEN) {
     throw new Error("NPM_TOKEN is required to bootstrap packages before configuring trusted publishing.");
@@ -79,6 +114,25 @@ export async function bootstrapTrustedPackages(context) {
   }
 
   return packages;
+}
+
+export async function migrateTrustedPackages(context) {
+  const packages = await getPublishedNpmPackages(context);
+  const repository = context.trustedPublishingRepository || getGithubRepository(context.repositoryUrl);
+  const workflow = context.trustedPublishingWorkflow || "build.yml";
+  const migrated = [];
+
+  for (const pkg of packages) {
+    if (getTrustedPublishers(pkg.pkg.name).length) {
+      context.logger?.info(`Trusted publisher already configured for ${pkg.pkg.name}; skipping.`);
+      continue;
+    }
+
+    await npm.trust("github", pkg.pkg.name, "--repo", repository, "--file", workflow, "--allow-publish");
+    migrated.push(pkg);
+  }
+
+  return migrated;
 }
 
 export async function assertNoUnpublishedNpmPackages(context) {

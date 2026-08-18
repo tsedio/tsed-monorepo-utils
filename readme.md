@@ -123,9 +123,12 @@ When trusted publishing is enabled, CI blocks a release if a public workspace pa
 ```sh
 monorepo trust list
 NPM_TOKEN=... monorepo trust bootstrap
+monorepo trust migrate
 ```
 
 `monorepo trust bootstrap` publishes only packages that do not exist on npm with `NPM_TOKEN`, always using the temporary version `0.0.1`, then configures `npm trust github` for each package. It restores the generated manifest afterwards. It accepts `--repository owner/repository` and `--file workflow.yml`; they default to the repository URL in `package.json` and `build.yml`.
+
+`monorepo trust migrate` configures trusted publishing for packages already on npm. It does not publish packages and skips any package that already has a trusted publisher, preventing an existing configuration from being replaced.
 
 To deploy with your favority CI, you have to create these environments variables
 to allow publishing on your NPM registries,  

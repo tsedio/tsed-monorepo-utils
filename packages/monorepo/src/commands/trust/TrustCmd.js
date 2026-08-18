@@ -1,7 +1,8 @@
 import {
   assertNoUnpublishedNpmPackages,
   bootstrapTrustedPackages,
-  getUnpublishedNpmPackages
+  getUnpublishedNpmPackages,
+  migrateTrustedPackages
 } from "../../utils/packages/trustedPublishing.js";
 
 export class TrustCmd {
@@ -27,6 +28,11 @@ export class TrustCmd {
         title: "Bootstrap npm packages and configure trusted publishing",
         enabled: () => context.type === "bootstrap",
         task: () => bootstrapTrustedPackages(context)
+      },
+      {
+        title: "Configure trusted publishing for existing npm packages",
+        enabled: () => context.type === "migrate",
+        task: () => migrateTrustedPackages(context)
       },
       {
         title: "Verify all npm packages have been published",

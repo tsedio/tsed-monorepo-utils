@@ -125,6 +125,7 @@ Plugins: `@tsed/monorepo-utils/semantic-release`, `@semantic-release/github`
      - Registre GitHub (`npm.pkg.github.com`, etc.): variable `GH_TOKEN`.
      - Registre npmjs (`registry.npmjs.org`): variable `NPM_TOKEN`, sauf si l'option `trustedPublishing` est activée. Dans ce cas, le `.npmrc` ne contient pas de jeton npm et npm utilise les identifiants OIDC fournis par la CI.
      - Les nouveaux packages npm doivent être amorcés localement avec `monorepo trust bootstrap`. Cette commande publie les packages absents avec `NPM_TOKEN` dans une version technique `0.0.1`, puis crée leur relation `npm trust github` après validation 2FA. La CI bloque la release tant qu'un package public n'a pas été amorcé.
+     - Les packages déjà publiés mais sans trusted publisher peuvent être migrés localement avec `monorepo trust migrate`. La commande ne publie rien et ignore les packages ayant déjà une relation de confiance.
      - Autres registres: variable générique `NODE_AUTH_TOKEN`.
   4. Boucle de publication:
      - Pour chaque package non marqué `private: true`, exécuter `npm publish` (ou équivalent via le gestionnaire détecté) dans son dossier de distribution. Le dist-tag provient de `publishConfig.tag` injecté lors de `writePackages()` (aucun `--tag` explicite n’est passé).

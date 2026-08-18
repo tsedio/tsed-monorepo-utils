@@ -1,4 +1,9 @@
-import {assertNoUnpublishedNpmPackages, bootstrapTrustedPackages, getUnpublishedNpmPackages} from "./trustedPublishing.js";
+import {
+  assertNoUnpublishedNpmPackages,
+  bootstrapTrustedPackages,
+  getUnpublishedNpmPackages,
+  migrateTrustedPackages
+} from "./trustedPublishing.js";
 
 const npmMocks = vi.hoisted(() => ({
   trust: vi.fn(async () => {}),
@@ -36,6 +41,7 @@ function npmView(result) {
 describe("trusted publishing", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    npmMocks.trust.mockReset();
   });
 
   it("lists public packages that do not exist on npm", async () => {
@@ -82,6 +88,7 @@ describe("trusted publishing", () => {
       })
     );
     packageMocks.readPackage.mockReturnValue({name: "@scope/new", version: "1.2.3"});
+    npmMocks.trust.mockResolvedValue();
 
     await bootstrapTrustedPackages({...makeCtx(), repositoryUrl: "https://github.com/owner/repository.git"});
 
@@ -103,5 +110,38 @@ describe("trusted publishing", () => {
     expect(packageMocks.writePackage).toHaveBeenLastCalledWith("/repo/dist/new/package.json", {name: "@scope/new", version: "1.2.3"});
 
     process.env.NPM_TOKEN = npmToken;
+  });
+
+  it("migrates published packages that do not have a trusted publisher", async () => {
+    npmMocks.view.mockImplementationOnce(() => npmView(() => "1.0.0"));
+    npmMocks.view.mockImplementationOnce(() =>
+      npmView(() => {
+        throw new Error("npm error code E404 404 Not Found");
+      })
+    );
+    npmMocks.trust.mockImplementation((command) => {
+      if (command === "list") {
+        return {get: vi.fn(() => "[]")};
+      }
+
+      return Promise.resolve();
+    });
+
+    const packages = await migrateTrustedPackages({
+      ...makeCtx(),
+      logger: {info: vi.fn()},
+      repositoryUrl: "https://github.com/owner/repository.git"
+    });
+
+    expect(packages.map(({pkg}) => pkg.name)).toEqual(["@scope/existing"]);
+    expect(npmMocks.trust).toHaveBeenLastCalledWith(
+      "github",
+      "@scope/existing",
+      "--repo",
+      "owner/repository",
+      "--file",
+      "build.yml",
+      "--allow-publish"
+    );
   });
 });
