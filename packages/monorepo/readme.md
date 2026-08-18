@@ -248,7 +248,7 @@ monorepo trust migrate
 
 The command asks which workflow from `.github/workflows/` is authorised to publish. It processes packages sequentially, waits for each npm 2FA interaction, configures `npm trust github` only where no trusted publisher exists, and never republishes packages.
 
-Pass `--file build.yml` to select a workflow without the prompt. Use `--repository owner/repository` to override the repository detected from `package.json`. Packages that already have a trusted publisher are skipped rather than overwritten.
+Pass `--file build.yml` to select a workflow without the prompt. Use `--repository owner/repository` to override the repository detected from `package.json`, and `--yes` (or `-y`) to accept npm's trust confirmation automatically. Packages that already have a trusted publisher are skipped rather than overwritten.
 
 ### Bootstrap new packages
 

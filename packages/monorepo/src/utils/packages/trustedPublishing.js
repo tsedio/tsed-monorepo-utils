@@ -149,6 +149,10 @@ async function getTrustedPublishers(packageName, {interactive = false} = {}) {
   return trustedPublishers.id ? [trustedPublishers] : [];
 }
 
+function getNpmTrustOptions(context) {
+  return context.trustedPublishingYes ? ["--yes"] : [];
+}
+
 export async function bootstrapTrustedPackages(context) {
   if (!process.env.NPM_TOKEN) {
     throw new Error("NPM_TOKEN is required to bootstrap packages before configuring trusted publishing.");
@@ -167,7 +171,7 @@ export async function bootstrapTrustedPackages(context) {
 
     try {
       await publishPackage(pkg.pkg, {cwd: pkg.distPath, url: registry}, {...context, trustedPublishing: false, registry});
-      await npm.trust("github", pkg.pkg.name, "--repo", repository, "--file", workflow, "--allow-publish");
+      await npm.trust("github", pkg.pkg.name, "--repo", repository, "--file", workflow, "--allow-publish", ...getNpmTrustOptions(context));
     } finally {
       await writePackage(packagePath, packageJson);
     }
@@ -188,7 +192,7 @@ export async function migrateTrustedPackages(context) {
       continue;
     }
 
-    await npm.trust("github", pkg.pkg.name, "--repo", repository, "--file", workflow, "--allow-publish");
+    await npm.trust("github", pkg.pkg.name, "--repo", repository, "--file", workflow, "--allow-publish", ...getNpmTrustOptions(context));
     migrated.push(pkg);
   }
 

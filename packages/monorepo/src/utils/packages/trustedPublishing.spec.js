@@ -141,7 +141,8 @@ describe("trusted publishing", () => {
     const packages = await migrateTrustedPackages({
       ...makeCtx(),
       logger: {info: vi.fn()},
-      repositoryUrl: "https://github.com/owner/repository.git"
+      repositoryUrl: "https://github.com/owner/repository.git",
+      trustedPublishingYes: true
     });
 
     expect(packages.map(({pkg}) => pkg.name)).toEqual(["@scope/existing"]);
@@ -152,7 +153,8 @@ describe("trusted publishing", () => {
       "owner/repository",
       "--file",
       "build.yml",
-      "--allow-publish"
+      "--allow-publish",
+      "--yes"
     );
   });
 

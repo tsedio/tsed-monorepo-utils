@@ -11,7 +11,8 @@ export class TrustCmd {
     return {
       type: commander.type,
       trustedPublishingRepository: commander.repository,
-      trustedPublishingWorkflow: commander.file
+      trustedPublishingWorkflow: commander.file,
+      trustedPublishingYes: commander.yes
     };
   }
 
