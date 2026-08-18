@@ -14,6 +14,7 @@ export * from "./utils/depencencies/getDependencies.js";
 
 export * from "./utils/packages/compilePackages.js";
 export * from "./utils/packages/publishPackages.js";
+export * from "./utils/packages/trustedPublishing.js";
 export * from "./utils/packages/readPackage.js";
 export * from "./utils/packages/copyPackages.js";
 export * from "./utils/packages/findPackages.js";

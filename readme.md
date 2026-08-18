@@ -118,6 +118,15 @@ export default {
 };
 ```
 
+When trusted publishing is enabled, CI blocks a release if a public workspace package does not yet exist on npm. Bootstrap those packages locally, then complete the 2FA prompt required by npm:
+
+```sh
+monorepo trust list
+NPM_TOKEN=... monorepo trust bootstrap
+```
+
+`monorepo trust bootstrap` publishes only packages that do not exist on npm with `NPM_TOKEN`, then configures `npm trust github` for each package. It accepts `--repository owner/repository` and `--file workflow.yml`; they default to the repository URL in `package.json` and `build.yml`.
+
 To deploy with your favority CI, you have to create these environments variables
 to allow publishing on your NPM registries,  
 

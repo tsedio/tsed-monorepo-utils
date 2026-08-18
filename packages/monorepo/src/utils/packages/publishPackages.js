@@ -33,7 +33,7 @@ function writeNpmrc(path, registries, scope, trustedPublishing) {
   return npmrc;
 }
 
-async function publishPackage(pkg, {url, cwd}, context) {
+export async function publishPackage(pkg, {url, cwd}, context) {
   const {npmAccess, dryRun, registry, trustedPublishing} = context;
   const npmrc = writeNpmrc(cwd, [url], pkg.name.split("/")[0], trustedPublishing);
 

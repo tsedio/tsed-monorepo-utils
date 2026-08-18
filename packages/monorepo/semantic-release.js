@@ -1,5 +1,6 @@
 import {MonoRepo} from "./src/index.js";
 import {execFileSync} from "node:child_process";
+import {assertNoUnpublishedNpmPackages} from "./src/utils/packages/trustedPublishing.js";
 
 /**
  * @type {MonoRepo}
@@ -11,6 +12,10 @@ export async function verifyConditions(pluginConfig = {}, context) {
     rootDir: context.cwd,
     trustedPublishing: pluginConfig.trustedPublishing
   });
+
+  if (process.env.CI && monoRepo.trustedPublishing) {
+    await assertNoUnpublishedNpmPackages(monoRepo);
+  }
 
   await monoRepo.configureWorkspace({
     dryRun: pluginConfig.dryRun

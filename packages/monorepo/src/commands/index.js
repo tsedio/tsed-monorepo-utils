@@ -5,3 +5,4 @@ export * from "./version/VersionCmd.js";
 export * from "./publish/PublishCmd.js";
 export * from "./sync/SyncCmd.js";
 export * from "./ci/CICmd.js";
+export * from "./trust/TrustCmd.js";

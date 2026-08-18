@@ -35,6 +35,14 @@ class NpmCli extends Cli {
     return super.run("pack", ...args);
   }
 
+  trust(...args) {
+    return super.run("trust", ...args);
+  }
+
+  view(...args) {
+    return super.run("view", ...args);
+  }
+
   install(...args) {
     return super.run("install", ...args);
   }
