@@ -235,7 +235,7 @@ The command renders a terminal table with one of these states:
 | `trusted`                 | The package has a trusted publisher.                                                           |
 | `authentication-required` | npm requires an interactive login or 2FA challenge before it can read the trust configuration. |
 
-The command is interactive when npm requires 2FA: complete the URL shown by npm, then continue in the terminal.
+When npm requires 2FA, the command hands the terminal to npm and displays its `Press ENTER to open in the browser...` prompt. Complete the authentication before the next package is inspected. If authentication is cancelled, it reports `authentication-required` for the remaining public packages without repeating the request.
 
 ### Migrate existing packages
 

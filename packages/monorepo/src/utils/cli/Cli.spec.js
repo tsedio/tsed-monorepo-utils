@@ -36,6 +36,12 @@ describe("Cli", () => {
     expect(execaSync).toHaveBeenCalledWith("node", ["-v"], expect.objectContaining({stdio: "inherit"}));
   });
 
+  it("interactive() should give the child process full terminal control", async () => {
+    await Cli.run("npm", ["trust", "list"]).interactive();
+
+    expect(execa).toHaveBeenCalledWith("npm", ["trust", "list"], expect.objectContaining({stdio: "inherit"}));
+  });
+
   it("run().getRaw() should use spawnSync and merge outputs", () => {
     const raw = Cli.run("git", ["status"]).getRaw();
     expect(spawnSync).toHaveBeenCalled();

@@ -11,6 +11,11 @@ const npmMocks = vi.hoisted(() => ({
   view: vi.fn()
 }));
 const packageMocks = vi.hoisted(() => ({
+  findPackages: vi.fn(async () => [
+    {distPath: "/repo/dist/existing", pkg: {name: "@scope/existing"}},
+    {distPath: "/repo/dist/new", pkg: {name: "@scope/new"}},
+    {distPath: "/repo/dist/private", pkg: {name: "@scope/private", private: true}}
+  ]),
   publishPackage: vi.fn(async () => {}),
   readPackage: vi.fn(),
   writePackage: vi.fn(async () => {})
@@ -21,11 +26,7 @@ vi.mock("./publishPackages.js", () => ({publishPackage: packageMocks.publishPack
 vi.mock("./readPackage.js", () => ({readPackage: packageMocks.readPackage}));
 vi.mock("./writePackage.js", () => ({writePackage: packageMocks.writePackage}));
 vi.mock("./findPackages.js", () => ({
-  findPackages: vi.fn(async () => [
-    {distPath: "/repo/dist/existing", pkg: {name: "@scope/existing"}},
-    {distPath: "/repo/dist/new", pkg: {name: "@scope/new"}},
-    {distPath: "/repo/dist/private", pkg: {name: "@scope/private", private: true}}
-  ])
+  findPackages: packageMocks.findPackages
 }));
 
 function makeCtx() {
@@ -40,13 +41,18 @@ function npmView(result) {
 }
 
 function npmTrustList(result) {
-  return {getInteractive: vi.fn(result)};
+  return {get: vi.fn(result), interactive: vi.fn(result)};
 }
 
 describe("trusted publishing", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     npmMocks.trust.mockReset();
+    packageMocks.findPackages.mockResolvedValue([
+      {distPath: "/repo/dist/existing", pkg: {name: "@scope/existing"}},
+      {distPath: "/repo/dist/new", pkg: {name: "@scope/new"}},
+      {distPath: "/repo/dist/private", pkg: {name: "@scope/private", private: true}}
+    ]);
   });
 
   it("lists public packages that do not exist on npm", async () => {
@@ -188,5 +194,27 @@ describe("trusted publishing", () => {
       ["@scope/new", "unpublished"],
       ["@scope/private", "private"]
     ]);
+  });
+
+  it("does not repeat npm 2FA requests after authentication is required", async () => {
+    packageMocks.findPackages.mockResolvedValue([
+      {distPath: "/repo/dist/first", pkg: {name: "@scope/first"}},
+      {distPath: "/repo/dist/second", pkg: {name: "@scope/second"}}
+    ]);
+    npmMocks.view.mockImplementation(() => npmView(() => "1.0.0"));
+    const trustList = npmTrustList(() => {
+      throw new Error("npm error code EOTP This operation requires a one-time password.");
+    });
+    npmMocks.trust.mockReturnValue(trustList);
+
+    const statuses = await getNpmPackageTrustStatus(makeCtx());
+
+    expect(statuses.map(({pkg, status}) => [pkg.pkg.name, status])).toEqual([
+      ["@scope/first", "authentication-required"],
+      ["@scope/second", "authentication-required"]
+    ]);
+    expect(npmMocks.trust).toHaveBeenCalledTimes(1);
+    expect(trustList.interactive).toHaveBeenCalledTimes(1);
+    expect(trustList.get).not.toHaveBeenCalled();
   });
 });

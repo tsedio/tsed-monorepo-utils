@@ -91,6 +91,7 @@ export async function getNpmPackageTrustStatus(context) {
 
   const packages = await findPackages(context);
   const statuses = [];
+  let authenticationRequired = false;
 
   for (const pkg of packages) {
     if (pkg.pkg.private) {
@@ -109,13 +110,19 @@ export async function getNpmPackageTrustStatus(context) {
       throw error;
     }
 
+    if (authenticationRequired) {
+      statuses.push({pkg, status: "authentication-required"});
+      continue;
+    }
+
     try {
-      statuses.push({pkg, status: (await getTrustedPublishers(pkg.pkg.name)).length ? "trusted" : "untrusted"});
+      statuses.push({pkg, status: (await getTrustedPublishers(pkg.pkg.name, {interactive: true})).length ? "trusted" : "untrusted"});
     } catch (error) {
       if (!isAuthenticationError(error)) {
         throw error;
       }
 
+      authenticationRequired = true;
       statuses.push({pkg, status: "authentication-required"});
     }
   }
@@ -123,8 +130,12 @@ export async function getNpmPackageTrustStatus(context) {
   return statuses;
 }
 
-async function getTrustedPublishers(packageName) {
-  const output = await npm.trust("list", packageName, "--json").getInteractive();
+async function getTrustedPublishers(packageName, {interactive = false} = {}) {
+  if (interactive) {
+    await npm.trust("list", packageName, "--json").interactive();
+  }
+
+  const output = npm.trust("list", packageName, "--json").get();
   const trustedPublishers = JSON.parse(output || "[]");
 
   if (Array.isArray(trustedPublishers)) {
@@ -168,7 +179,7 @@ export async function migrateTrustedPackages(context) {
   const migrated = [];
 
   for (const pkg of packages) {
-    if ((await getTrustedPublishers(pkg.pkg.name)).length) {
+    if ((await getTrustedPublishers(pkg.pkg.name, {interactive: true})).length) {
       context.logger?.info(`Trusted publisher already configured for ${pkg.pkg.name}; skipping.`);
       continue;
     }
