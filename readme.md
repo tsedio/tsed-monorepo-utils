@@ -126,7 +126,7 @@ NPM_TOKEN=... monorepo trust bootstrap
 monorepo trust migrate
 ```
 
-`monorepo trust bootstrap` publishes only packages that do not exist on npm with `NPM_TOKEN`, always using the temporary version `0.0.1`, then configures `npm trust github` for each package. It restores the generated manifest afterwards. It accepts `--repository owner/repository` and `--file workflow.yml`; they default to the repository URL in `package.json` and `build.yml`.
+`monorepo trust bootstrap` publishes only packages that do not exist on npm with `NPM_TOKEN`, always using the temporary version `0.0.1`, then configures `npm trust github` for each package. It restores the generated manifest afterwards. It asks which workflow in `.github/workflows/` is allowed to publish; pass `--file workflow.yml` to skip the prompt. `--repository owner/repository` defaults to the repository URL in `package.json`.
 
 `monorepo trust migrate` configures trusted publishing for packages already on npm. It does not publish packages and skips any package that already has a trusted publisher, preventing an existing configuration from being replaced.
 

@@ -36,7 +36,7 @@ export async function runCommand(klass, options) {
 
     // show prompts
     if (command.prompt) {
-      Object.assign(monoRepo, await inquirer.prompt(command.prompt(context)));
+      Object.assign(monoRepo, await inquirer.prompt(command.prompt(monoRepo)));
     }
 
     // Verify conditions
