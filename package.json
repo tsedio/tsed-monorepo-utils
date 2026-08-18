@@ -43,7 +43,8 @@
     "packages/*"
   ],
   "monorepo": {
-    "npmAccess": "public"
+    "npmAccess": "public",
+    "trustedPublishing": true
   },
   "packageManager": "pnpm@9.0.0"
 }

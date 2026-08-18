@@ -21,9 +21,7 @@ export async function prepare(pluginConfig, context) {
   const token = process.env.NPM_TOKEN;
 
   if (token) {
-    const registry = [...new Set([...(monoRepo.registries || []), monoRepo.registry].filter(Boolean))].find((url) =>
-      url.includes("npmjs")
-    );
+    const registry = [...new Set([...(monoRepo.registries || []), monoRepo.registry].filter(Boolean))].find((url) => url.includes("npmjs"));
 
     if (registry) {
       try {
