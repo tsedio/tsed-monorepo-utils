@@ -78,6 +78,39 @@ export async function getPublishedNpmPackages(context) {
   return published;
 }
 
+export async function getNpmPackageTrustStatus(context) {
+  const registry = getNpmRegistry(context);
+
+  if (!registry) {
+    return [];
+  }
+
+  const packages = await findPackages(context);
+  const statuses = [];
+
+  for (const pkg of packages) {
+    if (pkg.pkg.private) {
+      statuses.push({pkg, status: "private"});
+      continue;
+    }
+
+    try {
+      npm.view(pkg.pkg.name, "version", "--registry", registry).get();
+    } catch (error) {
+      if (isNotFoundError(error)) {
+        statuses.push({pkg, status: "unpublished"});
+        continue;
+      }
+
+      throw error;
+    }
+
+    statuses.push({pkg, status: getTrustedPublishers(pkg.pkg.name).length ? "trusted" : "untrusted"});
+  }
+
+  return statuses;
+}
+
 function getTrustedPublishers(packageName) {
   const output = npm.trust("list", packageName, "--json").get();
   const trustedPublishers = JSON.parse(output || "[]");

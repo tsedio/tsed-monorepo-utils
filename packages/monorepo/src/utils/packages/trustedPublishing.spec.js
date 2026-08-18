@@ -1,6 +1,7 @@
 import {
   assertNoUnpublishedNpmPackages,
   bootstrapTrustedPackages,
+  getNpmPackageTrustStatus,
   getUnpublishedNpmPackages,
   migrateTrustedPackages
 } from "./trustedPublishing.js";
@@ -143,5 +144,23 @@ describe("trusted publishing", () => {
       "build.yml",
       "--allow-publish"
     );
+  });
+
+  it("lists each package trust status", async () => {
+    npmMocks.view.mockImplementationOnce(() => npmView(() => "1.0.0"));
+    npmMocks.view.mockImplementationOnce(() =>
+      npmView(() => {
+        throw new Error("npm error code E404 404 Not Found");
+      })
+    );
+    npmMocks.trust.mockImplementation(() => ({get: vi.fn(() => "[]")}));
+
+    const statuses = await getNpmPackageTrustStatus(makeCtx());
+
+    expect(statuses.map(({pkg, status}) => [pkg.pkg.name, status])).toEqual([
+      ["@scope/existing", "untrusted"],
+      ["@scope/new", "unpublished"],
+      ["@scope/private", "private"]
+    ]);
   });
 });
