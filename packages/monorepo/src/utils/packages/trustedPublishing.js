@@ -1,6 +1,11 @@
 import {npm} from "../cli/index.js";
+import {join} from "path";
 import {findPackages} from "./findPackages.js";
 import {publishPackage} from "./publishPackages.js";
+import {readPackage} from "./readPackage.js";
+import {writePackage} from "./writePackage.js";
+
+const BOOTSTRAP_VERSION = "0.0.1";
 
 function isNpmRegistry(registry) {
   return registry?.includes("npmjs.org");
@@ -60,8 +65,17 @@ export async function bootstrapTrustedPackages(context) {
   const registry = getNpmRegistry(context);
 
   for (const pkg of packages) {
-    await publishPackage(pkg.pkg, {cwd: pkg.distPath, url: registry}, {...context, trustedPublishing: false, registry});
-    await npm.trust("github", pkg.pkg.name, "--repo", repository, "--file", workflow, "--allow-publish");
+    const packagePath = join(pkg.distPath, "package.json");
+    const packageJson = readPackage(packagePath);
+
+    await writePackage(packagePath, {...packageJson, version: BOOTSTRAP_VERSION});
+
+    try {
+      await publishPackage(pkg.pkg, {cwd: pkg.distPath, url: registry}, {...context, trustedPublishing: false, registry});
+      await npm.trust("github", pkg.pkg.name, "--repo", repository, "--file", workflow, "--allow-publish");
+    } finally {
+      await writePackage(packagePath, packageJson);
+    }
   }
 
   return packages;
