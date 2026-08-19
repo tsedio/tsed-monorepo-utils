@@ -42,6 +42,12 @@ describe("Cli", () => {
     expect(execa).toHaveBeenCalledWith("npm", ["trust", "list"], expect.objectContaining({stdio: "inherit"}));
   });
 
+  it("capture() should retain command output for error handling", async () => {
+    await Cli.run("npm", ["publish"]).capture();
+
+    expect(execa).toHaveBeenCalledWith("npm", ["publish"], expect.not.objectContaining({stdio: "inherit"}));
+  });
+
   it("run().getRaw() should use spawnSync and merge outputs", () => {
     const raw = Cli.run("git", ["status"]).getRaw();
     expect(spawnSync).toHaveBeenCalled();

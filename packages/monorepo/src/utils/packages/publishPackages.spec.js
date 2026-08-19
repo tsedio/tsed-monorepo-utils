@@ -10,7 +10,7 @@ vi.mock("./findPackages.js", () => ({
 
 const npmMocks = vi.hoisted(() => ({
   pack: vi.fn(() => ({sync: vi.fn(() => ({}))})),
-  publish: vi.fn(() => ({cwd: vi.fn(async () => {})}))
+  publish: vi.fn(() => ({cwd: vi.fn(() => ({capture: vi.fn(async () => {})}))}))
 }));
 const fsMocks = vi.hoisted(() => ({writeFileSync: vi.fn()}));
 vi.mock("../cli/index.js", () => ({npm: npmMocks}));
@@ -60,19 +60,22 @@ describe("publishPackages", () => {
     expect(fsMocks.writeFileSync).toHaveBeenCalledWith(expect.stringContaining(".npmrc"), "", {encoding: "utf8"});
   });
 
-  it("retries without latest when npm rejects an older version", async () => {
-    const latestError = new Error('Cannot implicitly apply the "latest" tag because a newer version exists.');
+  it("retries with an explicit latest tag when npm rejects the implicit one", async () => {
+    const latestError = new Error("Command failed with exit code 1");
+    latestError.stderr = 'npm error Cannot implicitly apply the "latest" tag because a newer version exists.';
     const firstPublish = vi.fn(async () => {
       throw latestError;
     });
     const fallbackPublish = vi.fn(async () => {});
 
-    npmMocks.publish.mockImplementationOnce(() => ({cwd: firstPublish})).mockImplementationOnce(() => ({cwd: fallbackPublish}));
+    npmMocks.publish
+      .mockImplementationOnce(() => ({cwd: vi.fn(() => ({capture: firstPublish}))}))
+      .mockImplementationOnce(() => ({cwd: vi.fn(() => ({capture: fallbackPublish}))}));
 
     await publishPackages(makeCtx());
 
     expect(npmMocks.publish).toHaveBeenCalledTimes(2);
-    expect(npmMocks.publish.mock.calls[1]).toEqual(expect.arrayContaining(["--tag", "next"]));
+    expect(npmMocks.publish.mock.calls[1]).toEqual(expect.arrayContaining(["--tag", "latest"]));
     expect(fallbackPublish).toHaveBeenCalled();
   });
 

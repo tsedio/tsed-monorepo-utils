@@ -153,6 +153,32 @@ export class Cli {
       }).stdout;
     };
 
+    promise.capture = async () => {
+      isPromise = false;
+
+      try {
+        const result = await run();
+
+        if (result.stdout) {
+          process.stdout.write(result.stdout);
+        }
+        if (result.stderr) {
+          process.stderr.write(result.stderr);
+        }
+
+        return result;
+      } catch (error) {
+        if (error.stdout) {
+          process.stdout.write(error.stdout);
+        }
+        if (error.stderr) {
+          process.stderr.write(error.stderr);
+        }
+
+        throw error;
+      }
+    };
+
     promise.interactive = async () => {
       isPromise = false;
 

@@ -55,7 +55,10 @@ export async function publishPackage(pkg, {url, cwd}, context, {tag} = {}) {
       args.push("--tag", tag);
     }
 
-    await npm.publish(...args).cwd(cwd);
+    await npm
+      .publish(...args)
+      .cwd(cwd)
+      .capture();
   }
 }
 
@@ -86,9 +89,9 @@ export async function publishPackages(context) {
             await publishPackage(pkg, {cwd, url}, context);
           } catch (er) {
             if (isLatestTagError(er)) {
-              const tag = context.npmFallbackDistTag || "next";
+              const tag = context.npmFallbackDistTag || "latest";
 
-              logger.info(`Publishing ${pkg.name} with the ${tag} tag because npm rejected latest.`);
+              logger.info(`Retrying ${pkg.name} with an explicit ${tag} tag because npm rejected the implicit latest tag.`);
               await publishPackage(pkg, {cwd, url}, context, {tag});
             } else {
               errors.push({pkg, error: er, registry});
