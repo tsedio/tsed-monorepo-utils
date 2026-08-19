@@ -86,7 +86,7 @@ export async function publishPackages(context) {
             await publishPackage(pkg, {cwd, url}, context);
           } catch (er) {
             if (isLatestTagError(er)) {
-              const tag = context.npmFallbackDistTag || "legacy";
+              const tag = context.npmFallbackDistTag || "next";
 
               logger.info(`Publishing ${pkg.name} with the ${tag} tag because npm rejected latest.`);
               await publishPackage(pkg, {cwd, url}, context, {tag});

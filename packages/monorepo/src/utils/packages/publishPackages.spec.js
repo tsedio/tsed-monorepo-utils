@@ -72,7 +72,7 @@ describe("publishPackages", () => {
     await publishPackages(makeCtx());
 
     expect(npmMocks.publish).toHaveBeenCalledTimes(2);
-    expect(npmMocks.publish.mock.calls[1]).toEqual(expect.arrayContaining(["--tag", "legacy"]));
+    expect(npmMocks.publish.mock.calls[1]).toEqual(expect.arrayContaining(["--tag", "next"]));
     expect(fallbackPublish).toHaveBeenCalled();
   });
 
