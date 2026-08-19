@@ -8,7 +8,8 @@ vi.mock("../cli/index.js", () => {
   const reset = vi.fn(() => ({}));
   const status = vi.fn(() => "STATUS");
   const commit = vi.fn(mk);
-  return {git: {add, reset, status, commit}};
+  const push = vi.fn(mk);
+  return {git: {add, reset, status, commit, push}};
 });
 
 describe("commitChanges", () => {
@@ -20,6 +21,7 @@ describe("commitChanges", () => {
     return {
       logger: {info: vi.fn(), warn: vi.fn(), error: vi.fn()},
       repositoryUrl: "https://github.com/org/repo.git",
+      origin: "origin",
       productionBranch: "main",
       developBranch: "develop",
       version: "1.2.3",
@@ -49,5 +51,6 @@ describe("commitChanges", () => {
 
     // commit message
     expect(git.commit).toHaveBeenCalledWith("-m", "CI build: 42 v1.2.3 [skip ci]");
+    expect(git.push).toHaveBeenCalledWith("--quiet", "origin", "HEAD:refs/heads/main");
   });
 });
