@@ -29,6 +29,7 @@ function getDefaultOptions(rootPkg) {
     outputDir: _.get(rootPkg, "monorepo.outputDir", "./dist"),
     npmAccess: _.get(rootPkg, "monorepo.npmAccess", "public"),
     npmDistTag: _.get(rootPkg, "monorepo.npmDistTag", _.get(rootPkg, "publishConfig.tag")),
+    npmFallbackDistTag: _.get(rootPkg, "monorepo.npmFallbackDistTag", "legacy"),
     skipNpmPublish: _.get(rootPkg, "monorepo.skipNpmPublish", false),
     trustedPublishing: _.get(rootPkg, "monorepo.trustedPublishing", false),
     productionBranch: _.get(rootPkg, "monorepo.productionBranch", "master"),
@@ -79,6 +80,7 @@ export class MonoRepo {
       verbose,
       npmAccess,
       npmDistTag,
+      npmFallbackDistTag,
       skipNpmPublish,
       trustedPublishing,
       registries,
@@ -130,6 +132,11 @@ export class MonoRepo {
      * @public
      */
     this.npmDistTag = npmDistTag || defaultOptions.npmDistTag;
+    /**
+     * @type {string}
+     * @public
+     */
+    this.npmFallbackDistTag = npmFallbackDistTag || defaultOptions.npmFallbackDistTag;
     /**
      * @type {boolean}
      * @public

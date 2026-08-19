@@ -5,6 +5,10 @@ import {join} from "path";
 import {npm} from "../cli/index.js";
 import {findPackages} from "./findPackages.js";
 
+function isLatestTagError(error) {
+  return /Cannot implicitly apply the "latest" tag/.test([error.message, error.stdout, error.stderr].filter(Boolean).join("\n"));
+}
+
 function writeNpmrc(path, registries, scope, trustedPublishing) {
   const npmrc = join(path, ".npmrc");
 
@@ -33,7 +37,7 @@ function writeNpmrc(path, registries, scope, trustedPublishing) {
   return npmrc;
 }
 
-export async function publishPackage(pkg, {url, cwd}, context) {
+export async function publishPackage(pkg, {url, cwd}, context, {tag} = {}) {
   const {npmAccess, dryRun, registry, trustedPublishing} = context;
   const npmrc = writeNpmrc(cwd, [url], pkg.name.split("/")[0], trustedPublishing);
 
@@ -45,7 +49,13 @@ export async function publishPackage(pkg, {url, cwd}, context) {
       }
     });
   } else {
-    await npm.publish("--userconfig", npmrc, "--access", npmAccess, "--registry", registry).cwd(cwd);
+    const args = ["--userconfig", npmrc, "--access", npmAccess, "--registry", registry];
+
+    if (tag) {
+      args.push("--tag", tag);
+    }
+
+    await npm.publish(...args).cwd(cwd);
   }
 }
 
@@ -75,8 +85,15 @@ export async function publishPackages(context) {
             logger.info("Publish package", chalk.cyan(pkg.name), "on", url);
             await publishPackage(pkg, {cwd, url}, context);
           } catch (er) {
-            errors.push({pkg, error: er, registry});
-            logger.error(chalk.red(er.message), chalk.red(er.stack));
+            if (isLatestTagError(er)) {
+              const tag = context.npmFallbackDistTag || "legacy";
+
+              logger.info(`Publishing ${pkg.name} with the ${tag} tag because npm rejected latest.`);
+              await publishPackage(pkg, {cwd, url}, context, {tag});
+            } else {
+              errors.push({pkg, error: er, registry});
+              logger.error(chalk.red(er.message), chalk.red(er.stack));
+            }
           }
         }
       } catch (er) {

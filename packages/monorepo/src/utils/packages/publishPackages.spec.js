@@ -60,6 +60,22 @@ describe("publishPackages", () => {
     expect(fsMocks.writeFileSync).toHaveBeenCalledWith(expect.stringContaining(".npmrc"), "", {encoding: "utf8"});
   });
 
+  it("retries without latest when npm rejects an older version", async () => {
+    const latestError = new Error('Cannot implicitly apply the "latest" tag because a newer version exists.');
+    const firstPublish = vi.fn(async () => {
+      throw latestError;
+    });
+    const fallbackPublish = vi.fn(async () => {});
+
+    npmMocks.publish.mockImplementationOnce(() => ({cwd: firstPublish})).mockImplementationOnce(() => ({cwd: fallbackPublish}));
+
+    await publishPackages(makeCtx());
+
+    expect(npmMocks.publish).toHaveBeenCalledTimes(2);
+    expect(npmMocks.publish.mock.calls[1]).toEqual(expect.arrayContaining(["--tag", "legacy"]));
+    expect(fallbackPublish).toHaveBeenCalled();
+  });
+
   it("fails the release when at least one publish fails", async () => {
     const ctx = makeCtx();
     npmMocks.publish.mockImplementationOnce(() => {

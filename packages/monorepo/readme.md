@@ -158,6 +158,8 @@ Add the release scripts:
 }
 ```
 
+When npm rejects `latest` because a higher version was published previously, the affected package is retried with the `legacy` dist-tag and the remaining packages continue to publish. Override this tag with `monorepo.npmFallbackDistTag`.
+
 ## npm trusted publishing (OIDC)
 
 Set `trustedPublishing` in the root `monorepo` configuration to publish from GitHub Actions without a long-lived npm token:
