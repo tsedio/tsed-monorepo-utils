@@ -4,6 +4,7 @@ import get from "lodash/get.js";
 import {join} from "path";
 import {npm} from "../cli/index.js";
 import {findPackages} from "./findPackages.js";
+import {readPackage} from "./readPackage.js";
 
 const DEFAULT_CONCURRENCY = 8;
 const DEFAULT_RETRIES = 3;
@@ -58,17 +59,34 @@ function writeNpmrc(path, registries, scope, trustedPublishing) {
 }
 
 /**
- * Tell if the package version already exists on the registry, so a release can be replayed safely.
+ * Read the manifest that is actually published: the build writes the release version
+ * in the distribution manifest only, the workspace manifest can keep an older one.
  */
-export async function isPublished(pkg, {url, cwd}, context) {
+function readDistPackage(distPath, pkg) {
+  try {
+    return readPackage(join(distPath, "package.json"));
+  } catch {
+    return pkg;
+  }
+}
+
+/**
+ * Tell if the package version already exists on the registry, so a release can be replayed safely.
+ * The lookup uses the same npmrc as the publication, so private registries are authenticated.
+ */
+export async function isPublished(pkg, {url, cwd, npmrc}, context) {
   if (!pkg.version) {
     return false;
   }
 
   try {
-    const result = await npm
-      .view(`${pkg.name}@${pkg.version}`, "version", "--registry", url || context.registry)
-      .toStream({cwd, reject: false});
+    const args = [`${pkg.name}@${pkg.version}`, "version", "--registry", url || context.registry];
+
+    if (npmrc) {
+      args.push("--userconfig", npmrc);
+    }
+
+    const result = await npm.view(...args).toStream({cwd, reject: false});
 
     return String(result?.stdout || "").trim() === pkg.version;
   } catch {
@@ -102,12 +120,13 @@ export async function publishPackage(pkg, {url, cwd}, context, {tag} = {}) {
 }
 
 async function publishOnRegistry(pkg, {cwd, url}, context) {
-  const {logger, dryRun} = context;
+  const {logger, dryRun, trustedPublishing} = context;
+  const npmrc = writeNpmrc(cwd, [url], pkg.name.split("/")[0], trustedPublishing);
   const retries = context.npmPublishRetries ?? DEFAULT_RETRIES;
   const retryDelay = context.npmPublishRetryDelay ?? DEFAULT_RETRY_DELAY;
   let tag;
 
-  if (!dryRun && (await isPublished(pkg, {cwd, url}, context))) {
+  if (!dryRun && (await isPublished(pkg, {cwd, url, npmrc}, context))) {
     logger.info("Skip package", chalk.cyan(`${pkg.name}@${pkg.version}`), "already published on", url);
     return;
   }
@@ -129,7 +148,7 @@ async function publishOnRegistry(pkg, {cwd, url}, context) {
       }
 
       // The failed attempt may still have reached the registry.
-      if (await isPublished(pkg, {cwd, url}, context)) {
+      if (await isPublished(pkg, {cwd, url, npmrc}, context)) {
         logger.info("Package", chalk.cyan(`${pkg.name}@${pkg.version}`), "was published despite the error");
         return;
       }
@@ -171,10 +190,11 @@ export async function publishPackages(context) {
     concurrency,
     async ({distPath, pkg}) => {
       const registries = get(pkg, "monorepo", urls);
+      const distPkg = readDistPackage(distPath, pkg);
 
       for (const url of registries) {
         try {
-          await publishOnRegistry(pkg, {cwd: distPath, url}, context);
+          await publishOnRegistry(distPkg, {cwd: distPath, url}, context);
         } catch (er) {
           errors.push({pkg, error: er, registry: url});
           logger.error(chalk.red(er.message), chalk.red(er.stack));

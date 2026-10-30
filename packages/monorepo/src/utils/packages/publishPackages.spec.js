@@ -14,6 +14,12 @@ const npmMocks = vi.hoisted(() => ({
   view: vi.fn(() => ({toStream: vi.fn(async () => ({stdout: ""}))}))
 }));
 const fsMocks = vi.hoisted(() => ({writeFileSync: vi.fn()}));
+const readPackageMock = vi.hoisted(() =>
+  vi.fn(() => {
+    throw new Error("ENOENT");
+  })
+);
+vi.mock("./readPackage.js", () => ({readPackage: readPackageMock}));
 vi.mock("../cli/index.js", () => ({npm: npmMocks}));
 
 vi.mock("fs-extra", () => ({default: fsMocks}));
@@ -115,8 +121,40 @@ describe("publishPackages", () => {
 
     await publishPackages(ctx);
 
-    expect(npmMocks.view).toHaveBeenCalledWith("@scope/a@1.0.0", "version", "--registry", ctx.registry);
+    expect(npmMocks.view).toHaveBeenCalledWith(
+      "@scope/a@1.0.0",
+      "version",
+      "--registry",
+      ctx.registry,
+      "--userconfig",
+      expect.stringContaining(".npmrc")
+    );
     expect(npmMocks.publish).not.toHaveBeenCalled();
+  });
+
+  it("checks the version of the built manifest, not the workspace one", async () => {
+    readPackageMock.mockImplementationOnce(() => ({name: "@scope/a", version: "2.0.0"}));
+    const ctx = makeCtx();
+
+    await publishPackages(ctx);
+
+    expect(readPackageMock).toHaveBeenCalledWith(expect.stringMatching(/dist[/\\]a[/\\]package\.json$/));
+    expect(npmMocks.view.mock.calls[0][0]).toBe("@scope/a@2.0.0");
+    expect(npmMocks.publish).toHaveBeenCalledTimes(1);
+  });
+
+  it("writes the registry npmrc before checking the published version", async () => {
+    const order = [];
+    fsMocks.writeFileSync.mockImplementation(() => order.push("npmrc"));
+    npmMocks.view.mockImplementationOnce(() => {
+      order.push("view");
+      return {toStream: vi.fn(async () => ({stdout: ""}))};
+    });
+
+    await publishPackages(makeCtx());
+
+    expect(order.slice(0, 2)).toEqual(["npmrc", "view"]);
+    fsMocks.writeFileSync.mockReset();
   });
 
   it("retries a publish that failed on a provenance transparency log error", async () => {
