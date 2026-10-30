@@ -31,6 +31,9 @@ function getDefaultOptions(rootPkg) {
     npmDistTag: _.get(rootPkg, "monorepo.npmDistTag", _.get(rootPkg, "publishConfig.tag")),
     npmFallbackDistTag: _.get(rootPkg, "monorepo.npmFallbackDistTag", "latest"),
     skipNpmPublish: _.get(rootPkg, "monorepo.skipNpmPublish", false),
+    npmPublishConcurrency: _.get(rootPkg, "monorepo.npmPublishConcurrency", 8),
+    npmPublishRetries: _.get(rootPkg, "monorepo.npmPublishRetries", 3),
+    npmPublishRetryDelay: _.get(rootPkg, "monorepo.npmPublishRetryDelay", 5000),
     trustedPublishing: _.get(rootPkg, "monorepo.trustedPublishing", false),
     productionBranch: _.get(rootPkg, "monorepo.productionBranch", "master"),
     developBranch: _.get(rootPkg, "monorepo.developBranch", "master"),
@@ -82,6 +85,9 @@ export class MonoRepo {
       npmDistTag,
       npmFallbackDistTag,
       skipNpmPublish,
+      npmPublishConcurrency,
+      npmPublishRetries,
+      npmPublishRetryDelay,
       trustedPublishing,
       registries,
       version,
@@ -137,6 +143,24 @@ export class MonoRepo {
      * @public
      */
     this.npmFallbackDistTag = npmFallbackDistTag || defaultOptions.npmFallbackDistTag;
+    /**
+     * Number of packages published at the same time.
+     * @type {number}
+     * @public
+     */
+    this.npmPublishConcurrency = npmPublishConcurrency ?? defaultOptions.npmPublishConcurrency;
+    /**
+     * Retries of a publish that failed with a transient error (provenance log, rate limit, network).
+     * @type {number}
+     * @public
+     */
+    this.npmPublishRetries = npmPublishRetries ?? defaultOptions.npmPublishRetries;
+    /**
+     * Base delay in ms between two publish retries (multiplied by the attempt number).
+     * @type {number}
+     * @public
+     */
+    this.npmPublishRetryDelay = npmPublishRetryDelay ?? defaultOptions.npmPublishRetryDelay;
     /**
      * @type {boolean}
      * @public

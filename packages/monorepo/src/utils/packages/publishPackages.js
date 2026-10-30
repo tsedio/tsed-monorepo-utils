@@ -4,9 +4,30 @@ import get from "lodash/get.js";
 import {join} from "path";
 import {npm} from "../cli/index.js";
 import {findPackages} from "./findPackages.js";
+import {readPackage} from "./readPackage.js";
+
+const DEFAULT_CONCURRENCY = 8;
+const DEFAULT_RETRIES = 3;
+const DEFAULT_RETRY_DELAY = 5000;
+
+// Errors worth retrying: Sigstore transparency log conflicts/timeouts (provenance),
+// npm rate limiting, registry 5xx and network failures.
+const TRANSIENT_ERROR = /TLOG_CREATE_ENTRY_ERROR|E429|E5\d\d|ETIMEDOUT|ECONNRESET|ECONNREFUSED|EAI_AGAIN|socket hang up|network timeout/i;
+
+function errorOutput(error) {
+  return [error.message, error.stdout, error.stderr].filter(Boolean).join("\n");
+}
 
 function isLatestTagError(error) {
-  return /Cannot implicitly apply the "latest" tag/.test([error.message, error.stdout, error.stderr].filter(Boolean).join("\n"));
+  return /Cannot implicitly apply the "latest" tag/.test(errorOutput(error));
+}
+
+function isTransientError(error) {
+  return TRANSIENT_ERROR.test(errorOutput(error));
+}
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function writeNpmrc(path, registries, scope, trustedPublishing) {
@@ -37,6 +58,42 @@ function writeNpmrc(path, registries, scope, trustedPublishing) {
   return npmrc;
 }
 
+/**
+ * Read the manifest that is actually published: the build writes the release version
+ * in the distribution manifest only, the workspace manifest can keep an older one.
+ */
+function readDistPackage(distPath, pkg) {
+  try {
+    return readPackage(join(distPath, "package.json"));
+  } catch {
+    return pkg;
+  }
+}
+
+/**
+ * Tell if the package version already exists on the registry, so a release can be replayed safely.
+ * The lookup uses the same npmrc as the publication, so private registries are authenticated.
+ */
+export async function isPublished(pkg, {url, cwd, npmrc}, context) {
+  if (!pkg.version) {
+    return false;
+  }
+
+  try {
+    const args = [`${pkg.name}@${pkg.version}`, "version", "--registry", url || context.registry];
+
+    if (npmrc) {
+      args.push("--userconfig", npmrc);
+    }
+
+    const result = await npm.view(...args).toStream({cwd, reject: false});
+
+    return String(result?.stdout || "").trim() === pkg.version;
+  } catch {
+    return false;
+  }
+}
+
 export async function publishPackage(pkg, {url, cwd}, context, {tag} = {}) {
   const {npmAccess, dryRun, registry, trustedPublishing} = context;
   const npmrc = writeNpmrc(cwd, [url], pkg.name.split("/")[0], trustedPublishing);
@@ -62,6 +119,58 @@ export async function publishPackage(pkg, {url, cwd}, context, {tag} = {}) {
   }
 }
 
+async function publishOnRegistry(pkg, {cwd, url}, context) {
+  const {logger, dryRun, trustedPublishing} = context;
+  const npmrc = writeNpmrc(cwd, [url], pkg.name.split("/")[0], trustedPublishing);
+  const retries = context.npmPublishRetries ?? DEFAULT_RETRIES;
+  const retryDelay = context.npmPublishRetryDelay ?? DEFAULT_RETRY_DELAY;
+  let tag;
+
+  if (!dryRun && (await isPublished(pkg, {cwd, url, npmrc}, context))) {
+    logger.info("Skip package", chalk.cyan(`${pkg.name}@${pkg.version}`), "already published on", url);
+    return;
+  }
+
+  for (let attempt = 0; ; attempt++) {
+    try {
+      logger.info("Publish package", chalk.cyan(pkg.name), "on", url);
+      await publishPackage(pkg, {cwd, url}, context, {tag});
+      return;
+    } catch (er) {
+      if (!tag && isLatestTagError(er)) {
+        tag = context.npmFallbackDistTag || "latest";
+        logger.info(`Retrying ${pkg.name} with an explicit ${tag} tag because npm rejected the implicit latest tag.`);
+        continue;
+      }
+
+      if (attempt >= retries || !isTransientError(er)) {
+        throw er;
+      }
+
+      // The failed attempt may still have reached the registry.
+      if (await isPublished(pkg, {cwd, url, npmrc}, context)) {
+        logger.info("Package", chalk.cyan(`${pkg.name}@${pkg.version}`), "was published despite the error");
+        return;
+      }
+
+      const delay = retryDelay * (attempt + 1);
+      logger.info(`Retrying ${pkg.name} in ${delay}ms after a transient error (${attempt + 1}/${retries}).`);
+      await wait(delay);
+    }
+  }
+}
+
+async function runWithConcurrency(items, concurrency, fn) {
+  const queue = [...items];
+  const workers = Array.from({length: Math.max(1, Math.min(concurrency, queue.length))}, async () => {
+    while (queue.length) {
+      await fn(queue.shift());
+    }
+  });
+
+  await Promise.all(workers);
+}
+
 /**
  *
  * @param context {MonoRepo}
@@ -74,40 +183,25 @@ export async function publishPackages(context) {
 
   const urls = [...new Set(registries.concat(registry).filter(Boolean))];
   const errors = [];
-  const promises = packages
-    .filter(({pkg}) => !pkg.private)
-    .map(async ({distPath, pkg}) => {
-      logger.info("Publish package", chalk.cyan(pkg.name));
+  const concurrency = context.npmPublishConcurrency || DEFAULT_CONCURRENCY;
 
-      try {
-        const cwd = distPath;
-        const registries = get(pkg, "monorepo", urls);
+  await runWithConcurrency(
+    packages.filter(({pkg}) => !pkg.private),
+    concurrency,
+    async ({distPath, pkg}) => {
+      const registries = get(pkg, "monorepo", urls);
+      const distPkg = readDistPackage(distPath, pkg);
 
-        for (const url of registries) {
-          try {
-            logger.info("Publish package", chalk.cyan(pkg.name), "on", url);
-            await publishPackage(pkg, {cwd, url}, context);
-          } catch (er) {
-            if (isLatestTagError(er)) {
-              const tag = context.npmFallbackDistTag || "latest";
-
-              logger.info(`Retrying ${pkg.name} with an explicit ${tag} tag because npm rejected the implicit latest tag.`);
-              await publishPackage(pkg, {cwd, url}, context, {tag});
-            } else {
-              errors.push({pkg, error: er, registry});
-              logger.error(chalk.red(er.message), chalk.red(er.stack));
-            }
-          }
+      for (const url of registries) {
+        try {
+          await publishOnRegistry(distPkg, {cwd: distPath, url}, context);
+        } catch (er) {
+          errors.push({pkg, error: er, registry: url});
+          logger.error(chalk.red(er.message), chalk.red(er.stack));
         }
-      } catch (er) {
-        logger.error(chalk.red(er.message), chalk.red(er.stack));
-        errors.push({pkg, error: er});
       }
-
-      return undefined;
-    });
-
-  await Promise.all(promises);
+    }
+  );
 
   if (errors.length) {
     const message =
